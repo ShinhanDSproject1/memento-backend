@@ -1,0 +1,37 @@
+package com.shinhanDS5gi.memento.domain;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.shinhanDS5gi.memento.domain.base.BaseStatus;
+import com.shinhanDS5gi.memento.domain.base.BaseTime;
+import com.shinhanDS5gi.memento.domain.member.Member;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@Entity
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+public class MentoProfile extends BaseTime {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(nullable = false)
+    private Long mentoProfileSeq;
+
+    @Column(nullable = false)
+    private String mentoProfileContent;
+
+    @Column(nullable = false)
+    private String mentoProfileImage;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private BaseStatus status;
+
+    @JsonIgnore
+    @OneToOne(fetch = FetchType.LAZY, optional = true) // 반드시 있어야 하면 optional=false
+    @JoinColumn(name = "member_seq", unique = true)    // ★ unique로 1:1 보장
+    private Member member;
+}
