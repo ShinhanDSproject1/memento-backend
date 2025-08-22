@@ -14,9 +14,22 @@ public enum BaseExceptionResponseStatus implements ResponseStatus{
     /**
      * Token 관련 code : 3000 대
      */
-    INVALID_TOKEN(3000, HttpStatus.OK.value(), "유효하지 않은 토큰입니다.");
+    INVALID_TOKEN(3000, HttpStatus.OK.value(), "유효하지 않은 토큰입니다."),
 
+    /**
+     * Member 관련 4000대
+     */
+    CANNOT_FOUND_MEMBER(4000,HttpStatus.OK.value(),"해당 사용자를 찾을 수 없습니다."),
 
+    /**
+     * Report 관련 8000대
+     */
+    CANNOT_FOUND_REPORT(8000, HttpStatus.NOT_FOUND.value(), "해당 ID의 신고 내역을 찾을 수 없습니다."),
+
+    /**
+     * MentoProfile 관련 9000대
+     */
+    ALREADY_EXISTS_MENTO_PROFILE(9000, HttpStatus.BAD_REQUEST.value(), "이미 멘토 프로필이 존재합니다.");
 
     private final int code;
     private final int status;
