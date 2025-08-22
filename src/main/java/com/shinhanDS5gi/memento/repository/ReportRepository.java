@@ -3,7 +3,10 @@ package com.shinhanDS5gi.memento.repository;
 import com.shinhanDS5gi.memento.domain.report.Report;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
 import java.util.List;
+import java.util.Optional;
 
 public interface ReportRepository extends JpaRepository<Report, Long> {
 
@@ -11,4 +14,8 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
         +1 문제를 해결하기 위해 fetch join을 사용하여 연관된 Member, Mentos 엔티티를 함께 조회 */
     @Query("SELECT r FROM Report r JOIN FETCH r.member m JOIN FETCH r.mentos mt")
     List<Report> findAllWithMemberAndMentos();
+
+    /* reportSeq를 기준으로 특정 신고 내역 조회 */
+    @Query("SELECT r FROM Report r JOIN FETCH r.member m JOIN FETCH r.mentos mt WHERE r.reportSeq = :reportSeq")
+    Optional<Report> findByIdWithMemberAndMentos(@Param("reportSeq") Long reportSeq);
 }

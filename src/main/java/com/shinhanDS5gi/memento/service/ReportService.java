@@ -12,4 +12,7 @@ public interface ReportService {
 
     /* 모든 신고 내역 조회 */
     List<SelectReportResponse> findAllReports();
+
+    /* 특정 신고 상세 내역 조회 */
+    SelectReportResponse findReportById(Long reportSeq);
 }

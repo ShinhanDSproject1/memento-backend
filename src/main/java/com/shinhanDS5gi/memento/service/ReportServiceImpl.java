@@ -47,4 +47,10 @@ public class ReportServiceImpl implements ReportService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public SelectReportResponse findReportById(Long reportSeq) {
+        return reportRepository.findByIdWithMemberAndMentos(reportSeq)
+                .map(SelectReportResponse::new)
+                .orElse(null);
+    }
 }
