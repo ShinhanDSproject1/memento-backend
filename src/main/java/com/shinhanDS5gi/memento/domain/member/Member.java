@@ -8,13 +8,14 @@ import com.shinhanDS5gi.memento.domain.payment.Payment;
 import com.shinhanDS5gi.memento.domain.report.Report;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-
+@Builder //엔티티에 저장하기 위해 넣었음
 @Entity
 @Getter
 @NoArgsConstructor
@@ -76,5 +77,6 @@ public class Member extends BaseTime {
     @JsonIgnore
     @OneToMany(mappedBy = "member")
     private List<Review> reviewList = new ArrayList<>();
+
 
 }

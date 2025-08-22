@@ -11,10 +11,16 @@ public enum BaseExceptionResponseStatus implements ResponseStatus{
      */
     SUCCESS(1000,HttpStatus.OK.value(), "요청에 성공하였습니다."),
     FAILURE(2000, HttpStatus.BAD_REQUEST.value(), "요청에 실패하였습니다."),
+
     /**
      * Token 관련 code : 3000 대
      */
-    INVALID_TOKEN(3000, HttpStatus.OK.value(), "유효하지 않은 토큰입니다.");
+    INVALID_TOKEN(3000, HttpStatus.OK.value(), "유효하지 않은 토큰입니다."),
+    /**
+     * Auth 관련 5000대
+     */
+    CANNOT_SINGUP(5000,HttpStatus.BAD_REQUEST.value(),"회원가입에 실패하셨습니다.");
+
 
 
 
