@@ -6,12 +6,16 @@ import com.shinhanDS5gi.memento.domain.Mentos;
 import com.shinhanDS5gi.memento.domain.member.Member;
 import com.shinhanDS5gi.memento.domain.report.Report;
 import com.shinhanDS5gi.memento.dto.CreateReportRequest;
+import com.shinhanDS5gi.memento.dto.SelectReportResponse;
 import com.shinhanDS5gi.memento.repository.MemberRepository;
 import com.shinhanDS5gi.memento.repository.MentosRepository;
 import com.shinhanDS5gi.memento.repository.ReportRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus.CANNOT_FOUND_MEMBER;
 import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus.CANNOT_FOUND_REPORT;
@@ -33,6 +37,14 @@ public class ReportServiceImpl implements ReportService {
                 .orElseThrow(() -> new ReportException(CANNOT_FOUND_REPORT));
         Report report = requestDto.toEntity(reporter, reportedMentos);
         reportRepository.save(report);
+    }
+
+    @Override
+    public List<SelectReportResponse> findAllReports() {
+        List<Report> reports = reportRepository.findAllWithMemberAndMentos();
+        return reports.stream()
+                .map(SelectReportResponse::new)
+                .collect(Collectors.toList());
     }
 
 }
