@@ -6,7 +6,6 @@ import com.shinhanDS5gi.memento.domain.member.Member;
 import com.shinhanDS5gi.memento.domain.member.MemberType;
 import com.shinhanDS5gi.memento.dto.LoginRequest;
 import com.shinhanDS5gi.memento.repository.MemberRepository;
-import com.shinhanDS5gi.memento.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
