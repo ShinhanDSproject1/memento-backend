@@ -9,8 +9,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus.SUCCESS;
 
 @Slf4j
