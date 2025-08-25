@@ -2,6 +2,7 @@ package com.shinhanDS5gi.memento.service;
 
 import com.shinhanDS5gi.memento.common.exception.MemberException;
 import com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus;
+
 import com.shinhanDS5gi.memento.domain.MentoCertification;
 import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.domain.member.Member;
@@ -10,6 +11,7 @@ import com.shinhanDS5gi.memento.dto.MentoCertificationRequest;
 import com.shinhanDS5gi.memento.dto.MentoSignupRequest;
 import com.shinhanDS5gi.memento.repository.MemberRepository;
 import com.shinhanDS5gi.memento.repository.MentoCertificationRepository;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,12 +21,16 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+
+
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class MemberServiceImpl implements MemberService{
-    final MemberRepository memberRepo;
-    final PasswordEncoder passwordEncoder;
+    private final MemberRepository memberRepo;
+    private final PasswordEncoder passwordEncoder;
     private final MentoCertificationRepository certRepo;
 
         @Override
@@ -68,4 +74,26 @@ public class MemberServiceImpl implements MemberService{
             }
         }
 
+
+    @Override
+    public void signupMenti(MentiSignupRequest req) {
+        // 1) 중복 아이디 체크
+        if (memberRepo.existsByMemberId(req.getMemberId())) {
+            throw new MemberException(BaseExceptionResponseStatus.CANNOT_SINGUP);
+        }
+        // 2) 생년월일 파싱 (yyyy-MM-dd)
+        LocalDate birth = LocalDate.parse(req.getMemberBirthDate());
+        // 3) 저장
+        Member m = Member.builder()
+                .memberId(req.getMemberId())
+                .memberPwd(passwordEncoder.encode(req.getMemberPwd()))
+                .memberName(req.getMemberName())
+                .memberPhoneNumber(req.getMemberPhoneNumber())
+                .memberBirthDate(birth)
+                .memberType(MemberType.MENTI)
+                .status(BaseStatus.ACTIVE)
+                .build();
+
+        memberRepo.save(m);
+    }
 }

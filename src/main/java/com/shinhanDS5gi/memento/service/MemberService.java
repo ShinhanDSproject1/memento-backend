@@ -5,4 +5,7 @@ import com.shinhanDS5gi.memento.dto.MentoSignupRequest;
 public interface MemberService {
     //회원가입 멘토
     void signupMento (MentoSignupRequest req);
+
+    //회원가입 멘티
+    void signupMenti (MentiSignupRequest req);
 }
