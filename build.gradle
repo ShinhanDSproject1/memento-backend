@@ -45,6 +45,10 @@ dependencies {
 
 	// Redis
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    //비밀번호 해시
+    implementation 'org.springframework.security:spring-security-crypto'
+
 }
 
 tasks.named('test') {
