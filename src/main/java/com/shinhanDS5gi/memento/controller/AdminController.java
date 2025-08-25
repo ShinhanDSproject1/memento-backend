@@ -34,4 +34,11 @@ public class AdminController {
         return new BaseResponse<>(reportAll);
     }
 
+    /* 특정 신고 내역 상세 조회 */
+    @GetMapping("/reports/{reportSeq}")
+    public BaseResponse<SelectReportResponse> getReportById(@PathVariable("reportSeq") Long reportSeq) {
+        SelectReportResponse report = reportService.findReportById(reportSeq);
+        return new BaseResponse<>(report);
+    }
+
 }
