@@ -10,4 +10,7 @@ public interface MentosService {
 
     /* 멘토스 게시글 수정 */
     void updateMentos(Long mentosSeq, Long currentMemberId, UpdateMentosRequest requestDto);
+
+    /* 멘토스 게시글 삭제(비활성화)  */
+    void inactiveMentos(Long mentosSeq, Long currentMemberId);
 }

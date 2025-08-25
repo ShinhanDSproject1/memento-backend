@@ -2,6 +2,7 @@ package com.shinhanDS5gi.memento.service;
 
 import com.shinhanDS5gi.memento.common.exception.MemberException;
 import com.shinhanDS5gi.memento.domain.Mentos;
+import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.dto.MentosDetailResponse;
 import com.shinhanDS5gi.memento.dto.UpdateMentosRequest;
 import com.shinhanDS5gi.memento.repository.MentosRepository;
@@ -11,8 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
 
-import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus.CANNOT_FOUND_MENTOS;
-import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus.NO_AUTHORITY_TO_UPDATE;
+import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus.*;
 
 @Service
 @RequiredArgsConstructor
@@ -51,5 +51,20 @@ public class MentosServiceImpl implements MentosService {
         mentos.setKeywordOne(requestDto.getKeywordOne());
         mentos.setKeywordTwo(requestDto.getKeywordTwo());
         mentos.setKeywordThree(requestDto.getKeywordThree());
+    }
+
+    @Override
+    @Transactional
+    public void inactiveMentos(Long mentosSeq, Long currentMemberId) {
+        // 삭제할 멘토스 DB 조회
+        Mentos mentos = mentosRepository.findById(mentosSeq)
+                .orElseThrow(() -> new MemberException(CANNOT_FOUND_MENTOS));
+
+        // 삭제 권한 확인
+        if (!Objects.equals(mentos.getMember().getMemberSeq(), currentMemberId)) {
+            throw new MemberException(NO_AUTHORITY_TO_DELETE);
+        }
+
+        mentos.setStatus(BaseStatus.INACTIVE);
     }
 }

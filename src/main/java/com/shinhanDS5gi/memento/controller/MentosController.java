@@ -34,4 +34,13 @@ public class MentosController {
 
         return new BaseResponse<>(SUCCESS, null);
     }
+
+    /* 멘토스 게시글 삭제 (비활성화) */
+    @PatchMapping("/{mentosSeq}")
+    public BaseResponse<Void> inactiveMentos(@PathVariable("mentosSeq") Long mentosSeq) {
+        Long currentMemberId = 1L;
+        mentosService.inactiveMentos(mentosSeq, currentMemberId);
+
+        return new BaseResponse<>(SUCCESS, null);
+    }
 }
