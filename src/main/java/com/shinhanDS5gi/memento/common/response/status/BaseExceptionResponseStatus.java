@@ -37,7 +37,7 @@ public enum BaseExceptionResponseStatus implements ResponseStatus{
     INVALID_MEMBER_ID(5001, HttpStatus.BAD_REQUEST.value(), "아이디가 올바르지 않습니다."),
     INVALID_PASSWORD(5002, HttpStatus.BAD_REQUEST.value(), "비밀번호가 올바르지 않습니다."),
     CANNOT_LOGIN(5003,HttpStatus.BAD_REQUEST.value(),"로그인에 실패했습니다."),
-    CANNOT_FOUND_MEMBER(5004,HttpStatus.BAD_REQUEST.value(),"회원을 찾을 수가 없습니다"),
+
   
     /**
      * Report 관련 8000대

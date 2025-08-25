@@ -4,10 +4,7 @@ import com.shinhanDS5gi.memento.common.response.BaseResponse;
 
 import com.shinhanDS5gi.memento.domain.member.Member;
 import com.shinhanDS5gi.memento.domain.member.MemberType;
-import com.shinhanDS5gi.memento.dto.LoginRequest;
-import com.shinhanDS5gi.memento.dto.LoginResponse;
-import com.shinhanDS5gi.memento.dto.MentoSignupRequest;
-import com.shinhanDS5gi.memento.dto.MentiSignupRequest;
+import com.shinhanDS5gi.memento.dto.*;
 import com.shinhanDS5gi.memento.service.MemberService;
 
 import lombok.RequiredArgsConstructor;

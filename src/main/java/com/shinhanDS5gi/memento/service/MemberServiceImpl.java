@@ -87,20 +87,16 @@ public class MemberServiceImpl implements MemberService {
     }
 
     /**
-     * 멘토 회원가입
+     * 로그아웃
      */  
-    @Transactional(readOnly = true) // 이 클래스 기본은 읽기 전용
-    public class MemberServiceImpl implements MemberService {
 
-        private final MemberRepository memberRepo;
-
-        @Override
-        public void logout(Long memberSeq) {
+    @Override
+    public void logout(Long memberSeq) {
             memberRepo.findById(memberSeq) //memberSeq를 가진 멤버를 member테이블에서 조회
                     .orElseThrow(() -> new MemberException(CANNOT_FOUND_MEMBER));
             log.info("로그아웃 성공: memberSeq={}", memberSeq);
         }
-    }
+
 
     /**
      * 멘토 회원가입
