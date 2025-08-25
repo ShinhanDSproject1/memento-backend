@@ -33,6 +33,7 @@ public enum BaseExceptionResponseStatus implements ResponseStatus{
      */
     CANNOT_FOUND_REPORT(8000, HttpStatus.NOT_FOUND.value(), "해당 ID의 신고 내역을 찾을 수 없습니다."),
 
+
     /**
      * MentoProfile 관련 9000대
      */
