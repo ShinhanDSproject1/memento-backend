@@ -20,7 +20,8 @@ public enum BaseExceptionResponseStatus implements ResponseStatus{
     /**
      * Member 관련 4000대
      */
-    CANNOT_FOUND_MEMBER(4000,HttpStatus.OK.value(),"해당 사용자를 찾을 수 없습니다."),
+    CANNOT_FOUND_MEMBER(4000,HttpStatus.NOT_FOUND.value(),"해당 사용자를 찾을 수 없습니다."),
+    NOT_A_MENTO(4001, HttpStatus.FORBIDDEN.value(), "멘토 회원만 접근할 수 있는 기능입니다.");
 
     /**
      * Auth 관련 5000대
