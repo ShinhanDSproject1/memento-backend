@@ -8,6 +8,8 @@ import com.shinhanDS5gi.memento.domain.payment.Payment;
 import com.shinhanDS5gi.memento.domain.report.Report;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+
+
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -47,17 +49,19 @@ public class Member extends BaseTime {
     @Column(nullable = false)
     private LocalDate memberBirthDate;
 
+    @Builder.Default //DB에서 NOT NULL로 적혀있기에 null로 들어가지 말라고 작성
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private BaseStatus status;
+    private BaseStatus status= BaseStatus.ACTIVE; //Default는 “필드 + 초기값” 세트
 
     @OneToOne(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JsonIgnore
     private MentoProfile mentoProfile;
 
+    @Builder.Default //기본생성자여서 엔티티 생성 시에는 null 안 되는데, 빌더로 만들 때는 무시되고 null 들어가는걸 방지
     @JsonIgnore
     @OneToMany(mappedBy = "member")
-    private List<MentoCertification> mentoCertificationList  = new ArrayList<>();
+    private List<MentoCertification> mentoCertificationList  = new ArrayList<>(); //Default는 “필드 + 초기값” 세트
 
     @JsonIgnore
     @OneToMany(mappedBy = "member")
