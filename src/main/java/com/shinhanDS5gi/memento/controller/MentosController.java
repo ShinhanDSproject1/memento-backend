@@ -29,8 +29,17 @@ public class MentosController {
     @PutMapping("/{mentosSeq}")
     public BaseResponse<Void> updateMentos(@PathVariable("mentosSeq") Long mentosSeq, @RequestBody UpdateMentosRequest requestDto) {
 
-        Long currentMemberId = 2L;
+        Long currentMemberId = 1L;
         mentosService.updateMentos(mentosSeq, currentMemberId, requestDto);
+
+        return new BaseResponse<>(SUCCESS, null);
+    }
+
+    /* 멘토스 게시글 삭제 (비활성화) */
+    @PatchMapping("/{mentosSeq}")
+    public BaseResponse<Void> inactiveMentos(@PathVariable("mentosSeq") Long mentosSeq) {
+        Long currentMemberId = 1L;
+        mentosService.inactiveMentos(mentosSeq, currentMemberId);
 
         return new BaseResponse<>(SUCCESS, null);
     }
