@@ -27,15 +27,15 @@ public enum BaseExceptionResponseStatus implements ResponseStatus{
      * Member 관련 4000대
      */
     CANNOT_FOUND_MEMBER(4000,HttpStatus.NOT_FOUND.value(),"해당 사용자를 찾을 수 없습니다."),
-    NOT_A_MENTO(4001, HttpStatus.FORBIDDEN.value(), "멘토 회원만 접근할 수 있는 기능입니다.");
+    NOT_A_MENTO(4001, HttpStatus.FORBIDDEN.value(), "멘토 회원만 접근할 수 있는 기능입니다."),
   
     /**
      * Auth 관련 5000대
      */
-    CANNOT_SINGUP(5000,HttpStatus.BAD_REQUEST.value(),"회원가입에 실패했습니다.");  
+    CANNOT_SIGNUP(5000,HttpStatus.BAD_REQUEST.value(),"회원가입에 실패했습니다."),
     INVALID_MEMBER_ID(5001, HttpStatus.BAD_REQUEST.value(), "아이디가 올바르지 않습니다."),
     INVALID_PASSWORD(5002, HttpStatus.BAD_REQUEST.value(), "비밀번호가 올바르지 않습니다."),
-    CANNOT_LOGIN(5003,HttpStatus.BAD_REQUEST.value(),"로그인에 실패했습니다.");
+    CANNOT_LOGIN(5003,HttpStatus.BAD_REQUEST.value(),"로그인에 실패했습니다."),
   
     /**
      * Report 관련 8000대

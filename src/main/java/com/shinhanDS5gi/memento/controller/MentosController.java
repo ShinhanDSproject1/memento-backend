@@ -29,7 +29,7 @@ public class MentosController {
     @PutMapping("/{mentosSeq}")
     public BaseResponse<Void> updateMentos(@PathVariable("mentosSeq") Long mentosSeq, @RequestBody UpdateMentosRequest requestDto) {
 
-        Long currentMemberId = 2L;
+        Long currentMemberId = 1L;
         mentosService.updateMentos(mentosSeq, currentMemberId, requestDto);
 
         return new BaseResponse<>(SUCCESS, null);

@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface ReportService {
 
-    /* 신규 신고 생성 */
+    /* 신규 신고 작성 */
     void createReport(Long memberSeq, CreateReportRequest requestDto);
 
     /* 모든 신고 내역 조회 */

@@ -26,6 +26,7 @@ public class MentoController {
     private final MentoCertificationService mentoCertificationService;
     private final MentoProfileService mentoProfileService;
 
+    /* 멘토 자격증 추가 */
     @PostMapping("/mento-certifications")
     public BaseResponse<Void> createMentoCertification(@RequestBody CreateMentoCertificationRequest requestDto) {
 
@@ -36,6 +37,7 @@ public class MentoController {
     }
   
 
+    /* 멘토 프로필 생성 */
     @PostMapping("/mento-profiles")
     public BaseResponse<Void> createMentoProfile(@RequestBody CreateMentoProfileRequest requestDto) {
 

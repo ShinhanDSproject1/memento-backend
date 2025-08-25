@@ -33,7 +33,8 @@ public class AuthController {
         //로그인 서비스 호출
         Member member = memberService.login(type, request);
         //성공 응답 리턴
-        return new BaseResponse<>(SUCCESS, new LoginResponse(member.getMemberName())); 
+        return new BaseResponse<>(SUCCESS, new LoginResponse(member.getMemberName()));
+    }
 
     // 회원가입 (멘토)
     @PostMapping("/signup/mento")

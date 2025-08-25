@@ -9,12 +9,9 @@ import lombok.Setter;
 @AllArgsConstructor
 @Setter
 @Getter
-//멘토 자격증받을때 이름과, 파일를 가져올 DTO
+//멘토 자격증을 받을때 이름과, 파일을 가져올 DTO
 public class MentoCertificationRequest {
-    // "certificationFile": "저축소비.pdf"
+
     private String certificationFile;
-
-    // "certificationName": "자격증이름"
     private String certificationName;
-
 }

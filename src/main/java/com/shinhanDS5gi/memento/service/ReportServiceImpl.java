@@ -29,6 +29,7 @@ public class ReportServiceImpl implements ReportService {
     private final MemberRepository memberRepository;
     private final MentosRepository mentosRepository;
 
+    /* 신고 작성하기 */
     @Override
     @Transactional
     public void createReport(Long memberSeq, CreateReportRequest requestDto) {
@@ -39,6 +40,7 @@ public class ReportServiceImpl implements ReportService {
         reportRepository.save(report);
     }
 
+    /* 모든 신고 내역 조회 */
     @Override
     public List<SelectReportResponse> findAllReports() {
         List<Report> reports = reportRepository.findAllWithMemberAndMentos();
@@ -47,6 +49,7 @@ public class ReportServiceImpl implements ReportService {
                 .collect(Collectors.toList());
     }
 
+    /* 특정 신고 내역 상세 조회 */
     @Override
     public SelectReportResponse findReportById(Long reportSeq) {
         return reportRepository.findByIdWithMemberAndMentos(reportSeq)

@@ -30,7 +30,7 @@ public class UpdateMentosRequest {
     @NotBlank(message = "도로명 주소는 필수입니다.")
     private String mentosRoadaddress;
 
-    @NotBlank(message = "법정동 이름은 필수입니다.")
+    @NotBlank(message = "법정 동네 이름은 필수입니다.")
     private String mentosBname;
 
     private String mentosDetail;

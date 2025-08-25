@@ -11,7 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 @Setter
 @Getter
-//회원가입 멘토 DTO
+// 회원가입 멘토 DTO
 public class MentoSignupRequest {
     private String memberId;
     private String memberPwd;
@@ -19,7 +19,6 @@ public class MentoSignupRequest {
     private String memberPhoneNumber;
     private String memberBirthDate;
 
-    private List<MentoCertificationRequest> certification; //멘토 자격증
-
+    private List<MentoCertificationRequest> certification; // 멘토 자격증
 
 }

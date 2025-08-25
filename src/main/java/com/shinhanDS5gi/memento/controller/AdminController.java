@@ -19,7 +19,8 @@ import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionRespo
 public class AdminController {
 
     private final ReportService reportService;
-
+    
+    /* 신고 작성하기 */
     @PostMapping("/reports")
     public BaseResponse<Void> createReport(@RequestBody CreateReportRequest requestDto) {
         Long currentMemberId = 1L;
@@ -40,5 +41,4 @@ public class AdminController {
         SelectReportResponse report = reportService.findReportById(reportSeq);
         return new BaseResponse<>(report);
     }
-
 }
