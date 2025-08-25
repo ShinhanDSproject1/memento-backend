@@ -10,7 +10,10 @@ public interface MemberService {
     
     //아이디와 타입보고 로그인
     Member login(MemberType pathType, LoginRequest request);
-
+    
+    //로그아웃
+    void logout(Long memberSeq);
+  
     //회원가입 멘토
     void signupMento (MentoSignupRequest req);
 

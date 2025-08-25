@@ -1,12 +1,10 @@
 package com.shinhanDS5gi.memento.controller;
 
 import com.shinhanDS5gi.memento.common.response.BaseResponse;
+
 import com.shinhanDS5gi.memento.domain.member.Member;
 import com.shinhanDS5gi.memento.domain.member.MemberType;
-import com.shinhanDS5gi.memento.dto.LoginRequest;
-import com.shinhanDS5gi.memento.dto.LoginResponse;
-import com.shinhanDS5gi.memento.dto.MentoSignupRequest;
-import com.shinhanDS5gi.memento.dto.MentiSignupRequest;
+import com.shinhanDS5gi.memento.dto.*;
 import com.shinhanDS5gi.memento.service.MemberService;
 
 import lombok.RequiredArgsConstructor;
@@ -34,6 +32,13 @@ public class AuthController {
         Member member = memberService.login(type, request);
         //성공 응답 리턴
         return new BaseResponse<>(SUCCESS, new LoginResponse(member.getMemberName()));
+    }
+  
+    //로그아웃
+    @PostMapping("/logout")
+    public BaseResponse<Void> logout(@RequestBody LogoutRequest request) {
+        memberService.logout(request.getMemberSeq());
+        return new BaseResponse<>(SUCCESS, null);
     }
 
     // 회원가입 (멘토)
