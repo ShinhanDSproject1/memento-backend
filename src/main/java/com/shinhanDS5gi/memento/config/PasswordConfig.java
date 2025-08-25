@@ -3,15 +3,16 @@ package com.shinhanDS5gi.memento.config;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 public class PasswordConfig {
+
     // 비밀번호 해시 passwordEncoder 빈 생성
-    //비밀번호 해시(보완을 위해) ServiceImpl에서 @RequiredArgsConstructor로 PasswordEncoder를 주입받아 사용
     @Bean
-    public org.springframework.security.crypto.password.PasswordEncoder passwordEncoder() {
-        return new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder();
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 
     // Postman 확인용 임시 비밀번호 해시 출력용 (확인 후 삭제해야함!)
@@ -23,3 +24,4 @@ public class PasswordConfig {
         };
     }
 }
+
