@@ -11,6 +11,7 @@ public enum BaseExceptionResponseStatus implements ResponseStatus{
      */
     SUCCESS(1000,HttpStatus.OK.value(), "요청에 성공하였습니다."),
     FAILURE(2000, HttpStatus.BAD_REQUEST.value(), "요청에 실패하였습니다."),
+
     /**
      * Token 관련 code : 3000 대
      */
@@ -21,6 +22,11 @@ public enum BaseExceptionResponseStatus implements ResponseStatus{
      */
     CANNOT_FOUND_MEMBER(4000,HttpStatus.OK.value(),"해당 사용자를 찾을 수 없습니다."),
 
+    /**
+     * Auth 관련 5000대
+     */
+    CANNOT_SINGUP(5000,HttpStatus.BAD_REQUEST.value(),"회원가입에 실패했습니다.");  
+  
     /**
      * Report 관련 8000대
      */
