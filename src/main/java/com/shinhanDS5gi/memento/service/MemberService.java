@@ -7,8 +7,11 @@ import com.shinhanDS5gi.memento.dto.MentiSignupRequest;
 import com.shinhanDS5gi.memento.dto.MentoSignupRequest;
 
 public interface MemberService {
-    
-    //아이디와 타입보고 로그인
+
+    //회원탈퇴
+    void withdraw(Long memberSeq);
+
+    //로그인 (아이디와 멤버타입확인)
     Member login(MemberType pathType, LoginRequest request);
     
     //로그아웃
