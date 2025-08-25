@@ -55,26 +55,32 @@ public class Member extends BaseTime {
     @JsonIgnore
     private MentoProfile mentoProfile;
 
+    @Builder.Default//DB에서 NOT NULL로 적혀있기에 null로 들어가지 말라고 작성
     @JsonIgnore
     @OneToMany(mappedBy = "member")
     private List<MentoCertification> mentoCertificationList  = new ArrayList<>();
 
+    @Builder.Default//DB에서 NOT NULL로 적혀있기에 null로 들어가지 말라고 작성
     @JsonIgnore
     @OneToMany(mappedBy = "member")
     private List<Payment> paymentList = new ArrayList<>();
 
+    @Builder.Default//DB에서 NOT NULL로 적혀있기에 null로 들어가지 말라고 작성
     @JsonIgnore
     @OneToMany(mappedBy = "member")
     private List<Reservation> reservationList = new ArrayList<>();
 
+    @Builder.Default//DB에서 NOT NULL로 적혀있기에 null로 들어가지 말라고 작성
     @JsonIgnore
     @OneToMany(mappedBy = "member")
     private List<Report> reportList = new ArrayList<>();
 
+    @Builder.Default//DB에서 NOT NULL로 적혀있기에 null로 들어가지 말라고 작성
     @JsonIgnore
     @OneToMany(mappedBy = "member")
     private List<Mentos> mentosList = new ArrayList<>();
 
+    @Builder.Default//DB에서 NOT NULL로 적혀있기에 null로 들어가지 말라고 작성
     @JsonIgnore
     @OneToMany(mappedBy = "member")
     private List<Review> reviewList = new ArrayList<>();
