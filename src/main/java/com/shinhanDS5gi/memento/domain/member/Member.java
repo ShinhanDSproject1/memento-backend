@@ -46,9 +46,10 @@ public class Member extends BaseTime {
     @Column(nullable = false)
     private LocalDate memberBirthDate;
 
+    @Builder.Default //DB에서 NOT NULL로 적혀있기에 null로 들어가지 말라고 작성
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private BaseStatus status;
+    private BaseStatus status= BaseStatus.ACTIVE; //Default는 “필드 + 초기값” 세트
 
     @OneToOne(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JsonIgnore
