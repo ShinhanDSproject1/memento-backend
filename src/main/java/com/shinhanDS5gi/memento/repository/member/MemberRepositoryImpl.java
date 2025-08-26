@@ -1,4 +1,4 @@
-package com.shinhanDS5gi.memento.repository;
+package com.shinhanDS5gi.memento.repository.member;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;

@@ -1,15 +1,17 @@
-package com.shinhanDS5gi.memento.repository;
+package com.shinhanDS5gi.memento.repository.member;
 
 import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.domain.member.Member;
+import com.shinhanDS5gi.memento.domain.member.MemberType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import com.shinhanDS5gi.memento.domain.member.MemberType;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface MemberRepository extends JpaRepository<Member, Long>, MemberCustomRepository{
-    
+
     // 관리자 페이지 전체 회원 조회하기
     @Override
     List<Member> findAllByIdAndLimitAndCursor(Integer limit, Long cursor, BaseStatus status);
@@ -24,5 +26,4 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberCus
 
     //로그인 시 아이디 중복확인을 위해 작성
     boolean existsByMemberId(String memberId);
-
 }

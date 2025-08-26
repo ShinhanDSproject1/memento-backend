@@ -48,7 +48,8 @@ public enum BaseExceptionResponseStatus implements ResponseStatus{
     /**
      * MentoProfile 관련 9000대
      */
-    ALREADY_EXISTS_MENTO_PROFILE(9000, HttpStatus.BAD_REQUEST.value(), "이미 멘토 프로필이 존재합니다.");
+    ALREADY_EXISTS_MENTO_PROFILE(9000, HttpStatus.BAD_REQUEST.value(), "이미 멘토 프로필이 존재합니다."),
+    CANNOT_FOUND_MENTO_PROFILE(9001,HttpStatus.NOT_FOUND.value(), "해당 SEQ의 멘토 프로필 내역을 찾을 수 없습니다.");
 
     private final int code;
     private final int status;

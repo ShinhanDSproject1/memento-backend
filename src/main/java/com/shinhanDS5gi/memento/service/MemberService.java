@@ -8,7 +8,7 @@ import com.shinhanDS5gi.memento.dto.auth.MentiSignupRequest;
 import com.shinhanDS5gi.memento.dto.auth.MentoSignupRequest;
 
 public interface MemberService {
-  
+
     // 관리자 페이지 전체 회원 조회하기
     GetMemberListResponse getMemberList(Integer limit, Long cursor);
 
@@ -27,4 +27,6 @@ public interface MemberService {
     //회원가입 멘티
     void signupMenti (MentiSignupRequest req);
 
+    //제명하기
+    void expelMemberByAdmin(Long memberSeq);
 }

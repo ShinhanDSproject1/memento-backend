@@ -5,7 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import java.util.List;
-import java.util.Optional;
+import java.util.Optional;import com.shinhanDS5gi.memento.domain.base.BaseStatus;
+import org.springframework.data.jpa.repository.Modifying;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
 
@@ -15,4 +16,11 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     /* 멘토가 작성한 모든 멘토스의 예약 목록 조회 */
     @Query("SELECT r FROM Reservation r JOIN FETCH r.mentos m JOIN FETCH r.member menti WHERE m.member.memberSeq = :mentorId AND r.status = 'ACTIVE' ORDER BY m.mentosSeq, r.mentosAt")
     List<Reservation> findAllByMentorId(@Param("mentorId") Long mentorId);
+
+
+    @Modifying(clearAutomatically = true)
+    @Query("update Reservation r set r.status = :afterStatus where r.member.memberSeq = :memberSeq and r.status = :beforeStatus")
+    int updateReservationStatus(@Param("memberSeq") Long memberSeq,
+                                @Param("afterStatus") BaseStatus afterStatus,
+                                @Param("beforeStatus") BaseStatus beforeStatus);
 }
