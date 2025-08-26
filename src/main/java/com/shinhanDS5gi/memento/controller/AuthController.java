@@ -21,6 +21,20 @@ public class AuthController {
 
     private final MemberService memberService;
 
+    /* 회원 탈퇴 */
+    @PatchMapping("/member/{memberSeq}")
+    public BaseResponse<Void> withdraw(@PathVariable Long memberSeq) {
+        memberService.withdraw(memberSeq);
+        return new BaseResponse<>(SUCCESS, null);
+    }
+
+    /* 로그아웃 */
+    @PostMapping("/logout")
+    public BaseResponse<Void> logout(@RequestBody LogoutRequest request) {
+        memberService.logout(request.getMemberSeq());
+        return new BaseResponse<>(SUCCESS, null);
+    }
+
     /* 로그인 */
     @PostMapping("/login/{user-type}")
     // 페이지 넘기는 값(URL의 {user-type} 값)이 enum의 정확한 이름과 동일하면  MemberType으로 바인딩
@@ -30,15 +44,6 @@ public class AuthController {
         Member member = memberService.login(type, request);
         //성공 응답 리턴
         return new BaseResponse<>(SUCCESS, new LoginResponse(member.getMemberName()));
-    }
-  
-    /* 로그아웃 */
-    @PostMapping("/logout")
-    public BaseResponse<Void> logout(@RequestBody LogoutRequest request) {
-        //로그인 서비스 호출
-        memberService.logout(request.getMemberSeq());
-        //성공 응답 리턴
-        return new BaseResponse<>(SUCCESS, null);
     }
 
     /* 회원가입 (멘토) */

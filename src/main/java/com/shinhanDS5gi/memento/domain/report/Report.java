@@ -24,6 +24,9 @@ public class Report extends BaseTime {
     @Column(nullable = false)
     private ReportType reportType;
 
+    @Column(nullable = false)
+    private String reportImage;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private BaseStatus status;

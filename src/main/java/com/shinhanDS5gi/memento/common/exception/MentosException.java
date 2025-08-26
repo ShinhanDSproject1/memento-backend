@@ -5,11 +5,11 @@ import lombok.Getter;
 
 @Getter
 public class MentosException extends RuntimeException {
+
     private final ResponseStatus exceptionStatus;
 
     public MentosException(ResponseStatus exceptionStatus) {
         super(exceptionStatus.getMessage());
         this.exceptionStatus = exceptionStatus;
     }
-
 }
