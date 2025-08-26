@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus.NO_REVIEWS_FOUND_FOR_MENTO;
 
-import java.time.format.DateTimeFormatter;
 
 @Service
 @RequiredArgsConstructor
