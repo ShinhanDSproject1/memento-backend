@@ -2,6 +2,7 @@ package com.shinhanDS5gi.memento.repository;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.shinhanDS5gi.memento.domain.QMentos;
 import com.shinhanDS5gi.memento.domain.QReview;
@@ -9,9 +10,10 @@ import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.domain.member.QMember;
 import com.shinhanDS5gi.memento.dto.MentoReviewsListResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
-
+@Repository
 @RequiredArgsConstructor
 public class ReviewRepositoryImpl implements ReviewCustomRepository{
 
@@ -38,7 +40,7 @@ public class ReviewRepositoryImpl implements ReviewCustomRepository{
                         r.reviewRating,
                         m.memberName,
                         r.reviewContent,
-                        r.createdAt))
+                Expressions.stringTemplate("DATE_FORMAT({0}, {1})", r.createdAt, "%Y-%m-%d")))
                 .from(r)
                 .join(r.mentos, mt)
                 .join(r.member, m)

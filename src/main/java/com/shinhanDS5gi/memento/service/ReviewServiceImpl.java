@@ -9,7 +9,9 @@ import com.shinhanDS5gi.memento.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus.NO_REVIEWS_FOUND_FOR_MENTO;
+
 import java.time.format.DateTimeFormatter;
 
 @Service
@@ -33,7 +35,6 @@ public class ReviewServiceImpl implements ReviewService {
         boolean hasNext = rows.size() > limit;
         if (hasNext) rows = rows.subList(0, limit);
         // 3) 조회 결과를 DTO로 변환
-        var fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         var content = rows.stream()
                 .map(r -> new MentoReviewsListResponse(
                         r.getReviewId(),
