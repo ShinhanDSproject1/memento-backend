@@ -1,12 +1,10 @@
 package com.shinhanDS5gi.memento.repository;
 
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.domain.member.Member;
 import com.shinhanDS5gi.memento.domain.member.QMember;
-import com.shinhanDS5gi.memento.dto.admin.GetMemberListResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -30,15 +28,10 @@ public class MemberRepositoryImpl implements MemberCustomRepository {
             builder.and(member.memberSeq.lt(cursor));
         }
 
-        return queryFactory.select(Projections.fields(Member.class,
-                        member.memberSeq,
-                        member.memberName,
-                        member.memberType,
-                        member.createdAt))
-                .from(member)
+        return queryFactory.selectFrom(member)
                 .where(builder)
                 .orderBy(member.memberSeq.desc())
-                .limit(limit)
+                .limit(limit+1)
                 .fetch();
     }
 }
