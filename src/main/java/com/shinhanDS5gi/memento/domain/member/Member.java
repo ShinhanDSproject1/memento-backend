@@ -89,4 +89,7 @@ public class Member extends BaseTime {
     @OneToMany(mappedBy = "member")
     private List<Review> reviewList = new ArrayList<>();
 
+    public void updateMemberStatus(BaseStatus status){
+        this.status = status;
+    }
 }
