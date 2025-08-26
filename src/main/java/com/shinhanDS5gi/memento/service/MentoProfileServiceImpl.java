@@ -5,7 +5,7 @@ import com.shinhanDS5gi.memento.domain.MentoProfile;
 import com.shinhanDS5gi.memento.domain.member.Member;
 import com.shinhanDS5gi.memento.domain.member.MemberType;
 import com.shinhanDS5gi.memento.dto.CreateMentoProfileRequest;
-import com.shinhanDS5gi.memento.repository.MemberRepository;
+import com.shinhanDS5gi.memento.repository.member.MemberRepository;
 import com.shinhanDS5gi.memento.repository.MentoProfileRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

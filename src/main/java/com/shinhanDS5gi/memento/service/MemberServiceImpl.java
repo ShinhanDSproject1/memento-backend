@@ -10,14 +10,13 @@ import com.shinhanDS5gi.memento.dto.LoginRequest;
 import com.shinhanDS5gi.memento.dto.MentoCertificationRequest;
 import com.shinhanDS5gi.memento.dto.MentoSignupRequest;
 import com.shinhanDS5gi.memento.dto.MentiSignupRequest;
-import com.shinhanDS5gi.memento.repository.MemberRepository;
+import com.shinhanDS5gi.memento.repository.member.MemberRepository;
 import com.shinhanDS5gi.memento.repository.MentoCertificationRepository;
 import org.springframework.beans.DirectFieldAccessor;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.beans.DirectFieldAccessor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,7 +31,7 @@ import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionRespo
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class MemberServiceImpl implements MemberService {
 
     private final MemberRepository memberRepo;
@@ -177,5 +176,14 @@ public class MemberServiceImpl implements MemberService {
                 .build();
 
         memberRepo.save(m);
+    }
+
+    /* 회원 제명하기 (관리자) */
+    @Transactional
+    @Override
+    public void expelMemberByAdmin(Long memberSeq) {
+        log.info("[MemberServiceImpl.expelMemberByAdmin]");
+        memberRepo.findByMemberSeqAndStatus(memberSeq,BaseStatus.ACTIVE);
+
     }
 }

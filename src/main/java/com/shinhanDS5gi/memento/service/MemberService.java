@@ -22,4 +22,7 @@ public interface MemberService {
 
     //회원가입 멘티
     void signupMenti (MentiSignupRequest req);
+
+    //제명하기
+    void expelMemberByAdmin(Long memberSeq);
 }

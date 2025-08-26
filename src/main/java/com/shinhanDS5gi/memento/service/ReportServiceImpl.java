@@ -7,7 +7,7 @@ import com.shinhanDS5gi.memento.domain.member.Member;
 import com.shinhanDS5gi.memento.domain.report.Report;
 import com.shinhanDS5gi.memento.dto.CreateReportRequest;
 import com.shinhanDS5gi.memento.dto.SelectReportResponse;
-import com.shinhanDS5gi.memento.repository.MemberRepository;
+import com.shinhanDS5gi.memento.repository.member.MemberRepository;
 import com.shinhanDS5gi.memento.repository.MentosRepository;
 import com.shinhanDS5gi.memento.repository.ReportRepository;
 import lombok.RequiredArgsConstructor;

@@ -1,13 +1,14 @@
-package com.shinhanDS5gi.memento.repository;
+package com.shinhanDS5gi.memento.repository.member;
 
 import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.domain.member.Member;
 import com.shinhanDS5gi.memento.domain.member.MemberType;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
-public interface MemberRepository extends JpaRepository<Member, Long> {
+public interface MemberRepository extends JpaRepository<Member, Long>, MemberCustomRepository {
 
     //회원 탈퇴
     //(memberSeq로 status가 ACTIVE 상태인지 조회)
@@ -19,4 +20,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     //로그인 시 아이디 중복확인을 위해 작성
     boolean existsByMemberId(String memberId);
+
+    @Override
+    List<Member> findAllByIdAndLimitAndCursor(Integer limit, Long cursor, BaseStatus status);
 }
