@@ -2,13 +2,12 @@ package com.shinhanDS5gi.memento.controller;
 
 import com.shinhanDS5gi.memento.common.response.BaseResponse;
 import com.shinhanDS5gi.memento.dto.CreateReviewRequest;
+import com.shinhanDS5gi.memento.dto.MyProfileResponse;
+import com.shinhanDS5gi.memento.service.MyPageService;
 import com.shinhanDS5gi.memento.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus.SUCCESS;
 
@@ -19,6 +18,7 @@ import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionRespo
 public class MyPageController {
 
     private final ReviewService reviewService;
+    private final MyPageService myPageService;
 
     /* 리뷰 작성하기 */
     @PostMapping("/reviews")
@@ -26,5 +26,13 @@ public class MyPageController {
         Long currentMemberId = 1L;
         reviewService.createReview(currentMemberId, requestDto);
         return new BaseResponse<>(SUCCESS, null);
+    }
+
+    /* 나의 프로필 조회하기 */
+    @GetMapping("/profile")
+    public BaseResponse<MyProfileResponse> getMyProfile() {
+        Long currentMemberId = 1L;
+        MyProfileResponse profile = myPageService.getMyProfile(currentMemberId);
+        return new BaseResponse<>(SUCCESS, profile);
     }
 }
