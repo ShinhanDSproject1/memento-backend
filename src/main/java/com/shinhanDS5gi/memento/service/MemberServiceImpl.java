@@ -2,7 +2,6 @@ package com.shinhanDS5gi.memento.service;
 
 import com.shinhanDS5gi.memento.common.exception.AuthException;
 import com.shinhanDS5gi.memento.common.exception.MemberException;
-import com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus;
 import com.shinhanDS5gi.memento.domain.MentoCertification;
 import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.domain.member.Member;
@@ -13,12 +12,12 @@ import com.shinhanDS5gi.memento.dto.MentoSignupRequest;
 import com.shinhanDS5gi.memento.dto.MentiSignupRequest;
 import com.shinhanDS5gi.memento.repository.MemberRepository;
 import com.shinhanDS5gi.memento.repository.MentoCertificationRepository;
+import org.springframework.beans.DirectFieldAccessor;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus.CANNOT_FOUND_MEMBER;
-
+import org.springframework.beans.DirectFieldAccessor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +26,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus.*;
 
 @Slf4j
 @Service
@@ -37,6 +38,30 @@ public class MemberServiceImpl implements MemberService {
     private final MemberRepository memberRepo;
     private final PasswordEncoder pwEncoder;
     private final MentoCertificationRepository certRepo;
+
+    /**
+     * 회원탈퇴
+     */
+    @Override
+    @Transactional
+    public void withdraw(Long memberSeq) { // 회원 PK로 탈퇴 수행
+        // 1) ACTIVE인 회원만 찾음 → 없거나 이미 INACTIVE면 바로 오류메세지
+        Member member = memberRepo.findByMemberSeqAndStatus(memberSeq, BaseStatus.ACTIVE)
+                .orElseThrow(() -> new MemberException(CANNOT_FOUND_MEMBER));
+        // 2) status를 INACTIVE로 변경
+        new DirectFieldAccessor(member).setPropertyValue("status", BaseStatus.INACTIVE);
+        // 종료 시 커밋 → UPDATE 자동 실행(더티체킹)
+    }
+    /**
+     * 로그아웃
+     */
+    @Override
+    public void logout(Long memberSeq) {
+        //memberSeq를 가진 멤버를 member테이블에서 조회
+        memberRepo.findById(memberSeq)
+                .orElseThrow(() -> new MemberException(CANNOT_FOUND_MEMBER));
+        log.info("로그아웃 성공: memberSeq={}", memberSeq);
+    }
 
     /**
      * 로그인 기능
@@ -53,12 +78,11 @@ public class MemberServiceImpl implements MemberService {
             Member admin = adminOpt.get();
             if (!pwEncoder.matches(rawPwd, admin.getMemberPwd())) {
                 log.warn("로그인 실패: 비밀번호 틀림 (id={}, type=ADMIN)", id);
-                throw new AuthException(BaseExceptionResponseStatus.INVALID_PASSWORD);
+                throw new AuthException(INVALID_PASSWORD);
             }
             log.info("로그인 성공: (id={}, type=ADMIN)", id);
             return admin;
         }
-
         // 2) 선택한 타입(MENTO/MENTI) 로그인 처리
         Optional<Member> userOpt = memberRepo.findByMemberIdAndMemberType(id, pathType);
         if (!userOpt.isPresent()) {
@@ -68,34 +92,24 @@ public class MemberServiceImpl implements MemberService {
 
             if (otherOpt.isPresent()) {
                 log.warn("로그인 실패: 타입 불일치 (id={}, 선택한 타입={})", id, pathType);
-                throw new AuthException(BaseExceptionResponseStatus.CANNOT_LOGIN);
+                throw new AuthException(CANNOT_LOGIN);
             } else {
                 log.warn("로그인 실패: 아이디 불일치 (id={})", id);
-                throw new AuthException(BaseExceptionResponseStatus.INVALID_MEMBER_ID);
+                throw new AuthException(INVALID_MEMBER_ID);
             }
         }
-
         // 3) 비밀번호 검증
         Member user = userOpt.get();
         if (!pwEncoder.matches(rawPwd, user.getMemberPwd())) {
             log.warn("로그인 실패: 비밀번호 틀림 (id={}, type={})", id, user.getMemberType());
-            throw new AuthException(BaseExceptionResponseStatus.INVALID_PASSWORD);
+            throw new AuthException(INVALID_PASSWORD);
         }
 
         log.info("로그인 성공: (id={}, type={})", id, user.getMemberType());
         return user;
     }
 
-    /**
-     * 로그아웃
-     */  
 
-    @Override
-    public void logout(Long memberSeq) {
-            memberRepo.findById(memberSeq) //memberSeq를 가진 멤버를 member테이블에서 조회
-                    .orElseThrow(() -> new MemberException(CANNOT_FOUND_MEMBER));
-            log.info("로그아웃 성공: memberSeq={}", memberSeq);
-        }
 
 
     /**
@@ -103,12 +117,13 @@ public class MemberServiceImpl implements MemberService {
      */
     @Override
     public void signupMento(MentoSignupRequest req) {
+        // 1) 중복 아이디 체크
         if (memberRepo.existsByMemberId(req.getMemberId())) {
-            throw new MemberException(BaseExceptionResponseStatus.CANNOT_SIGNUP);
+            throw new MemberException(CANNOT_SIGNUP);
         }
-
+        // 2) 생년월일 파싱 (yyyy-MM-dd)
         LocalDate birth = LocalDate.parse(req.getMemberBirthDate());
-
+        // 3) 엔티티에 회원 저장 (MENTO)
         Member member = Member.builder()
                 .memberId(req.getMemberId())
                 .memberPwd(pwEncoder.encode(req.getMemberPwd()))
@@ -119,15 +134,18 @@ public class MemberServiceImpl implements MemberService {
                 .status(BaseStatus.ACTIVE)
                 .build();
         memberRepo.save(member);
-
+        // 4) 자격증 저장
         List<MentoCertificationRequest> certReqs = req.getCertification();
+        //자격증 없으면 스킵처리 / 있으면 저장
         if (certReqs != null && !certReqs.isEmpty()) {
+            //DTO를 엔티티로 변환해서 List에 저장
             List<MentoCertification> entities = new ArrayList<>(certReqs.size());
+            //자격증 하나씩 처리
             for (MentoCertificationRequest c : certReqs) {
                 entities.add(new MentoCertification(
-                        null,
-                        c.getCertificationName(),
-                        c.getCertificationFile(),
+                        null, // PK 자동
+                        c.getCertificationName(), // mentoCertificationName
+                        c.getCertificationFile(), // mentoCertificationImage
                         BaseStatus.ACTIVE,
                         member
                 ));
@@ -141,12 +159,13 @@ public class MemberServiceImpl implements MemberService {
      */
     @Override
     public void signupMenti(MentiSignupRequest req) {
+        // 1) 중복 아이디 체크
         if (memberRepo.existsByMemberId(req.getMemberId())) {
-            throw new MemberException(BaseExceptionResponseStatus.CANNOT_SIGNUP);
+            throw new MemberException(CANNOT_SIGNUP);
         }
-
+        // 2) 생년월일 파싱 (yyyy-MM-dd)
         LocalDate birth = LocalDate.parse(req.getMemberBirthDate());
-
+        // 3) 엔티티에 회원 저장 (MENTI)
         Member m = Member.builder()
                 .memberId(req.getMemberId())
                 .memberPwd(pwEncoder.encode(req.getMemberPwd()))
