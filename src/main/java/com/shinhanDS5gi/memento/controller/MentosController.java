@@ -1,7 +1,8 @@
 package com.shinhanDS5gi.memento.controller;
 
 import com.shinhanDS5gi.memento.common.response.BaseResponse;
-import com.shinhanDS5gi.memento.dto.MentosDetailResponse;
+import com.shinhanDS5gi.memento.dto.MyMentosResponse;
+import com.shinhanDS5gi.memento.dto.MyMentosSliceResponse;
 import com.shinhanDS5gi.memento.dto.UpdateMentosRequest;
 import com.shinhanDS5gi.memento.service.MentosService;
 import lombok.RequiredArgsConstructor;
@@ -18,17 +19,20 @@ public class MentosController {
 
     private final MentosService mentosService;
 
-    /* 멘토스 기존 정보 조회 */
-    @GetMapping("/{mentosSeq}")
-    public BaseResponse<MentosDetailResponse> getMentosForUpdate(@PathVariable("mentosSeq") Long mentosSeq) {
-        MentosDetailResponse mentos = mentosService.getMentosById(mentosSeq);
-        return new BaseResponse<>(SUCCESS, mentos);
+    /* 나의 멘토스 목록 조회 (멘토) */
+    @GetMapping("/my-list")
+    public BaseResponse<MyMentosSliceResponse<MyMentosResponse>> getMyMentos(
+            @RequestParam(defaultValue = "5") int limit,
+            @RequestParam(required = false) Long cursor
+    ) {
+        Long currentMemberId = 1L; // 임시 사용자 ID
+        MyMentosSliceResponse<MyMentosResponse> myMentos = mentosService.getMyMentosSlice(currentMemberId, cursor, limit);
+        return new BaseResponse<>(SUCCESS, myMentos);
     }
 
     /* 멘토스 게시글 수정 */
     @PutMapping("/{mentosSeq}")
     public BaseResponse<Void> updateMentos(@PathVariable("mentosSeq") Long mentosSeq, @RequestBody UpdateMentosRequest requestDto) {
-
         Long currentMemberId = 1L;
         mentosService.updateMentos(mentosSeq, currentMemberId, requestDto);
 
