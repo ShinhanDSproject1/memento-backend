@@ -7,10 +7,10 @@ import com.shinhanDS5gi.memento.domain.MentoCertification;
 import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.domain.member.Member;
 import com.shinhanDS5gi.memento.domain.member.MemberType;
-import com.shinhanDS5gi.memento.dto.LoginRequest;
-import com.shinhanDS5gi.memento.dto.MentoCertificationRequest;
-import com.shinhanDS5gi.memento.dto.MentoSignupRequest;
-import com.shinhanDS5gi.memento.dto.MentiSignupRequest;
+import com.shinhanDS5gi.memento.dto.auth.LoginRequest;
+import com.shinhanDS5gi.memento.dto.auth.MentoCertificationRequest;
+import com.shinhanDS5gi.memento.dto.auth.MentoSignupRequest;
+import com.shinhanDS5gi.memento.dto.auth.MentiSignupRequest;
 import com.shinhanDS5gi.memento.repository.MemberRepository;
 import com.shinhanDS5gi.memento.repository.MentoCertificationRepository;
 
@@ -31,7 +31,6 @@ import java.util.Optional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class MemberServiceImpl implements MemberService {
 
     private final MemberRepository memberRepo;
@@ -42,7 +41,6 @@ public class MemberServiceImpl implements MemberService {
      * 로그인 기능
      */
     @Override
-    @Transactional(readOnly = true)
     public Member login(MemberType pathType, LoginRequest req) {
         final String id = req.getMemberId();
         final String rawPwd = req.getMemberPwd();

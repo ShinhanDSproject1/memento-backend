@@ -1,11 +1,8 @@
-package com.shinhanDS5gi.memento.dto;
+package com.shinhanDS5gi.memento.dto.auth;
 
 import lombok.*;
 
-import java.util.Date;
 @NoArgsConstructor
-@AllArgsConstructor
-@Setter
 @Getter
 //회원가입 멘티 관련 DTO
 public class MentiSignupRequest {
