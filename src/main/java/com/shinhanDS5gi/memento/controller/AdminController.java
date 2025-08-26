@@ -4,6 +4,8 @@ import com.shinhanDS5gi.memento.common.response.BaseResponse;
 import com.shinhanDS5gi.memento.dto.CreateReportRequest;
 import com.shinhanDS5gi.memento.dto.SelectReportResponse;
 import com.shinhanDS5gi.memento.service.MemberService;
+import com.shinhanDS5gi.memento.dto.admin.GetMemberListResponse;
+import com.shinhanDS5gi.memento.service.MemberService;
 import com.shinhanDS5gi.memento.service.ReportService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +23,16 @@ public class AdminController {
 
     private final ReportService reportService;
     private final MemberService memberService;
-    
+
+    /* 관리자 페이지 전체 회원 조회하기 */
+    @GetMapping("/member")
+    public BaseResponse<GetMemberListResponse> getMemberList(@RequestParam(value = "limit", defaultValue = "10") Integer limit,
+                                                             @RequestParam(value = "cursor", required = false) Long cursor){
+        // 여기서 입력 받는 cursor 값은 Long 타입의 memberSeq
+        log.info("[AdminController.getMemberList]");
+        return new BaseResponse<>(memberService.getMemberList(limit,cursor));
+    }
+
     /* 신고 작성하기 */
     @PostMapping("/reports")
     public BaseResponse<Void> createReport(@RequestBody CreateReportRequest requestDto) {

@@ -1,12 +1,16 @@
 package com.shinhanDS5gi.memento.service;
 
+import com.shinhanDS5gi.memento.dto.admin.GetMemberListResponse;
 import com.shinhanDS5gi.memento.domain.member.Member;
 import com.shinhanDS5gi.memento.domain.member.MemberType;
-import com.shinhanDS5gi.memento.dto.LoginRequest;
-import com.shinhanDS5gi.memento.dto.MentiSignupRequest;
-import com.shinhanDS5gi.memento.dto.MentoSignupRequest;
+import com.shinhanDS5gi.memento.dto.auth.LoginRequest;
+import com.shinhanDS5gi.memento.dto.auth.MentiSignupRequest;
+import com.shinhanDS5gi.memento.dto.auth.MentoSignupRequest;
 
 public interface MemberService {
+
+    // 관리자 페이지 전체 회원 조회하기
+    GetMemberListResponse getMemberList(Integer limit, Long cursor);
 
     //회원탈퇴
     void withdraw(Long memberSeq);

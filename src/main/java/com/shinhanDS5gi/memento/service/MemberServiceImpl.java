@@ -6,17 +6,19 @@ import com.shinhanDS5gi.memento.domain.MentoCertification;
 import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.domain.member.Member;
 import com.shinhanDS5gi.memento.domain.member.MemberType;
-import com.shinhanDS5gi.memento.dto.LoginRequest;
-import com.shinhanDS5gi.memento.dto.MentoCertificationRequest;
-import com.shinhanDS5gi.memento.dto.MentoSignupRequest;
-import com.shinhanDS5gi.memento.dto.MentiSignupRequest;
+import com.shinhanDS5gi.memento.dto.auth.LoginRequest;
+import com.shinhanDS5gi.memento.dto.auth.MentoCertificationRequest;
+import com.shinhanDS5gi.memento.dto.auth.MentoSignupRequest;
+import com.shinhanDS5gi.memento.dto.auth.MentiSignupRequest;
+import com.shinhanDS5gi.memento.dto.admin.GetMemberListResponse;
+import com.shinhanDS5gi.memento.repository.MentoCertificationRepository;
 import com.shinhanDS5gi.memento.repository.*;
 import com.shinhanDS5gi.memento.repository.member.MemberRepository;
 import org.springframework.beans.DirectFieldAccessor;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
+import org.springframework.beans.DirectFieldAccessor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,6 +46,25 @@ public class MemberServiceImpl implements MemberService {
     private final ReservationRepository reservationRepository;
     private final PaymentRepository paymentRepository;
 
+    /* 관리자 페이지 전체 회원 조회하기 */
+    @Override
+    public GetMemberListResponse getMemberList(Integer limit, Long cursor) {
+        log.info("[MemberServiceImpl.getMemberList]");
+
+        List<Member> memberList = memberRepo.findAllByIdAndLimitAndCursor(limit, cursor, BaseStatus.ACTIVE);
+
+        List<GetMemberListResponse.MemberInfo> memberInfoList = memberList.stream().map(member -> new GetMemberListResponse.MemberInfo(
+                member.getMemberSeq(), member.getMemberName(), member.getMemberType().toString(), member.getCreatedAt().toLocalDate()
+        )).limit(limit).toList();
+
+        GetMemberListResponse result;
+        if (memberList.size() <= limit) {
+            result = GetMemberListResponse.builder().members(memberInfoList).hasNext(false).build();
+        } else {
+            result = GetMemberListResponse.builder().members(memberInfoList).hasNext(true).build();
+        }
+        return result;
+    }
     /**
      * 회원탈퇴
      */
@@ -73,7 +94,6 @@ public class MemberServiceImpl implements MemberService {
      * 로그인 기능
      */
     @Override
-    @Transactional(readOnly = true)
     public Member login(MemberType pathType, LoginRequest req) {
         final String id = req.getMemberId();
         final String rawPwd = req.getMemberPwd();
@@ -114,6 +134,8 @@ public class MemberServiceImpl implements MemberService {
         log.info("로그인 성공: (id={}, type={})", id, user.getMemberType());
         return user;
     }
+
+
 
 
     /**
