@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +28,9 @@ public class Reservation extends BaseTime {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private BaseStatus status;
+
+    @Column(name = "mentos_at", nullable = false)
+    private LocalDateTime mentosAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="mentos_seq")

@@ -1,6 +1,5 @@
 package com.shinhanDS5gi.memento.dto;
 
-import com.shinhanDS5gi.memento.domain.Mentos;
 import lombok.Builder;
 import lombok.Getter;
 
