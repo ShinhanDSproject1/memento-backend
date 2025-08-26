@@ -23,7 +23,7 @@ public class AuthController {
 
     private final MemberService memberService;
 
-    //로그인
+    /* 로그인 */
     @PostMapping("/login/{user-type}")
     // 페이지 넘기는 값(URL의 {user-type} 값)이 enum의 정확한 이름과 동일하면  MemberType으로 바인딩
     public BaseResponse<LoginResponse> login(@PathVariable("user-type") MemberType type,
@@ -34,31 +34,29 @@ public class AuthController {
         return new BaseResponse<>(SUCCESS, new LoginResponse(member.getMemberName()));
     }
   
-    //로그아웃
+    /* 로그아웃 */
     @PostMapping("/logout")
     public BaseResponse<Void> logout(@RequestBody LogoutRequest request) {
+        //로그인 서비스 호출
         memberService.logout(request.getMemberSeq());
+        //성공 응답 리턴
         return new BaseResponse<>(SUCCESS, null);
     }
 
-    // 회원가입 (멘토)
+    /* 회원가입 (멘토) */
     @PostMapping("/signup/mento")
     public BaseResponse<Void> signupMento(@RequestBody MentoSignupRequest requestDto) {
-
         // 멘토 회원가입 서비스 호출
         memberService.signupMento(requestDto);
-      
         // 성공 응답 리턴
         return new BaseResponse<>(SUCCESS, null);
     }
     
-    // 회원가입 (멘티)
+    /* 회원가입 (멘티) */
     @PostMapping("/signup/menti")
     public BaseResponse<Void> signupMenti(@RequestBody MentiSignupRequest requestDto) {
-
         // 멘티 회원가입 서비스 호출
         memberService.signupMenti(requestDto);
-
         // 성공 응답 리턴
         return new BaseResponse<>(SUCCESS, null);
     }
