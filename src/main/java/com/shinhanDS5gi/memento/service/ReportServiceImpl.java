@@ -45,7 +45,13 @@ public class ReportServiceImpl implements ReportService {
     public List<SelectReportResponse> findAllReports() {
         List<Report> reports = reportRepository.findAllWithMemberAndMentos();
         return reports.stream()
-                .map(SelectReportResponse::new)
+                .map(report -> SelectReportResponse.builder()
+                        .reportSeq(report.getReportSeq())
+                        .reportType(report.getReportType())
+                        .reporterName(report.getMember().getMemberName())
+                        .reportedMentosSeq(report.getMentos().getMentosSeq())
+                        .createdAt(report.getCreatedAt())
+                        .build())
                 .collect(Collectors.toList());
     }
 
@@ -53,7 +59,13 @@ public class ReportServiceImpl implements ReportService {
     @Override
     public SelectReportResponse findReportById(Long reportSeq) {
         return reportRepository.findByIdWithMemberAndMentos(reportSeq)
-                .map(SelectReportResponse::new)
+                .map(report -> SelectReportResponse.builder()
+                        .reportSeq(report.getReportSeq())
+                        .reportType(report.getReportType())
+                        .reporterName(report.getMember().getMemberName())
+                        .reportedMentosSeq(report.getMentos().getMentosSeq())
+                        .createdAt(report.getCreatedAt())
+                        .build())
                 .orElse(null);
     }
 }
