@@ -27,7 +27,6 @@ public class MentosServiceImpl implements MentosService {
 
     private final MentosRepository mentosRepository;
 
-
     /* 멘토가 개설한 멘토스 중 Status가 'ACTIVE'인 멘토스만 모두 조회하기 (무한스크롤 페이징 처리) */
     @Override
     public MyMentosSliceResponse<MyMentosResponse> getMyMentosSlice(Long currentMemberId, Long cursor, int limit) {
@@ -49,7 +48,13 @@ public class MentosServiceImpl implements MentosService {
 
         // 조회된 엔티티를 DTO로 변환
         List<MyMentosResponse> content = mentosSlice.getContent().stream()
-                .map(MyMentosResponse::new)
+                .map(mentos -> MyMentosResponse.builder()
+                        .mentosSeq(mentos.getMentosSeq())
+                        .mentosTitle(mentos.getMentosTitle())
+                        .mentosImage(mentos.getMentosImage())
+                        .price(mentos.getPrice())
+                        .region(mentos.getMentosBname())
+                        .build())
                 .collect(Collectors.toList());
 
         // 다음 페이지 cursor 값 계산
@@ -59,7 +64,11 @@ public class MentosServiceImpl implements MentosService {
         }
 
         // 최종 응답 객체 생성
-        return new MyMentosSliceResponse<>(content, nextCursor, mentosSlice.hasNext());
+        return MyMentosSliceResponse.<MyMentosResponse>builder()
+                .content(content)
+                .nextCursor(nextCursor)
+                .hasNext(mentosSlice.hasNext())
+                .build();
     }
 
     /* 멘토스 수정하기 */
