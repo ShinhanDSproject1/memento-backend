@@ -15,8 +15,10 @@ import com.shinhanDS5gi.memento.repository.MemberRepository;
 import com.shinhanDS5gi.memento.repository.MentoCertificationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.DirectFieldAccessor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -42,23 +44,22 @@ public class MemberServiceImpl implements MemberService {
 
         List<Member> memberList = memberRepo.findAllByIdAndLimitAndCursor(limit, cursor, BaseStatus.ACTIVE);
 
-        List<GetMemberListResponse.MemberInfo> memberInfoList = memberList.stream().map(member->new GetMemberListResponse.MemberInfo(
+        List<GetMemberListResponse.MemberInfo> memberInfoList = memberList.stream().map(member -> new GetMemberListResponse.MemberInfo(
                 member.getMemberSeq(), member.getMemberName(), member.getMemberType().toString(), member.getCreatedAt().toLocalDate()
         )).limit(limit).toList();
 
         GetMemberListResponse result;
-        if(memberList.size()<=limit) {
+        if (memberList.size() <= limit) {
             result = GetMemberListResponse.builder().members(memberInfoList).hasNext(false).build();
-        }else{
+        } else {
             result = GetMemberListResponse.builder().members(memberInfoList).hasNext(true).build();
         }
         return result;
-
+    }
     /**
      * 회원탈퇴
      */
     @Override
-    @Transactional
     public void withdraw(Long memberSeq) { // 회원 PK로 탈퇴 수행
         // 1) ACTIVE인 회원만 찾음 → 없거나 이미 INACTIVE면 바로 오류메세지
         Member member = memberRepo.findByMemberSeqAndStatus(memberSeq, BaseStatus.ACTIVE)
