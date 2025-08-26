@@ -57,6 +57,7 @@ public class MemberServiceImpl implements MemberService {
         new DirectFieldAccessor(member).setPropertyValue("status", BaseStatus.INACTIVE);
         // 종료 시 커밋 → UPDATE 자동 실행(더티체킹)
     }
+
     /**
      * 로그아웃
      */
@@ -113,8 +114,6 @@ public class MemberServiceImpl implements MemberService {
         log.info("로그인 성공: (id={}, type={})", id, user.getMemberType());
         return user;
     }
-
-
 
 
     /**
@@ -189,11 +188,11 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public void expelMemberByAdmin(Long memberSeq) {
         log.info("[MemberServiceImpl.expelMemberByAdmin]");
-        Member member = memberRepo.findByMemberSeqAndStatus(memberSeq, BaseStatus.ACTIVE).get();
+        Member member = memberRepo.findByMemberSeqAndStatus(memberSeq, BaseStatus.ACTIVE).orElseThrow(() -> new MemberException(CANNOT_FOUND_MEMBER));
         // member 테이블 무효화 (영속성 컨텍스트 / 1차 캐시를 이용하려고 따로 save 메소드 호출하지 않음)
         member.updateMemberStatus(BaseStatus.INACTIVE);
 
-        if(member.getMemberType().equals(MemberType.MENTO)){
+        if (member.getMemberType().equals(MemberType.MENTO)) {
             expelForMento(member.getMemberSeq());
         } else if (member.getMemberType().equals(MemberType.MENTI)) {
             expelForMenti(member.getMemberSeq());
@@ -201,35 +200,35 @@ public class MemberServiceImpl implements MemberService {
 
     }
 
-    private void expelForMento(Long memberSeq){
+    private void expelForMento(Long memberSeq) {
         // mento 인 경우 -> 자격증 검증 테이블, 멘토스, 멘토 프로필 무효 처리
         log.info("[MemberServiceImpl.expelForMento]");
 
-        int certificationChangeCnt = certRepo.updateMentoCertificationStatus(memberSeq,BaseStatus.INACTIVE, BaseStatus.ACTIVE);
-        log.info("[MemberServiceImpl.expelForMento...updateMentoCertificationStatus..."+certificationChangeCnt+"]");
+        int certificationChangeCnt = certRepo.updateMentoCertificationStatus(memberSeq, BaseStatus.INACTIVE, BaseStatus.ACTIVE);
+        log.info("[MemberServiceImpl.expelForMento...updateMentoCertificationStatus..." + certificationChangeCnt + "]");
 
-        int mentosChangeCnt = mentosRepository.updateMentosStatus(memberSeq,BaseStatus.INACTIVE, BaseStatus.ACTIVE);
-        log.info("[MemberServiceImpl.expelForMento...updateMentosStatus..."+mentosChangeCnt+"]");
+        int mentosChangeCnt = mentosRepository.updateMentosStatus(memberSeq, BaseStatus.INACTIVE, BaseStatus.ACTIVE);
+        log.info("[MemberServiceImpl.expelForMento...updateMentosStatus..." + mentosChangeCnt + "]");
 
         int mentoProfileChangeCnt = mentoProfileRepository.updateMentoProfileStatus(memberSeq, BaseStatus.INACTIVE, BaseStatus.ACTIVE);
-        log.info("[MemberServiceImpl.expelForMento...updateMentoProfileStatus..."+mentoProfileChangeCnt+"]");
+        log.info("[MemberServiceImpl.expelForMento...updateMentoProfileStatus..." + mentoProfileChangeCnt + "]");
     }
 
-    private void expelForMenti(Long memberSeq){
+    private void expelForMenti(Long memberSeq) {
         // menti 인 경우 -> 리뷰, 신고, 예약, 결제 무효 처리
         log.info("[MemberServiceImpl.expelForMenti]");
 
         int reviewChangeCnt = reviewRepository.updateReviewStatus(memberSeq, BaseStatus.INACTIVE, BaseStatus.ACTIVE);
-        log.info("[MemberServiceImpl.expelForMenti...updateReviewStatus..."+reviewChangeCnt+"]");
+        log.info("[MemberServiceImpl.expelForMenti...updateReviewStatus..." + reviewChangeCnt + "]");
 
         int reportChangeCnt = reportRepository.updateReportStatus(memberSeq, BaseStatus.INACTIVE, BaseStatus.ACTIVE);
-        log.info("[MemberServiceImpl.expelForMenti...updateReportStatus..."+reportChangeCnt+"]");
+        log.info("[MemberServiceImpl.expelForMenti...updateReportStatus..." + reportChangeCnt + "]");
 
         int reservationChangeCnt = reservationRepository.updateReservationStatus(memberSeq, BaseStatus.INACTIVE, BaseStatus.ACTIVE);
-        log.info("[MemberServiceImpl.expelForMenti...updateReservationStatus..."+reservationChangeCnt+"]");
+        log.info("[MemberServiceImpl.expelForMenti...updateReservationStatus..." + reservationChangeCnt + "]");
 
         int paymentChangeCnt = paymentRepository.updatePaymentStatus(memberSeq, BaseStatus.INACTIVE, BaseStatus.ACTIVE);
-        log.info("[MemberServiceImpl.expelForMenti...updatePaymentStatus..."+paymentChangeCnt+"]");
+        log.info("[MemberServiceImpl.expelForMenti...updatePaymentStatus..." + paymentChangeCnt + "]");
 
     }
 }
