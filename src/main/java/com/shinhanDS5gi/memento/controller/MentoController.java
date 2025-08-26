@@ -29,12 +29,11 @@ public class MentoController {
     /* 멘토 리뷰 조회 */
     @GetMapping("/reviews/{mentorSeq}")
     public BaseResponse<MentoReviewsSliceResponse<MentoReviewsListResponse>> getMentoReviews(
-            @PathVariable("mentorSeq") Long mentorSeq,         // 멘토 id
-            @RequestParam(defaultValue = "10") int limit,       // 한 번에 가져올 개수
-            @RequestParam(required = false) Long cursor         // 마지막 review_seq (없으면 첫 페이지)
+            @PathVariable("mentorSeq") Long mentorSeq,
+            @RequestParam(defaultValue = "10") int limit,
+            @RequestParam(required = false) Long cursor
     ) {
         var page = reviewService.getMentoReviews(mentorSeq, limit, cursor);
-
         return new BaseResponse<>(SUCCESS, page);
     }
 

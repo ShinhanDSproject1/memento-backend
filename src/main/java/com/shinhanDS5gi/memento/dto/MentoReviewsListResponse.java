@@ -1,14 +1,13 @@
 package com.shinhanDS5gi.memento.dto;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Setter
-@Getter
 //멘토 리뷰 조회DTO
 public class MentoReviewsListResponse {
     private Long reviewId;
