@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -17,6 +16,7 @@ public class GetMemberListResponse {
      * 전체 회원 조회하기
      */
     private List<MemberInfo> members;
+    private boolean hasNext;
 
     @Getter
     @AllArgsConstructor
