@@ -14,10 +14,11 @@ import com.shinhanDS5gi.memento.dto.admin.GetMemberListResponse;
 import com.shinhanDS5gi.memento.repository.MentoCertificationRepository;
 import com.shinhanDS5gi.memento.repository.*;
 import com.shinhanDS5gi.memento.repository.member.MemberRepository;
-import org.springframework.beans.DirectFieldAccessor;
+
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.DirectFieldAccessor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -65,34 +66,39 @@ public class MemberServiceImpl implements MemberService {
         }
         return result;
     }
-    /**
-     * 회원탈퇴
-     */
+
+    /* 회원탈퇴 */
     @Override
     @Transactional
     public void withdraw(Long memberSeq) { // 회원 PK로 탈퇴 수행
-        // 1) ACTIVE인 회원만 찾음 → 없거나 이미 INACTIVE면 바로 오류메세지
+        //ACTIVE인 회원만 찾음 → 없거나 이미 INACTIVE면 바로 오류메세지
+        log.info("[MemberServiceImpl.expelMemberByAdmin]");
         Member member = memberRepo.findByMemberSeqAndStatus(memberSeq, BaseStatus.ACTIVE)
                 .orElseThrow(() -> new MemberException(CANNOT_FOUND_MEMBER));
-        // 2) status를 INACTIVE로 변경
-        new DirectFieldAccessor(member).setPropertyValue("status", BaseStatus.INACTIVE);
-        // 종료 시 커밋 → UPDATE 자동 실행(더티체킹)
+
+        // member 테이블 무효화 (영속성 컨텍스트 / 1차 캐시를 이용하려고 따로 save 메소드 호출하지 않음)
+        member.updateMemberStatus(BaseStatus.INACTIVE);
+
+        if (member.getMemberType().equals(MemberType.MENTO)) {
+            expelForMento(member.getMemberSeq());
+        } else if (member.getMemberType().equals(MemberType.MENTI)) {
+            expelForMenti(member.getMemberSeq());
+        }
+
+
     }
 
-    /**
-     * 로그아웃
-     */
+    /* 로그아웃 */
     @Override
     public void logout(Long memberSeq) {
-        //memberSeq를 가진 멤버를 member테이블에서 조회
         memberRepo.findById(memberSeq)
                 .orElseThrow(() -> new MemberException(CANNOT_FOUND_MEMBER));
         log.info("로그아웃 성공: memberSeq={}", memberSeq);
     }
 
-    /**
-     * 로그인 기능
-     */
+
+
+    /* 로그인 */
     @Override
     public Member login(MemberType pathType, LoginRequest req) {
         final String id = req.getMemberId();
@@ -115,7 +121,6 @@ public class MemberServiceImpl implements MemberService {
             // 다른 타입 여부 확인
             MemberType otherType = (pathType == MemberType.MENTI) ? MemberType.MENTO : MemberType.MENTI;
             Optional<Member> otherOpt = memberRepo.findByMemberIdAndMemberType(id, otherType);
-
             if (otherOpt.isPresent()) {
                 log.warn("로그인 실패: 타입 불일치 (id={}, 선택한 타입={})", id, pathType);
                 throw new AuthException(CANNOT_LOGIN);
@@ -130,7 +135,6 @@ public class MemberServiceImpl implements MemberService {
             log.warn("로그인 실패: 비밀번호 틀림 (id={}, type={})", id, user.getMemberType());
             throw new AuthException(INVALID_PASSWORD);
         }
-
         log.info("로그인 성공: (id={}, type={})", id, user.getMemberType());
         return user;
     }
@@ -138,9 +142,7 @@ public class MemberServiceImpl implements MemberService {
 
 
 
-    /**
-     * 멘토 회원가입
-     */
+    /* 멘토 회원가입 */
     @Override
     public void signupMento(MentoSignupRequest req) {
         // 1) 중복 아이디 체크
@@ -162,7 +164,6 @@ public class MemberServiceImpl implements MemberService {
         memberRepo.save(member);
         // 4) 자격증 저장
         List<MentoCertificationRequest> certReqs = req.getCertification();
-        //자격증 없으면 스킵처리 / 있으면 저장
         if (certReqs != null && !certReqs.isEmpty()) {
             //DTO를 엔티티로 변환해서 List에 저장
             List<MentoCertification> entities = new ArrayList<>(certReqs.size());
@@ -180,9 +181,9 @@ public class MemberServiceImpl implements MemberService {
         }
     }
 
-    /**
-     * 멘티 회원가입
-     */
+
+
+    /* 멘티 회원가입 */
     @Override
     public void signupMenti(MentiSignupRequest req) {
         // 1) 중복 아이디 체크
@@ -204,6 +205,8 @@ public class MemberServiceImpl implements MemberService {
 
         memberRepo.save(m);
     }
+
+
 
     /* 회원 제명하기 (관리자) */
     @Transactional
