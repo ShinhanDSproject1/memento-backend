@@ -1,12 +1,14 @@
 package com.shinhanDS5gi.memento.dto.auth;
 
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
 @NoArgsConstructor
 @Getter
+@AllArgsConstructor
 // 회원가입 멘토 DTO
 public class MentoSignupRequest {
     private String memberId;
