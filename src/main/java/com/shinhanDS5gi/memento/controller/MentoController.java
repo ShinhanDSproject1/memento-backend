@@ -3,17 +3,16 @@ package com.shinhanDS5gi.memento.controller;
 import com.shinhanDS5gi.memento.common.response.BaseResponse;
 
 import com.shinhanDS5gi.memento.dto.CreateMentoCertificationRequest;
+import com.shinhanDS5gi.memento.dto.MentoReviewsListResponse;
+import com.shinhanDS5gi.memento.dto.MentoReviewsSliceResponse;
 import com.shinhanDS5gi.memento.service.MentoCertificationService;
-
 import com.shinhanDS5gi.memento.dto.CreateMentoProfileRequest;
 import com.shinhanDS5gi.memento.service.MentoProfileService;
 
+import com.shinhanDS5gi.memento.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus.SUCCESS;
 
@@ -25,6 +24,21 @@ public class MentoController {
 
     private final MentoCertificationService mentoCertificationService;
     private final MentoProfileService mentoProfileService;
+    private final ReviewService reviewService;
+
+    /* 멘토 리뷰 조회 */
+    @GetMapping("/reviews/{mentorSeq}")
+    public BaseResponse<MentoReviewsSliceResponse<MentoReviewsListResponse>> getMentoReviews(
+            @PathVariable("mentorSeq") Long mentorSeq,         // 멘토 id
+            @RequestParam(defaultValue = "10") int limit,       // 한 번에 가져올 개수
+            @RequestParam(required = false) Long cursor         // 마지막 review_seq (없으면 첫 페이지)
+    ) {
+        var page = reviewService.getMentoReviews(mentorSeq, limit, cursor);
+
+        return new BaseResponse<>(SUCCESS, page);
+    }
+
+
 
     /* 멘토 자격증 추가 */
     @PostMapping("/mento-certifications")
