@@ -1,7 +1,6 @@
 package com.shinhanDS5gi.memento.service;
 
 import com.shinhanDS5gi.memento.common.exception.MentosException;
-import com.shinhanDS5gi.memento.common.response.status.ResponseStatus;
 import com.shinhanDS5gi.memento.domain.Review;
 import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.dto.MentoReviewsListResponse;
