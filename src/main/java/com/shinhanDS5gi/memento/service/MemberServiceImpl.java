@@ -10,8 +10,8 @@ import com.shinhanDS5gi.memento.dto.LoginRequest;
 import com.shinhanDS5gi.memento.dto.MentoCertificationRequest;
 import com.shinhanDS5gi.memento.dto.MentoSignupRequest;
 import com.shinhanDS5gi.memento.dto.MentiSignupRequest;
+import com.shinhanDS5gi.memento.repository.*;
 import com.shinhanDS5gi.memento.repository.member.MemberRepository;
-import com.shinhanDS5gi.memento.repository.MentoCertificationRepository;
 import org.springframework.beans.DirectFieldAccessor;
 
 import lombok.RequiredArgsConstructor;
@@ -37,6 +37,12 @@ public class MemberServiceImpl implements MemberService {
     private final MemberRepository memberRepo;
     private final PasswordEncoder pwEncoder;
     private final MentoCertificationRepository certRepo;
+    private final MentosRepository mentosRepository;
+    private final MentoProfileRepository mentoProfileRepository;
+    private final ReviewRepository reviewRepository;
+    private final ReportRepository reportRepository;
+    private final ReservationRepository reservationRepository;
+    private final PaymentRepository paymentRepository;
 
     /**
      * 회원탈퇴
@@ -183,7 +189,47 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public void expelMemberByAdmin(Long memberSeq) {
         log.info("[MemberServiceImpl.expelMemberByAdmin]");
-        memberRepo.findByMemberSeqAndStatus(memberSeq,BaseStatus.ACTIVE);
+        Member member = memberRepo.findByMemberSeqAndStatus(memberSeq, BaseStatus.ACTIVE).get();
+        // member 테이블 무효화 (영속성 컨텍스트 / 1차 캐시를 이용하려고 따로 save 메소드 호출하지 않음)
+        member.updateMemberStatus(BaseStatus.INACTIVE);
+
+        if(member.getMemberType().equals(MemberType.MENTO)){
+            expelForMento(member.getMemberSeq());
+        } else if (member.getMemberType().equals(MemberType.MENTI)) {
+            expelForMenti(member.getMemberSeq());
+        }
+
+    }
+
+    private void expelForMento(Long memberSeq){
+        // mento 인 경우 -> 자격증 검증 테이블, 멘토스, 멘토 프로필 무효 처리
+        log.info("[MemberServiceImpl.expelForMento]");
+
+        int certificationChangeCnt = certRepo.updateMentoCertificationStatus(memberSeq,BaseStatus.INACTIVE, BaseStatus.ACTIVE);
+        log.info("[MemberServiceImpl.expelForMento...updateMentoCertificationStatus..."+certificationChangeCnt+"]");
+
+        int mentosChangeCnt = mentosRepository.updateMentosStatus(memberSeq,BaseStatus.INACTIVE, BaseStatus.ACTIVE);
+        log.info("[MemberServiceImpl.expelForMento...updateMentosStatus..."+mentosChangeCnt+"]");
+
+        int mentoProfileChangeCnt = mentoProfileRepository.updateMentoProfileStatus(memberSeq, BaseStatus.INACTIVE, BaseStatus.ACTIVE);
+        log.info("[MemberServiceImpl.expelForMento...updateMentoProfileStatus..."+mentoProfileChangeCnt+"]");
+    }
+
+    private void expelForMenti(Long memberSeq){
+        // menti 인 경우 -> 리뷰, 신고, 예약, 결제 무효 처리
+        log.info("[MemberServiceImpl.expelForMenti]");
+
+        int reviewChangeCnt = reviewRepository.updateReviewStatus(memberSeq, BaseStatus.INACTIVE, BaseStatus.ACTIVE);
+        log.info("[MemberServiceImpl.expelForMenti...updateReviewStatus..."+reviewChangeCnt+"]");
+
+        int reportChangeCnt = reportRepository.updateReportStatus(memberSeq, BaseStatus.INACTIVE, BaseStatus.ACTIVE);
+        log.info("[MemberServiceImpl.expelForMenti...updateReportStatus..."+reportChangeCnt+"]");
+
+        int reservationChangeCnt = reservationRepository.updateReservationStatus(memberSeq, BaseStatus.INACTIVE, BaseStatus.ACTIVE);
+        log.info("[MemberServiceImpl.expelForMenti...updateReservationStatus..."+reservationChangeCnt+"]");
+
+        int paymentChangeCnt = paymentRepository.updatePaymentStatus(memberSeq, BaseStatus.INACTIVE, BaseStatus.ACTIVE);
+        log.info("[MemberServiceImpl.expelForMenti...updatePaymentStatus..."+paymentChangeCnt+"]");
 
     }
 }
