@@ -12,6 +12,7 @@ public class SelectReportResponse {
 
     private final Long reportSeq;
     private final ReportType reportType;
+    private final String reportImage;
     private final String reporterName; // 신고자 이름
     private final Long reportedMentosSeq;  // 신고된 멘토스 시퀀스
     private final LocalDateTime createdAt; // 신고 생성 시간

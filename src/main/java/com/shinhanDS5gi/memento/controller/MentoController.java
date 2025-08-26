@@ -3,17 +3,18 @@ package com.shinhanDS5gi.memento.controller;
 import com.shinhanDS5gi.memento.common.response.BaseResponse;
 
 import com.shinhanDS5gi.memento.dto.CreateMentoCertificationRequest;
+import com.shinhanDS5gi.memento.dto.MyMentiResponse;
 import com.shinhanDS5gi.memento.service.MentoCertificationService;
 
 import com.shinhanDS5gi.memento.dto.CreateMentoProfileRequest;
 import com.shinhanDS5gi.memento.service.MentoProfileService;
 
+import com.shinhanDS5gi.memento.service.MentoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus.SUCCESS;
 
@@ -23,6 +24,7 @@ import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionRespo
 @RequestMapping("/mento")
 public class MentoController {
 
+    private final MentoService mentoService;
     private final MentoCertificationService mentoCertificationService;
     private final MentoProfileService mentoProfileService;
 
@@ -35,7 +37,6 @@ public class MentoController {
 
         return new BaseResponse<>(SUCCESS, null);
     }
-  
 
     /* 멘토 프로필 생성 */
     @PostMapping("/mento-profiles")
@@ -45,5 +46,13 @@ public class MentoController {
         mentoProfileService.createMentoProfile(currentMemberId, requestDto);
 
         return new BaseResponse<>(SUCCESS, null);
+    }
+
+    /* 멘티 조회 (멘토스별 조회) */
+    @GetMapping("/menti-list")
+    public BaseResponse<List<MyMentiResponse>> getMyMentiList() {
+        Long currentMemberId = 1L; // 임시 멘토 ID
+        List<MyMentiResponse> mentiList = mentoService.getMyMentiList(currentMemberId);
+        return new BaseResponse<>(SUCCESS, mentiList);
     }
 }
