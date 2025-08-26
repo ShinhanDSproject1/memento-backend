@@ -17,6 +17,9 @@ public class CreateReportRequest {
     @NotNull(message = "신고 유형은 필수입니다.")
     private ReportType reportType;
 
+    @NotNull(message = "신고 제출용 이미지는 필수입니다.")
+    private String reportImage;
+
     @NotNull(message = "신고 대상(멘토스) ID는 필수입니다.")
     private Long mentosSeq;
 
@@ -24,6 +27,7 @@ public class CreateReportRequest {
         return new Report(
                 null, // 자동 생성
                 this.reportType,
+                reportImage,
                 BaseStatus.ACTIVE,
                 member,
                 mentos
