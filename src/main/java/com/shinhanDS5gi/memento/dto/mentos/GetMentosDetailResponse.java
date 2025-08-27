@@ -18,17 +18,17 @@ public class GetMentosDetailResponse {
     private final String mentosImage;
     private final String mentosTitle;
     private final String mentosLocation;
-    private final int reviewToltalCnt;
-    private final float reviewRatingAvg;
-    private final List<Review> Reviews;
+    private final Integer reviewTotalCnt;
+    private final Double reviewRatingAvg;
+    private final List<Review> reviews;
 
     @Getter
     @Builder
     @AllArgsConstructor
     public static class Review{
         private final Long reviewSeq;
-        private final int reviewRating;
-        private final LocalDate reviewDate;
+        private final Integer reviewRating;
+        private final String reviewDate;
         private final String reviewContent;
     }
 
