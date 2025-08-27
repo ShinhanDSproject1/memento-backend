@@ -4,6 +4,7 @@ import com.shinhanDS5gi.memento.common.response.BaseResponse;
 import com.shinhanDS5gi.memento.dto.MyMentosResponse;
 import com.shinhanDS5gi.memento.dto.MyMentosSliceResponse;
 import com.shinhanDS5gi.memento.dto.UpdateMentosRequest;
+import com.shinhanDS5gi.memento.dto.mentos.GetMentosDetailResponse;
 import com.shinhanDS5gi.memento.service.MentosService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,5 +47,12 @@ public class MentosController {
         mentosService.inactiveMentos(mentosSeq, currentMemberId);
 
         return new BaseResponse<>(SUCCESS, null);
+    }
+
+    /* 멘토스 상세조회 */
+    @GetMapping("/detail/{mentosSeq}")
+    public BaseResponse<GetMentosDetailResponse> getMentosDetail(@PathVariable("mentosSeq") Long mentosSeq){
+        log.info("[MentosController.getMentosDetail]");
+        return new BaseResponse<>(mentosService.getMentosDetail(mentosSeq));
     }
 }
