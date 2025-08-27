@@ -3,11 +3,13 @@ package com.shinhanDS5gi.memento.dto.mentos;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Getter
 @Builder
+@NoArgsConstructor
 @AllArgsConstructor
 public class GetMentosListResponse {
 
@@ -17,6 +19,7 @@ public class GetMentosListResponse {
     @Getter
     @Builder
     @AllArgsConstructor
+    @NoArgsConstructor
     public static class MentosDetail{
         private Long mentosSeq;
         private boolean isApproved;
