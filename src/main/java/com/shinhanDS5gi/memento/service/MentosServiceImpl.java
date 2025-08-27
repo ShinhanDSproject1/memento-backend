@@ -7,8 +7,12 @@ import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.dto.MyMentosResponse;
 import com.shinhanDS5gi.memento.dto.MyMentosSliceResponse;
 import com.shinhanDS5gi.memento.dto.UpdateMentosRequest;
-import com.shinhanDS5gi.memento.repository.MentosRepository;
+import com.shinhanDS5gi.memento.dto.mentos.GetMentosDetailProjection;
+import com.shinhanDS5gi.memento.dto.mentos.GetMentosDetailResponse;
+import com.shinhanDS5gi.memento.repository.ReviewRepository;
+import com.shinhanDS5gi.memento.repository.mentos.MentosRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -20,12 +24,14 @@ import java.util.stream.Collectors;
 
 import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class MentosServiceImpl implements MentosService {
 
     private final MentosRepository mentosRepository;
+    private final ReviewRepository reviewRepository;
 
     /* 멘토가 개설한 멘토스 중 Status가 'ACTIVE'인 멘토스만 모두 조회하기 (무한스크롤 페이징 처리) */
     @Override
@@ -111,5 +117,22 @@ public class MentosServiceImpl implements MentosService {
         }
 
         mentos.setStatus(BaseStatus.INACTIVE);
+    }
+
+    /* 멘토스 상세 조회 */
+    @Override
+    public GetMentosDetailResponse getMentosDetail(Long mentosSeq) {
+        log.info("[MentosServiceImpl.getMentosDetail]");
+        GetMentosDetailProjection projection = mentosRepository.findMentosDetailByMentosSeqAndStatus(mentosSeq, BaseStatus.ACTIVE);
+        List<GetMentosDetailResponse.Review> review = reviewRepository.findReviewByMentosSeqAndStatus(mentosSeq, BaseStatus.ACTIVE);
+
+        GetMentosDetailResponse resultResponse = GetMentosDetailResponse.builder().mentosImage(projection.getMentosImage())
+                .mentosTitle(projection.getMentosTitle()).mentosLocation(projection.getMentosLocation())
+                .reviewTotalCnt(projection.getReviewTotalCnt()).reviewRatingAvg(projection.getReviewRatingAvg())
+                .reviews(review).mento(GetMentosDetailResponse.MentoDetail.builder().mentoName(projection.getMentoName())
+                        .mentoImg(projection.getMentoImg()).mentoDescription(projection.getMentoDescription()).build())
+                .mentosDescription(projection.getMentosDescription()).mentosPrice(projection.getMentosPrice()).build();
+
+        return resultResponse;
     }
 }
