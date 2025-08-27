@@ -10,6 +10,8 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Optional;
+
 public interface MentosRepository extends JpaRepository<Mentos, Long>, MentosCustomRepository {
 
     /* 접속한 멘토 유저의 활성화된 멘토스 목록 조회 */
@@ -24,4 +26,6 @@ public interface MentosRepository extends JpaRepository<Mentos, Long>, MentosCus
                            @Param("beforeStatus") BaseStatus beforeStatus);
 
     GetMentosDetailProjection findMentosDetailByMentosSeqAndStatus(Long mentosSeq, BaseStatus status);
+
+    Optional<Mentos> findByMentosSeqAndStatus(Long mentosSeq, BaseStatus status);
 }

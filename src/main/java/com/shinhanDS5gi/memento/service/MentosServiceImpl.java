@@ -123,6 +123,8 @@ public class MentosServiceImpl implements MentosService {
     @Override
     public GetMentosDetailResponse getMentosDetail(Long mentosSeq) {
         log.info("[MentosServiceImpl.getMentosDetail]");
+        Mentos mentos = mentosRepository.findByMentosSeqAndStatus(mentosSeq, BaseStatus.ACTIVE).orElseThrow(()-> new MentosException(CANNOT_FOUND_MENTOS));
+
         GetMentosDetailProjection projection = mentosRepository.findMentosDetailByMentosSeqAndStatus(mentosSeq, BaseStatus.ACTIVE);
         List<GetMentosDetailResponse.Review> review = reviewRepository.findReviewByMentosSeqAndStatus(mentosSeq, BaseStatus.ACTIVE);
 
