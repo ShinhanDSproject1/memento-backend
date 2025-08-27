@@ -32,8 +32,8 @@ public class MentoProfile extends BaseTime {
     private BaseStatus status;
 
     @JsonIgnore
-    @OneToOne(fetch = FetchType.LAZY, optional = true) // 반드시 있어야 하면 optional=false
-    @JoinColumn(name = "member_seq", unique = true)    // ★ unique로 1:1 보장
+    @OneToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "member_seq", unique = true)
     private Member member;
 
     /* 멘토 프로필 수정하기 */
