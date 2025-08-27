@@ -23,6 +23,7 @@ public class MentosRepositoryImpl implements MentosCustomRepository {
     QMentos mentos = QMentos.mentos;
     QMentoCertification certification = QMentoCertification.mentoCertification;
 
+    /* 멘토스 전체조회(카테고리별) */
     @Override
     public List<GetMentosListResponse.MentosDetail> findAllByCategorySeqAndLimitAndCursor(Long mentosCategorySeq, Integer limit, Long cursor, BaseStatus status) {
         // where 절에 들어갈 쿼리문

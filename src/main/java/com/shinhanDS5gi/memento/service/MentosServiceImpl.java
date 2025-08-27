@@ -116,6 +116,7 @@ public class MentosServiceImpl implements MentosService {
         mentos.setStatus(BaseStatus.INACTIVE);
     }
 
+    /* 멘토스 전체조회(카테고리별) */
     @Override
     public GetMentosListResponse getMentosList(Long mentosCategorySeq, Integer limit, Long cursor) {
         log.info("[MentosServiceImpl.getMentosList]");
