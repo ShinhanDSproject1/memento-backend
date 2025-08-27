@@ -5,18 +5,17 @@ import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.domain.base.BaseTime;
 import com.shinhanDS5gi.memento.domain.member.Member;
 import com.shinhanDS5gi.memento.domain.report.Report;
+import com.shinhanDS5gi.memento.dto.UpdateMentosRequest;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Mentos extends BaseTime {
@@ -79,5 +78,25 @@ public class Mentos extends BaseTime {
     @JsonIgnore
     @OneToMany(mappedBy = "mentos")
     private List<Review> reviewList = new ArrayList<>();
+
+    /* 멘토스 정보 수정*/
+    public void update(UpdateMentosRequest requestDto) {
+        this.mentosTitle = requestDto.getMentosTitle();
+        this.mentosContent = requestDto.getMentosContent();
+        this.price = requestDto.getPrice();
+        this.mentosImage = requestDto.getMentosImage();
+        this.mentosPostcode = requestDto.getMentosPostcode();
+        this.mentosRoadaddress = requestDto.getMentosRoadaddress();
+        this.mentosBname = requestDto.getMentosBname();
+        this.mentosDetail = requestDto.getMentosDetail();
+        this.keywordOne = requestDto.getKeywordOne();
+        this.keywordTwo = requestDto.getKeywordTwo();
+        this.keywordThree = requestDto.getKeywordThree();
+    }
+
+    /* 멘토스 상태 비활성화 */
+    public void inactivate() {
+        this.status = BaseStatus.INACTIVE;
+    }
 
 }

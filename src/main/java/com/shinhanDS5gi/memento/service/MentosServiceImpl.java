@@ -94,18 +94,7 @@ public class MentosServiceImpl implements MentosService {
         if (!Objects.equals(mentos.getMember().getMemberSeq(), currentMemberId)) {
             throw new MentosException(NO_AUTHORITY_TO_UPDATE);
         }
-
-        mentos.setMentosTitle(requestDto.getMentosTitle());
-        mentos.setMentosContent(requestDto.getMentosContent());
-        mentos.setPrice(requestDto.getPrice());
-        mentos.setMentosImage(requestDto.getMentosImage());
-        mentos.setMentosPostcode(requestDto.getMentosPostcode());
-        mentos.setMentosRoadaddress(requestDto.getMentosRoadaddress());
-        mentos.setMentosBname(requestDto.getMentosBname());
-        mentos.setMentosDetail(requestDto.getMentosDetail());
-        mentos.setKeywordOne(requestDto.getKeywordOne());
-        mentos.setKeywordTwo(requestDto.getKeywordTwo());
-        mentos.setKeywordThree(requestDto.getKeywordThree());
+        mentos.update(requestDto);
     }
 
     /* 멘토스 삭제하기 */
@@ -120,8 +109,7 @@ public class MentosServiceImpl implements MentosService {
         if (!Objects.equals(mentos.getMember().getMemberSeq(), currentMemberId)) {
             throw new MentosException(NO_AUTHORITY_TO_DELETE);
         }
-
-        mentos.setStatus(BaseStatus.INACTIVE);
+        mentos.inactivate();
     }
 
     /* 멘토스 상세 조회 */
