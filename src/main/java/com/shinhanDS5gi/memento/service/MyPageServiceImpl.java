@@ -21,7 +21,7 @@ public class MyPageServiceImpl implements MyPageService {
     @Override
     public MyProfileResponse getMyProfile(Long memberSeq) {
 
-        Member member = memberRepository.findById(memberSeq)
+        Member member = memberRepository.findByMemberSeqAndStatus(memberSeq, BaseStatus.ACTIVE)
                 .orElseThrow(() -> new MemberException(CANNOT_FOUND_MEMBER));
 
         return MyProfileResponse.builder()
