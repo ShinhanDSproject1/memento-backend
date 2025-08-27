@@ -1,5 +1,6 @@
 package com.shinhanDS5gi.memento.dto.mentos;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,7 +23,7 @@ public class GetMentosListResponse {
     @NoArgsConstructor
     public static class MentosDetail{
         private Long mentosSeq;
-        private boolean isApproved;
+        private boolean approved;
         private String mentosImg;
         private String mentosTitle;
         private int mentosPrice;

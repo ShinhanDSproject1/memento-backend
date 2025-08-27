@@ -34,7 +34,7 @@ public class MentosRepositoryImpl implements MentosCustomRepository {
             builder.and(mentos.mentosSeq.lt(cursor));
         }
 
-        BooleanExpression existsApproved = JPAExpressions.selectOne().from(certification).where(certification.member.eq(mentos.member), certification.status.eq(status)).exists();
+        BooleanExpression existsApproved = JPAExpressions.selectOne().from(certification).where(certification.member.memberSeq.eq(mentos.member.memberSeq), certification.status.eq(status)).exists();
 
         return queryFactory.select(Projections.fields(GetMentosListResponse.MentosDetail.class,
                         mentos.mentosSeq,
@@ -42,7 +42,7 @@ public class MentosRepositoryImpl implements MentosCustomRepository {
                         mentos.mentosTitle,
                         mentos.price.as("mentosPrice"),
                         mentos.mentosBname.as("region"),
-                        new CaseBuilder().when(existsApproved).then(true).otherwise(false).as("isApproved")))
+                        new CaseBuilder().when(existsApproved).then(true).otherwise(false).as("approved")))
                 .from(mentos)
                 .where(builder)
                 .orderBy(mentos.mentosSeq.desc())
