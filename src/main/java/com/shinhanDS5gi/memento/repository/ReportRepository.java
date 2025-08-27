@@ -2,7 +2,9 @@ package com.shinhanDS5gi.memento.repository;
 
 import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.domain.report.Report;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,6 +13,11 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ReportRepository extends JpaRepository<Report, Long> {
+
+    /* 승인/반려 중복 방지 */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select r from Report r where r.reportSeq = :id")
+    Optional<Report> findByIdForUpdate(@Param("id") Long id);
 
     /* 모든 신고 내역을 조회하는 메서드
         +1 문제를 해결하기 위해 fetch join을 사용하여 연관된 Member, Mentos 엔티티를 함께 조회 */

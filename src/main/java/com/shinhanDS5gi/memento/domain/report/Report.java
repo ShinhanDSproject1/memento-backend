@@ -31,6 +31,10 @@ public class Report extends BaseTime {
     @Column(nullable = false)
     private BaseStatus status;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ReportHandleStatus handleStatus;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_seq")
     private Member member;
@@ -38,4 +42,10 @@ public class Report extends BaseTime {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "mentos_seq")
     private Mentos mentos;
+
+    //신고 승인/거부 상태 변경
+    public void updateHandleStatus(ReportHandleStatus status) {
+        this.handleStatus = status;
+    }
 }
+
