@@ -1,6 +1,5 @@
 package com.shinhanDS5gi.memento.service;
 
-import com.shinhanDS5gi.memento.common.exception.MemberException;
 import com.shinhanDS5gi.memento.common.exception.MentosException;
 import com.shinhanDS5gi.memento.domain.Mentos;
 import com.shinhanDS5gi.memento.domain.base.BaseStatus;
@@ -77,11 +76,11 @@ public class MentosServiceImpl implements MentosService {
     public void updateMentos(Long mentosSeq, Long currentMemberId, UpdateMentosRequest requestDto) {
         // DB에서 Mentos 엔티티를 조회
         Mentos mentos = mentosRepository.findById(mentosSeq)
-                .orElseThrow(() -> new MemberException(CANNOT_FOUND_MENTOS));
+                .orElseThrow(() -> new MentosException(CANNOT_FOUND_MENTOS));
 
         // 수정 권한 확인
         if (!Objects.equals(mentos.getMember().getMemberSeq(), currentMemberId)) {
-            throw new MemberException(NO_AUTHORITY_TO_UPDATE);
+            throw new MentosException(NO_AUTHORITY_TO_UPDATE);
         }
 
         mentos.setMentosTitle(requestDto.getMentosTitle());
@@ -103,11 +102,11 @@ public class MentosServiceImpl implements MentosService {
     public void inactiveMentos(Long mentosSeq, Long currentMemberId) {
         // 삭제할 멘토스 DB 조회
         Mentos mentos = mentosRepository.findById(mentosSeq)
-                .orElseThrow(() -> new MemberException(CANNOT_FOUND_MENTOS));
+                .orElseThrow(() -> new MentosException(CANNOT_FOUND_MENTOS));
 
         // 삭제 권한 확인
         if (!Objects.equals(mentos.getMember().getMemberSeq(), currentMemberId)) {
-            throw new MemberException(NO_AUTHORITY_TO_DELETE);
+            throw new MentosException(NO_AUTHORITY_TO_DELETE);
         }
 
         mentos.setStatus(BaseStatus.INACTIVE);
