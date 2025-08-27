@@ -19,8 +19,8 @@ public enum BaseExceptionResponseStatus implements ResponseStatus{
     NO_AUTHORITY_TO_UPDATE(2501, HttpStatus.FORBIDDEN.value(), "게시글을 수정할 권한이 없습니다."),
     NO_AUTHORITY_TO_DELETE(2502, HttpStatus.FORBIDDEN.value(), "게시글을 삭제할 권한이 없습니다."),
     NO_MENTOS_FOUND_FOR_MEMBER(2503, HttpStatus.NOT_FOUND.value(), "멘토가 작성한 멘토스 내역이 존재하지 않습니다."),
-
     NO_REVIEWS_FOUND_FOR_MENTO(2504, HttpStatus.NOT_FOUND.value(), "요청하신 멘토의 멘토스 리뷰는 존재하지 않습니다."),
+
     /**
      * Token 관련 3000대
      */
@@ -31,6 +31,8 @@ public enum BaseExceptionResponseStatus implements ResponseStatus{
      */
     CANNOT_FOUND_MEMBER(4000,HttpStatus.NOT_FOUND.value(),"해당 사용자를 찾을 수 없습니다."),
     NOT_A_MENTO(4001, HttpStatus.FORBIDDEN.value(), "멘토 회원만 접근할 수 있는 기능입니다."),
+    PASSWORD_MISMATCH(4001, HttpStatus.BAD_REQUEST.value(), "현재 비밀번호가 일치하지 않습니다."),
+    NEW_PASSWORD_CONFIRM_MISMATCH(4002, HttpStatus.BAD_REQUEST.value(), "새 비밀번호와 비밀번호 확인 정보가 일치하지 않습니다."),
 
     /**
      * Auth 관련 5000대
