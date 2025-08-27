@@ -9,9 +9,12 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.List;
+import java.util.Optional;
 
 public interface MentosRepository extends JpaRepository<Mentos, Long> {
+
+    /* Status가 ACTIVE한 데이터만 조회 */
+    Optional<Mentos> findByMentosSeqAndStatus(Long mentosSeq, BaseStatus status);
 
     /* 접속한 멘토 유저의 활성화된 멘토스 목록 조회 */
     @Query("SELECT m FROM Mentos m WHERE m.member.memberSeq = :memberSeq AND m.status = :status AND m.mentosSeq < :cursor ORDER BY m.mentosSeq DESC")

@@ -2,6 +2,7 @@ package com.shinhanDS5gi.memento.service;
 
 import com.shinhanDS5gi.memento.common.exception.MemberException;
 import com.shinhanDS5gi.memento.domain.MentoCertification;
+import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.domain.member.Member;
 import com.shinhanDS5gi.memento.domain.member.MemberType;
 import com.shinhanDS5gi.memento.dto.CreateMentoCertificationRequest;
@@ -29,7 +30,7 @@ public class MentoCertificationServiceImpl implements MentoCertificationService 
     @Transactional
     public void createMentoCertification(Long memberSeq, CreateMentoCertificationRequest requestDto) {
         // 1. 사용자 조회
-        Member member = memberRepository.findById(memberSeq)
+        Member member = memberRepository.findByMemberSeqAndStatus(memberSeq, BaseStatus.ACTIVE)
                 .orElseThrow(() -> new MemberException(CANNOT_FOUND_MEMBER));
 
         // 2. 멘토 타입인지 검증

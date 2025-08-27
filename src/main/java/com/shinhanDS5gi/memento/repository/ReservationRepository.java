@@ -10,8 +10,8 @@ import org.springframework.data.jpa.repository.Modifying;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
 
-    /* memberSeq와 mentosSeq로 예약을 조회하는 메서드 */
-    Optional<Reservation> findByMember_MemberSeqAndMentos_MentosSeq(Long memberSeq, Long mentosSeq);
+    /* memberSeq와 mentosSeq, status를 기준으로 활성화된 예약을 조회하는 메서드 */
+    Optional<Reservation> findByMember_MemberSeqAndMentos_MentosSeqAndStatus(Long memberSeq, Long mentosSeq, BaseStatus status);
 
     /* 멘토가 작성한 모든 멘토스의 예약 목록 조회 */
     @Query("SELECT r FROM Reservation r JOIN FETCH r.mentos m JOIN FETCH r.member menti WHERE m.member.memberSeq = :mentorId AND r.status = 'ACTIVE' ORDER BY m.mentosSeq, r.mentosAt")

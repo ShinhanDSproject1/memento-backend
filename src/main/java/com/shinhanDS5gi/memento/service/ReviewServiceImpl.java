@@ -66,11 +66,13 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public void createReview(Long memberSeq, CreateReviewRequest requestDto) {
         /* 리뷰 작성자(유저), 리뷰 대상(멘토스) 조회 */
-        Member reviewer = memberRepository.findById(memberSeq).orElseThrow(()-> new MemberException(CANNOT_FOUND_MEMBER));
-        Mentos reviewedMentos = mentosRepository.findById(requestDto.getMentosSeq()).orElseThrow(()-> new MentosException(CANNOT_FOUND_MENTOS));
+        Member reviewer = memberRepository.findByMemberSeqAndStatus(memberSeq, BaseStatus.ACTIVE)
+                .orElseThrow(()-> new MemberException(CANNOT_FOUND_MEMBER));
+        Mentos reviewedMentos = mentosRepository.findByMentosSeqAndStatus(requestDto.getMentosSeq(), BaseStatus.ACTIVE)
+                .orElseThrow(()-> new MentosException(CANNOT_FOUND_MENTOS));
 
         /* 실제로 멘토스를 예약한 유저인가? */
-        Reservation reservation = reservationRepository.findByMember_MemberSeqAndMentos_MentosSeq(memberSeq, requestDto.getMentosSeq())
+        Reservation reservation = reservationRepository.findByMember_MemberSeqAndMentos_MentosSeqAndStatus(memberSeq, requestDto.getMentosSeq(), BaseStatus.ACTIVE)
                 .orElseThrow(() -> new MemberException(FAILURE, "해당 멘토스를 수강한 내역이 없어 리뷰를 작성할 수 없습니다."));
 
         /* 진행 완료된 멘토스인가? */

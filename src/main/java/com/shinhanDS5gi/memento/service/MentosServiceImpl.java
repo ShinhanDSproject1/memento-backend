@@ -76,7 +76,7 @@ public class MentosServiceImpl implements MentosService {
     @Transactional
     public void updateMentos(Long mentosSeq, Long currentMemberId, UpdateMentosRequest requestDto) {
         // DB에서 Mentos 엔티티를 조회
-        Mentos mentos = mentosRepository.findById(mentosSeq)
+        Mentos mentos = mentosRepository.findByMentosSeqAndStatus(mentosSeq, BaseStatus.ACTIVE)
                 .orElseThrow(() -> new MemberException(CANNOT_FOUND_MENTOS));
 
         // 수정 권한 확인
@@ -102,7 +102,7 @@ public class MentosServiceImpl implements MentosService {
     @Transactional
     public void inactiveMentos(Long mentosSeq, Long currentMemberId) {
         // 삭제할 멘토스 DB 조회
-        Mentos mentos = mentosRepository.findById(mentosSeq)
+        Mentos mentos = mentosRepository.findByMentosSeqAndStatus(mentosSeq, BaseStatus.ACTIVE)
                 .orElseThrow(() -> new MemberException(CANNOT_FOUND_MENTOS));
 
         // 삭제 권한 확인
