@@ -41,6 +41,10 @@ public enum BaseExceptionResponseStatus implements ResponseStatus{
     CANNOT_LOGIN(5003,HttpStatus.BAD_REQUEST.value(),"로그인에 실패했습니다."),
 
     /**
+     * Category 관련 7000대
+     */
+    CANNOT_FOUND_CATEGORY(7000, HttpStatus.BAD_REQUEST.value(),"해당 카테고리를 찾을 수 없습니다."),
+    /**
      * Report 관련 8000대
      */
     CANNOT_FOUND_REPORT(8000, HttpStatus.NOT_FOUND.value(), "해당 ID의 신고 내역을 찾을 수 없습니다."),
