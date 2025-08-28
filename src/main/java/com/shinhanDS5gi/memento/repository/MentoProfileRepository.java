@@ -19,4 +19,7 @@ public interface MentoProfileRepository extends JpaRepository<MentoProfile, Long
     int updateMentoProfileStatus(@Param("memberSeq") Long memberSeq,
                                        @Param("afterStatus") BaseStatus afterStatus,
                                        @Param("beforeStatus") BaseStatus beforeStatus);
+
+    /* memberSeq에 맞는 mentoProfile 조회 */
+    Optional<MentoProfile> findByMember_MemberSeq(Long memberSeq);
 }

@@ -1,6 +1,6 @@
 package com.shinhanDS5gi.memento.service;
 
-import com.shinhanDS5gi.memento.common.exception.MemberException;
+import com.shinhanDS5gi.memento.common.exception.MentoCertificationException;
 import com.shinhanDS5gi.memento.domain.MentoCertification;
 import com.shinhanDS5gi.memento.domain.member.Member;
 import com.shinhanDS5gi.memento.domain.member.MemberType;
@@ -30,11 +30,11 @@ public class MentoCertificationServiceImpl implements MentoCertificationService 
     public void createMentoCertification(Long memberSeq, CreateMentoCertificationRequest requestDto) {
         // 1. 사용자 조회
         Member member = memberRepository.findById(memberSeq)
-                .orElseThrow(() -> new MemberException(CANNOT_FOUND_MEMBER));
+                .orElseThrow(() -> new MentoCertificationException(CANNOT_FOUND_MEMBER));
 
         // 2. 멘토 타입인지 검증
         if (member.getMemberType() != MemberType.MENTO) {
-            throw new MemberException(NOT_A_MENTO);
+            throw new MentoCertificationException(NOT_A_MENTO);
         }
 
         // 3. DTO 리스트를 엔티티 리스트로 변환

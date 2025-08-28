@@ -1,11 +1,7 @@
 package com.shinhanDS5gi.memento.controller;
 
 import com.shinhanDS5gi.memento.common.response.BaseResponse;
-import com.shinhanDS5gi.memento.dto.CreateMentoCertificationRequest;
-import com.shinhanDS5gi.memento.dto.CreateMentoProfileRequest;
-import com.shinhanDS5gi.memento.dto.MentoReviewsListResponse;
-import com.shinhanDS5gi.memento.dto.MentoReviewsSliceResponse;
-import com.shinhanDS5gi.memento.dto.MyMentiResponse;
+import com.shinhanDS5gi.memento.dto.*;
 import com.shinhanDS5gi.memento.service.MentoCertificationService;
 import com.shinhanDS5gi.memento.service.MentoProfileService;
 import com.shinhanDS5gi.memento.service.MentoService;
@@ -56,6 +52,16 @@ public class MentoController {
 
         Long currentMemberId = 1L; // 임시 사용자 ID
         mentoProfileService.createMentoProfile(currentMemberId, requestDto);
+
+        return new BaseResponse<>(SUCCESS, null);
+    }
+
+    /* 멘토 프로필 수정 */
+    @PatchMapping("/mento-profiles")
+    public BaseResponse<Void> updateMentoProfile(@RequestBody UpdateMentoProfileRequest requestDto) {
+
+        Long currentMemberId = 1L;
+        mentoProfileService.updateMentoProfile(currentMemberId, requestDto);
 
         return new BaseResponse<>(SUCCESS, null);
     }
