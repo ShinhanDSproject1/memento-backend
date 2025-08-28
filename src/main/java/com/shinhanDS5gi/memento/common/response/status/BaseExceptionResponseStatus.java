@@ -19,8 +19,8 @@ public enum BaseExceptionResponseStatus implements ResponseStatus{
     NO_AUTHORITY_TO_UPDATE(2501, HttpStatus.FORBIDDEN.value(), "게시글을 수정할 권한이 없습니다."),
     NO_AUTHORITY_TO_DELETE(2502, HttpStatus.FORBIDDEN.value(), "게시글을 삭제할 권한이 없습니다."),
     NO_MENTOS_FOUND_FOR_MEMBER(2503, HttpStatus.NOT_FOUND.value(), "멘토가 작성한 멘토스 내역이 존재하지 않습니다."),
-
     NO_REVIEWS_FOUND_FOR_MENTO(2504, HttpStatus.NOT_FOUND.value(), "요청하신 멘토의 멘토스 리뷰는 존재하지 않습니다."),
+
     /**
      * Token 관련 3000대
      */
@@ -48,7 +48,8 @@ public enum BaseExceptionResponseStatus implements ResponseStatus{
      * Report 관련 8000대
      */
     CANNOT_FOUND_REPORT(8000, HttpStatus.NOT_FOUND.value(), "해당 ID의 신고 내역을 찾을 수 없습니다."),
-
+    ALREADY_APPROVED_REPORT(8001,HttpStatus.BAD_REQUEST.value(), "이미 신고 승인 처리된 건입니다."),
+    ALREADY_REJECTED_REPORT(8002,HttpStatus.BAD_REQUEST.value(),"이미 신고 거부 처리된 건입니다."),
     /**
      * MentoProfile 관련 9000대
      */
