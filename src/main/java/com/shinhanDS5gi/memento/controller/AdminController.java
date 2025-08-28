@@ -5,7 +5,6 @@ import com.shinhanDS5gi.memento.dto.CreateReportRequest;
 import com.shinhanDS5gi.memento.dto.SelectReportResponse;
 import com.shinhanDS5gi.memento.service.MemberService;
 import com.shinhanDS5gi.memento.dto.admin.GetMemberListResponse;
-import com.shinhanDS5gi.memento.service.MemberService;
 import com.shinhanDS5gi.memento.service.ReportService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +22,15 @@ public class AdminController {
 
     private final ReportService reportService;
     private final MemberService memberService;
+
+
+    /* 신고 승인하기 */
+    @PatchMapping("/reports/approval/{reportSeq}")
+    public BaseResponse<Void>approveReport(@PathVariable("reportSeq")Long memberSeq){
+        reportService.approveReport(memberSeq);
+        return new BaseResponse<>(null);
+    }
+
 
     /* 관리자 페이지 전체 회원 조회하기 */
     @GetMapping("/member")

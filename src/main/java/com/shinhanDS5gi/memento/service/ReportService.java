@@ -7,6 +7,9 @@ import java.util.List;
 
 public interface ReportService {
 
+    /* 신고 승인하기 */
+    void approveReport(Long reportSeq);
+
     /* 신규 신고 작성 */
     void createReport(Long memberSeq, CreateReportRequest requestDto);
 
