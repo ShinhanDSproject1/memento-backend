@@ -15,7 +15,7 @@ public enum BaseExceptionResponseStatus implements ResponseStatus{
     /**
      * Mentos 관련 2500대
      */
-    CANNOT_FOUND_MENTOS(2500, HttpStatus.NOT_FOUND.value(), "해당 멘토스 게시글을 찾을 수 없습니다."),
+    CANNOT_FOUND_MENTOS(2500, HttpStatus.BAD_REQUEST.value(), "해당 멘토스 게시글을 찾을 수 없습니다."),
     NO_AUTHORITY_TO_UPDATE(2501, HttpStatus.FORBIDDEN.value(), "게시글을 수정할 권한이 없습니다."),
     NO_AUTHORITY_TO_DELETE(2502, HttpStatus.FORBIDDEN.value(), "게시글을 삭제할 권한이 없습니다."),
     NO_MENTOS_FOUND_FOR_MEMBER(2503, HttpStatus.NOT_FOUND.value(), "멘토가 작성한 멘토스 내역이 존재하지 않습니다."),

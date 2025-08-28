@@ -12,8 +12,8 @@ import com.shinhanDS5gi.memento.domain.report.ReportHandleStatus;
 import com.shinhanDS5gi.memento.dto.CreateReportRequest;
 import com.shinhanDS5gi.memento.dto.SelectReportResponse;
 import com.shinhanDS5gi.memento.repository.member.MemberRepository;
-import com.shinhanDS5gi.memento.repository.mentos.MentosRepository;
 import com.shinhanDS5gi.memento.repository.ReportRepository;
+import com.shinhanDS5gi.memento.repository.mentos.MentosRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -54,9 +54,6 @@ public class ReportServiceImpl implements ReportService {
 
         memberService.expelMemberByAdmin(target.getMemberSeq());
     }
-
-
-
 
 
     /* 신고 작성하기 */
