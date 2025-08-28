@@ -14,12 +14,12 @@ import com.shinhanDS5gi.memento.dto.admin.GetMemberListResponse;
 import com.shinhanDS5gi.memento.repository.MentoCertificationRepository;
 import com.shinhanDS5gi.memento.repository.*;
 import com.shinhanDS5gi.memento.repository.member.MemberRepository;
-
+import com.shinhanDS5gi.memento.repository.mentos.MentosRepository;
+import org.springframework.beans.DirectFieldAccessor;
 
 import com.shinhanDS5gi.memento.repository.mentos.MentosRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
