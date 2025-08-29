@@ -21,6 +21,7 @@ public class PasswordConfig {
         return args -> {
             System.out.println("ENC_1234 = " + pe.encode("1234"));
             System.out.println("ENC_admin = " + pe.encode("admin"));
+            System.out.println("비밀번호 변경 테스트용 'password123!' = " + pe.encode("password123!"));
         };
     }
 }

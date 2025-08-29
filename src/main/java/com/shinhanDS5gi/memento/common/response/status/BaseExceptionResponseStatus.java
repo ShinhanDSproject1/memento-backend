@@ -31,6 +31,8 @@ public enum BaseExceptionResponseStatus implements ResponseStatus{
      */
     CANNOT_FOUND_MEMBER(4000,HttpStatus.NOT_FOUND.value(),"해당 사용자를 찾을 수 없습니다."),
     NOT_A_MENTO(4001, HttpStatus.FORBIDDEN.value(), "멘토 회원만 접근할 수 있는 기능입니다."),
+    PASSWORD_MISMATCH(4001, HttpStatus.BAD_REQUEST.value(), "현재 비밀번호가 일치하지 않습니다."),
+    NEW_PASSWORD_CONFIRM_MISMATCH(4002, HttpStatus.BAD_REQUEST.value(), "새 비밀번호와 비밀번호 확인 정보가 일치하지 않습니다."),
 
     /**
      * Auth 관련 5000대

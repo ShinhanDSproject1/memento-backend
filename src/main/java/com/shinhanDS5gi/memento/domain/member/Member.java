@@ -92,4 +92,13 @@ public class Member extends BaseTime {
     public void updateMemberStatus(BaseStatus status){
         this.status = status;
     }
+
+    public void updateProfile(String phoneNumber, LocalDate birthDate) {
+        this.memberPhoneNumber = phoneNumber;
+        this.memberBirthDate = birthDate;
+    }
+
+    public void updatePassword(String encodedPassword) {
+        this.memberPwd = encodedPassword;
+    }
 }
