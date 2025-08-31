@@ -19,3 +19,11 @@ logging.level:
   org.hibernate.SQL: debug
   org.hibernate.type: trace
   org.springframework.web : DEBUG
+
+aws:
+  access-key: ${AWS_ACCESS_KEY_ID}
+  secret-key: ${AWS_SECRET_ACCESS_KEY}
+  region: ${AWS_REGION}
+  s3:
+    bucket: ${AWS_S3_BUCKET_NAME}
+    upload-dir: ${AWS_S3_UPLOAD_DIR}
