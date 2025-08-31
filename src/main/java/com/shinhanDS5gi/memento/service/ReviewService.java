@@ -7,9 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 public interface ReviewService {
 
-    /* 신고 거부하기 */
-    void rejectionReport(Long reportSeq);
-
     /* 멘토 리뷰 조회 */
     MentoReviewsSliceResponse<MentoReviewsListResponse> getMentoReviews(Long mentorSeq, int limit, Long cursor);
 

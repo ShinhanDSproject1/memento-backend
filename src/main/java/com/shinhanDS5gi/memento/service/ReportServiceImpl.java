@@ -33,6 +33,21 @@ public class ReportServiceImpl implements ReportService {
     private final MentosRepository mentosRepository;
     private final MemberService memberService;
 
+    /* 신고 거부 하기 */
+    @Override
+    @Transactional
+    public void rejectionReport(Long reportSeq) {
+        //신고 조회
+        Report report = reportRepository.findById(reportSeq)
+                .orElseThrow(() -> new ReportException(BaseExceptionResponseStatus.CANNOT_FOUND_REPORT));
+        //중복 처리 방지
+        if (report.getHandleStatus() == ReportHandleStatus.REJECTED) {
+            throw new ReportException(BaseExceptionResponseStatus.ALREADY_REJECTED_REPORT);
+        }
+        // 거부로 상태 변경
+        report.updateHandleStatus(ReportHandleStatus.REJECTED);
+    }
+
     /* 신고 승인 하기*/
     @Override
     @Transactional

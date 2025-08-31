@@ -1,15 +1,11 @@
 package com.shinhanDS5gi.memento.service;
 
-import com.shinhanDS5gi.memento.common.exception.ReportException;
 import com.shinhanDS5gi.memento.common.exception.ReviewException;
-import com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus;
 import com.shinhanDS5gi.memento.domain.Mentos;
 import com.shinhanDS5gi.memento.domain.Reservation;
 import com.shinhanDS5gi.memento.domain.Review;
 import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.domain.member.Member;
-import com.shinhanDS5gi.memento.domain.report.Report;
-import com.shinhanDS5gi.memento.domain.report.ReportHandleStatus;
 import com.shinhanDS5gi.memento.dto.CreateReviewRequest;
 import com.shinhanDS5gi.memento.dto.MentoReviewsListResponse;
 import com.shinhanDS5gi.memento.dto.MentoReviewsSliceResponse;
@@ -34,21 +30,6 @@ public class ReviewServiceImpl implements ReviewService {
     private final MemberRepository memberRepository;
     private final MentosRepository mentosRepository;
     private final ReservationRepository reservationRepository;
-
-    /* 신고 거부 하기 */
-    @Override
-    @Transactional
-    public void rejectionReport(Long reportSeq) {
-        //신고 조회
-        Report report = reportRepository.findById(reportSeq)
-                .orElseThrow(() -> new ReportException(BaseExceptionResponseStatus.CANNOT_FOUND_REPORT));
-        //중복 처리 방지
-        if (report.getHandleStatus() == ReportHandleStatus.REJECTED) {
-            throw new ReportException(BaseExceptionResponseStatus.ALREADY_REJECTED_REPORT);
-        }
-        // 거부로 상태 변경
-        report.updateHandleStatus(ReportHandleStatus.REJECTED);
-    }
 
     /* 멘토 리뷰 조회하기 */
     @Override
