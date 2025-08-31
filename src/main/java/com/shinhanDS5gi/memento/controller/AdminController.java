@@ -23,6 +23,12 @@ public class AdminController {
     private final ReportService reportService;
     private final MemberService memberService;
 
+    /* 신고 거부하기 */
+    @PatchMapping("/reports/rejection/{reportSeq}")
+    public BaseResponse<Void>rejectionReport(@PathVariable("reportSeq")Long memberSeq){
+        reportService.rejectionReport(memberSeq);
+        return new BaseResponse<>(null);
+    }
 
     /* 신고 승인하기 */
     @PatchMapping("/reports/approval/{reportSeq}")
