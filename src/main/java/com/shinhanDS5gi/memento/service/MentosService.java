@@ -3,6 +3,7 @@ package com.shinhanDS5gi.memento.service;
 import com.shinhanDS5gi.memento.dto.MyMentosResponse;
 import com.shinhanDS5gi.memento.dto.MyMentosSliceResponse;
 import com.shinhanDS5gi.memento.dto.UpdateMentosRequest;
+import com.shinhanDS5gi.memento.dto.mentos.CreateMentosRequest;
 import com.shinhanDS5gi.memento.dto.mentos.GetMentosDetailResponse;
 import com.shinhanDS5gi.memento.dto.mentos.GetMentosListResponse;
 
@@ -19,7 +20,10 @@ public interface MentosService {
 
     /* 멘토스 상세조회 */
     GetMentosDetailResponse getMentosDetail(Long mentosSeq);
-  
+
     /* 멘토스 전체조회(카테고리별) */
     GetMentosListResponse getMentosList(Long mentosCategorySeq, Integer limit, Long cursor);
+
+    /* 멘토스 생성하기 */
+    void createMentos(Long memberSeq, CreateMentosRequest createMentosRequest, String idemKey);
 }
