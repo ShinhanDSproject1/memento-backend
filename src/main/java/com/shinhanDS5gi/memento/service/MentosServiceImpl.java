@@ -1,13 +1,16 @@
 package com.shinhanDS5gi.memento.service;
 
+import com.shinhanDS5gi.memento.common.exception.CategoryException;
 import com.shinhanDS5gi.memento.common.exception.MemberException;
 import com.shinhanDS5gi.memento.common.exception.MentosException;
+import com.shinhanDS5gi.memento.domain.Category;
 import com.shinhanDS5gi.memento.domain.Mentos;
 import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.dto.MyMentosResponse;
 import com.shinhanDS5gi.memento.dto.MyMentosSliceResponse;
 import com.shinhanDS5gi.memento.dto.UpdateMentosRequest;
 import com.shinhanDS5gi.memento.dto.mentos.GetMentosListResponse;
+import com.shinhanDS5gi.memento.repository.CategoryRepository;
 import com.shinhanDS5gi.memento.repository.mentos.MentosRepository;
 import com.shinhanDS5gi.memento.dto.mentos.GetMentosDetailProjection;
 import com.shinhanDS5gi.memento.dto.mentos.GetMentosDetailResponse;
@@ -33,6 +36,7 @@ public class MentosServiceImpl implements MentosService {
 
     private final MentosRepository mentosRepository;
     private final ReviewRepository reviewRepository;
+    private final CategoryRepository categoryRepository;
 
     /* 멘토가 개설한 멘토스 중 Status가 'ACTIVE'인 멘토스만 모두 조회하기 (무한스크롤 페이징 처리) */
     @Override
@@ -131,12 +135,17 @@ public class MentosServiceImpl implements MentosService {
     @Override
     public GetMentosListResponse getMentosList(Long mentosCategorySeq, Integer limit, Long cursor) {
         log.info("[MentosServiceImpl.getMentosList]");
+
+        Category category = categoryRepository.findByCategorySeqAndStatus(mentosCategorySeq, BaseStatus.ACTIVE).orElseThrow(
+                () -> new CategoryException(CANNOT_FOUND_CATEGORY)
+        );
+
         List<GetMentosListResponse.MentosDetail> mentosDetailList = mentosRepository.findAllByCategorySeqAndLimitAndCursor(mentosCategorySeq, limit, cursor, BaseStatus.ACTIVE);
 
         GetMentosListResponse result;
-        if(mentosDetailList.size()<=limit){
+        if (mentosDetailList.size() <= limit) {
             result = GetMentosListResponse.builder().mentos(mentosDetailList.stream().limit(limit).toList()).hasNext(false).build();
-        }else{
+        } else {
             result = GetMentosListResponse.builder().mentos(mentosDetailList.stream().limit(limit).toList()).hasNext(true).build();
         }
         return result;
