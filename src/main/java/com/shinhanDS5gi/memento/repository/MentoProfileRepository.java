@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.Optional;
+
 public interface MentoProfileRepository extends JpaRepository<MentoProfile, Long> {
 
     /* memberSeq를 기준으로 멘토 프로필이 존재하는지 확인 */
@@ -17,4 +19,7 @@ public interface MentoProfileRepository extends JpaRepository<MentoProfile, Long
     int updateMentoProfileStatus(@Param("memberSeq") Long memberSeq,
                                        @Param("afterStatus") BaseStatus afterStatus,
                                        @Param("beforeStatus") BaseStatus beforeStatus);
+
+    /* memberSeq에 맞는 mentoProfile 조회 */
+    Optional<MentoProfile> findByMember_MemberSeq(Long memberSeq);
 }
