@@ -2,6 +2,7 @@ package com.shinhanDS5gi.memento.repository;
 
 import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.domain.report.Report;
+import com.shinhanDS5gi.memento.domain.report.ReportType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -21,6 +22,9 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
     /* reportSeq를 기준으로 특정 신고 내역 조회 */
     @Query("SELECT r FROM Report r JOIN FETCH r.member m JOIN FETCH r.mentos mt WHERE r.reportSeq = :reportSeq")
     Optional<Report> findByIdWithMemberAndMentos(@Param("reportSeq") Long reportSeq);
+
+    /* 같은 사유의 중복 신고 방지 메서드 */
+    boolean existsByMember_MemberSeqAndMentos_MentosSeqAndReportType(Long memberSeq, Long mentosSeq, ReportType reportType);
 
     @Modifying(clearAutomatically = true)
     @Query("update Report r set r.status = :afterStatus where r.member.memberSeq = :memberSeq and r.status = :beforeStatus")

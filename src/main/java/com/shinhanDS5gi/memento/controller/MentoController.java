@@ -8,8 +8,11 @@ import com.shinhanDS5gi.memento.service.MentoService;
 import com.shinhanDS5gi.memento.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus.SUCCESS;
@@ -37,31 +40,36 @@ public class MentoController {
     }
 
     /* 멘토 자격증 추가 */
-    @PostMapping("/mento-certifications")
-    public BaseResponse<Void> createMentoCertification(@RequestBody CreateMentoCertificationRequest requestDto) {
+    @PostMapping(value = "/mento-certifications", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public BaseResponse<Void> createMentoCertification(
+            @RequestPart("requestDto") CreateMentoCertificationRequest requestDto,
+            @RequestPart("imageFile") MultipartFile imageFile) throws IOException {
 
-        Long currentMemberId = 1L; // 임시 사용자 ID
-        mentoCertificationService.createMentoCertification(currentMemberId, requestDto);
+        Long currentMemberId = 1L;
+        mentoCertificationService.createMentoCertification(currentMemberId, requestDto, imageFile);
 
         return new BaseResponse<>(SUCCESS, null);
     }
 
     /* 멘토 프로필 생성 */
-    @PostMapping("/mento-profiles")
-    public BaseResponse<Void> createMentoProfile(@RequestBody CreateMentoProfileRequest requestDto) {
+    @PostMapping(value = "/mento-profiles", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public BaseResponse<Void> createMentoProfile(@RequestPart("requestDto") CreateMentoProfileRequest requestDto,
+                                                 @RequestPart("imageFile") MultipartFile imageFile) throws IOException {
 
-        Long currentMemberId = 1L; // 임시 사용자 ID
-        mentoProfileService.createMentoProfile(currentMemberId, requestDto);
+        Long currentMemberId = 1L;
+        mentoProfileService.createMentoProfile(currentMemberId, requestDto, imageFile);
 
         return new BaseResponse<>(SUCCESS, null);
     }
 
     /* 멘토 프로필 수정 */
-    @PatchMapping("/mento-profiles")
-    public BaseResponse<Void> updateMentoProfile(@RequestBody UpdateMentoProfileRequest requestDto) {
+    @PatchMapping(value = "/mento-profiles", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public BaseResponse<Void> updateMentoProfile(
+            @RequestPart("requestDto") UpdateMentoProfileRequest requestDto,
+            @RequestPart(value = "imageFile", required = false) MultipartFile imageFile) throws IOException {
 
         Long currentMemberId = 1L;
-        mentoProfileService.updateMentoProfile(currentMemberId, requestDto);
+        mentoProfileService.updateMentoProfile(currentMemberId, requestDto, imageFile);
 
         return new BaseResponse<>(SUCCESS, null);
     }

@@ -21,9 +21,6 @@ public class UpdateMentosRequest {
     @PositiveOrZero(message = "가격은 0 이상이어야 합니다.")
     private Integer price;
 
-    @NotBlank(message = "이미지는 필수입니다.")
-    private String mentosImage;
-
     @NotBlank(message = "우편번호는 필수입니다.")
     private String mentosPostcode;
 

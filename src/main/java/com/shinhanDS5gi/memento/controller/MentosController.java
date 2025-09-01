@@ -11,7 +11,11 @@ import com.shinhanDS5gi.memento.dto.mentos.GetMentosListResponse;
 import com.shinhanDS5gi.memento.service.MentosService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus.CANNOT_CREATE_MENTOS;
 import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus.SUCCESS;
@@ -36,11 +40,14 @@ public class MentosController {
     }
 
     /* 멘토스 게시글 수정 */
-    @PutMapping("/{mentosSeq}")
-    public BaseResponse<Void> updateMentos(@PathVariable("mentosSeq") Long mentosSeq, @RequestBody UpdateMentosRequest requestDto) {
-        Long currentMemberId = 1L;
-        mentosService.updateMentos(mentosSeq, currentMemberId, requestDto);
+    @PutMapping(value = "/{mentosSeq}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public BaseResponse<Void> updateMentos(
+            @PathVariable("mentosSeq") Long mentosSeq,
+            @RequestPart("requestDto") UpdateMentosRequest requestDto,
+            @RequestPart(value = "imageFile", required = false) MultipartFile imageFile) throws IOException {
 
+        Long currentMemberId = 1L;
+        mentosService.updateMentos(mentosSeq, currentMemberId, requestDto, imageFile);
         return new BaseResponse<>(SUCCESS, null);
     }
 

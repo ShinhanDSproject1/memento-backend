@@ -37,8 +37,11 @@ public class MentoProfile extends BaseTime {
     private Member member;
 
     /* 멘토 프로필 수정하기 */
-    public void update(UpdateMentoProfileRequest requestDto) {
-        this.mentoProfileContent = requestDto.getMentoProfileContent();
-        this.mentoProfileImage = requestDto.getMentoProfileImage();
+    public void update(String content, String imageUrl) {
+        this.mentoProfileContent = content;
+
+        if (imageUrl != null) {
+            this.mentoProfileImage = imageUrl;
+        }
     }
 }

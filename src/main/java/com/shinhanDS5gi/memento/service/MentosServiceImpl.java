@@ -26,6 +26,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
@@ -95,16 +96,23 @@ public class MentosServiceImpl implements MentosService {
     /* 멘토스 수정하기 */
     @Override
     @Transactional
-    public void updateMentos(Long mentosSeq, Long currentMemberId, UpdateMentosRequest requestDto) {
-        // DB에서 Mentos 엔티티를 조회
+    public void updateMentos(Long mentosSeq, Long currentMemberId, UpdateMentosRequest requestDto, MultipartFile imageFile) throws IOException {
         Mentos mentos = mentosRepository.findByMentosSeqAndStatus(mentosSeq, BaseStatus.ACTIVE)
                 .orElseThrow(() -> new MentosException(CANNOT_FOUND_MENTOS));
 
-        // 수정 권한 확인
         if (!Objects.equals(mentos.getMember().getMemberSeq(), currentMemberId)) {
             throw new MentosException(NO_AUTHORITY_TO_UPDATE);
         }
-        mentos.update(requestDto);
+
+        String newImageUrl = null;
+
+        // null이 아니다? 기존 이미지 삭제 후 새로운 이미지 넣기
+        if (imageFile != null && !imageFile.isEmpty()) {
+            s3Uploader.delete(mentos.getMentosImage());
+            newImageUrl = s3Uploader.upload(imageFile);
+        }
+
+        mentos.update(requestDto, newImageUrl);
     }
 
     /* 멘토스 삭제하기 */

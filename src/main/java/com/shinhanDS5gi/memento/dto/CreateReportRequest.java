@@ -18,17 +18,14 @@ public class CreateReportRequest {
     @NotNull(message = "신고 유형은 필수입니다.")
     private ReportType reportType;
 
-    @NotNull(message = "신고 제출용 이미지는 필수입니다.")
-    private String reportImage;
-
     @NotNull(message = "신고 대상(멘토스) ID는 필수입니다.")
     private Long mentosSeq;
 
-    public Report toEntity(Member member, Mentos mentos) {
+    public Report toEntity(Member member, Mentos mentos, String imageUrl) {
         return new Report(
-                null, // 자동 생성
+                null,
                 this.reportType,
-                reportImage,
+                imageUrl, // S3에 업로드된 이미지 URL
                 BaseStatus.ACTIVE,
                 ReportHandleStatus.PENDING,
                 member,

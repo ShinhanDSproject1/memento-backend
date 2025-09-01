@@ -2,7 +2,9 @@ package com.shinhanDS5gi.memento.service;
 
 import com.shinhanDS5gi.memento.dto.CreateReportRequest;
 import com.shinhanDS5gi.memento.dto.SelectReportResponse;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface ReportService {
@@ -14,7 +16,7 @@ public interface ReportService {
     void approveReport(Long reportSeq);
 
     /* 신규 신고 작성 */
-    void createReport(Long memberSeq, CreateReportRequest requestDto);
+    void createReport(Long memberSeq, CreateReportRequest requestDto, MultipartFile imageFile) throws IOException;
 
     /* 모든 신고 내역 조회 */
     List<SelectReportResponse> findAllReports();

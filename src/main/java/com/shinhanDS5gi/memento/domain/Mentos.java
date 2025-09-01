@@ -80,11 +80,10 @@ public class Mentos extends BaseTime {
     private List<Review> reviewList = new ArrayList<>();
 
     /* 멘토스 정보 수정*/
-    public void update(UpdateMentosRequest requestDto) {
+    public void update(UpdateMentosRequest requestDto, String newImageUrl) {
         this.mentosTitle = requestDto.getMentosTitle();
         this.mentosContent = requestDto.getMentosContent();
         this.price = requestDto.getPrice();
-        this.mentosImage = requestDto.getMentosImage();
         this.mentosPostcode = requestDto.getMentosPostcode();
         this.mentosRoadaddress = requestDto.getMentosRoadaddress();
         this.mentosBname = requestDto.getMentosBname();
@@ -92,6 +91,9 @@ public class Mentos extends BaseTime {
 //        this.keywordOne = requestDto.getKeywordOne();
 //        this.keywordTwo = requestDto.getKeywordTwo();
 //        this.keywordThree = requestDto.getKeywordThree();
+        if (newImageUrl != null) {
+            this.mentosImage = newImageUrl;
+        }
     }
 
     /* 멘토스 상태 비활성화 */
