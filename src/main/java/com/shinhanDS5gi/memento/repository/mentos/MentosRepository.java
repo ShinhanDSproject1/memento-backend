@@ -29,4 +29,5 @@ public interface MentosRepository extends JpaRepository<Mentos, Long>, MentosCus
                            @Param("beforeStatus") BaseStatus beforeStatus);
 
     GetMentosDetailProjection findMentosDetailByMentosSeqAndStatus(Long mentosSeq, BaseStatus status);
+
 }
