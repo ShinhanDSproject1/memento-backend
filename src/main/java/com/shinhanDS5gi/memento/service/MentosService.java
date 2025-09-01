@@ -17,6 +17,7 @@ public interface MentosService {
     /* 멘토스 게시글 삭제(비활성화)  */
     void inactiveMentos(Long mentosSeq, Long currentMemberId);
 
+    /* 멘토스 전체조회(카테고리별) */
     GetMentosListResponse getMentosList(Long mentosCategorySeq, Integer limit, Long cursor);
 
     /* 멘토스 상세조회 */
