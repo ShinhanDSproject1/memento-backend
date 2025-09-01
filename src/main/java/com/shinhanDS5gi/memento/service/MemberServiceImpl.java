@@ -166,6 +166,7 @@ public class MemberServiceImpl implements MemberService {
         memberRepo.save(member);
         // 4) 자격증 저장
         List<MentoCertificationRequest> certReqs = req.getCertification();
+        //자격증 없으면 스킵처리 / 있으면 저장
         if (certReqs != null && !certReqs.isEmpty()) {
             //DTO를 엔티티로 변환해서 List에 저장
             List<MentoCertification> entities = new ArrayList<>(certReqs.size());
