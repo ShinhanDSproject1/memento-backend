@@ -1,5 +1,6 @@
 package com.shinhanDS5gi.memento.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.shinhanDS5gi.memento.domain.Mentos;
 import com.shinhanDS5gi.memento.domain.Reservation;
 import com.shinhanDS5gi.memento.domain.member.Member;
@@ -13,6 +14,7 @@ import java.util.stream.Collectors;
 @Getter
 public class MyMentiResponse {
 
+    @JsonIgnore
     private final Long mentosSeq;
     private final String mentosTitle;
     private final List<MentiInfo> mentiList; // 멘티 목록
