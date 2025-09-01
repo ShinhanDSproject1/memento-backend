@@ -118,6 +118,7 @@ public class ReportServiceImpl implements ReportService {
                 .map(report -> SelectReportResponse.builder()
                         .reportSeq(report.getReportSeq())
                         .reportType(report.getReportType())
+                        .reportImage(report.getReportImage())
                         .reporterName(report.getMember().getMemberName())
                         .reportedMentosSeq(report.getMentos().getMentosSeq())
                         .createdAt(report.getCreatedAt())
