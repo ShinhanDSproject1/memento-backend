@@ -10,7 +10,7 @@ import com.shinhanDS5gi.memento.domain.member.Member;
 import com.shinhanDS5gi.memento.dto.CreateReviewRequest;
 import com.shinhanDS5gi.memento.dto.MentoReviewsListResponse;
 import com.shinhanDS5gi.memento.dto.MentoReviewsSliceResponse;
-import com.shinhanDS5gi.memento.repository.MentosRepository;
+import com.shinhanDS5gi.memento.repository.mentos.MentosRepository;
 import com.shinhanDS5gi.memento.repository.ReservationRepository;
 import com.shinhanDS5gi.memento.repository.ReviewRepository;
 import com.shinhanDS5gi.memento.repository.member.MemberRepository;
