@@ -92,7 +92,7 @@ public class MentosServiceImpl implements MentosService {
 
         // 수정 권한 확인
         if (!Objects.equals(mentos.getMember().getMemberSeq(), currentMemberId)) {
-            throw new MemberException(NO_AUTHORITY_TO_UPDATE);
+            throw new MentosException(NO_AUTHORITY_TO_UPDATE);
         }
         mentos.update(requestDto);
     }
@@ -107,7 +107,7 @@ public class MentosServiceImpl implements MentosService {
 
         // 삭제 권한 확인
         if (!Objects.equals(mentos.getMember().getMemberSeq(), currentMemberId)) {
-            throw new MemberException(NO_AUTHORITY_TO_DELETE);
+            throw new MentosException(NO_AUTHORITY_TO_DELETE);
         }
         mentos.inactivate();
     }

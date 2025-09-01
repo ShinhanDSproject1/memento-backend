@@ -15,10 +15,11 @@ import com.shinhanDS5gi.memento.repository.MentoCertificationRepository;
 import com.shinhanDS5gi.memento.repository.*;
 import com.shinhanDS5gi.memento.repository.member.MemberRepository;
 import com.shinhanDS5gi.memento.repository.mentos.MentosRepository;
+import org.springframework.beans.DirectFieldAccessor;
 
+import com.shinhanDS5gi.memento.repository.mentos.MentosRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -141,9 +142,6 @@ public class MemberServiceImpl implements MemberService {
         return user;
     }
 
-
-
-
     /* 멘토 회원가입 */
     @Override
     public void signupMento(MentoSignupRequest req) {
@@ -183,8 +181,6 @@ public class MemberServiceImpl implements MemberService {
             certRepo.saveAll(entities);
         }
     }
-
-
 
     /* 멘티 회원가입 */
     @Override

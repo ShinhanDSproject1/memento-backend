@@ -55,10 +55,6 @@ public class ReportServiceImpl implements ReportService {
         memberService.expelMemberByAdmin(target.getMemberSeq());
     }
 
-
-
-
-
     /* 신고 작성하기 */
     @Override
     @Transactional
@@ -67,6 +63,7 @@ public class ReportServiceImpl implements ReportService {
                 .orElseThrow(()-> new MemberException(CANNOT_FOUND_MEMBER));
         Mentos reportedMentos = mentosRepository.findByMentosSeqAndStatus(requestDto.getMentosSeq(), BaseStatus.ACTIVE)
                 .orElseThrow(() -> new MentosException(CANNOT_FOUND_REPORT));
+
         Report report = requestDto.toEntity(reporter, reportedMentos);
         reportRepository.save(report);
     }

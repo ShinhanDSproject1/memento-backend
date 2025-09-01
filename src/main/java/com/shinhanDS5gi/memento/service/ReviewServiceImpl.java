@@ -15,6 +15,7 @@ import com.shinhanDS5gi.memento.repository.mentos.MentosRepository;
 import com.shinhanDS5gi.memento.repository.ReservationRepository;
 import com.shinhanDS5gi.memento.repository.ReviewRepository;
 import com.shinhanDS5gi.memento.repository.member.MemberRepository;
+import com.shinhanDS5gi.memento.repository.mentos.MentosRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -17,7 +17,7 @@ import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
-public class ReviewRepositoryImpl implements ReviewCustomRepository{
+public class ReviewRepositoryImpl implements ReviewCustomRepository {
 
     // QueryDSL 쿼리 팩토리 주입
     private final JPAQueryFactory queryFactory;
