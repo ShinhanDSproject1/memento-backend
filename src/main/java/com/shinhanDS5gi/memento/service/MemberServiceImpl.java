@@ -15,9 +15,6 @@ import com.shinhanDS5gi.memento.repository.MentoCertificationRepository;
 import com.shinhanDS5gi.memento.repository.*;
 import com.shinhanDS5gi.memento.repository.member.MemberRepository;
 import com.shinhanDS5gi.memento.repository.mentos.MentosRepository;
-import org.springframework.beans.DirectFieldAccessor;
-
-import com.shinhanDS5gi.memento.repository.mentos.MentosRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -84,8 +81,6 @@ public class MemberServiceImpl implements MemberService {
         } else if (member.getMemberType().equals(MemberType.MENTI)) {
             expelForMenti(member.getMemberSeq());
         }
-
-
     }
 
     /* 로그아웃 */
@@ -136,7 +131,6 @@ public class MemberServiceImpl implements MemberService {
             log.warn("로그인 실패: 비밀번호 틀림 (id={}, type={})", id, user.getMemberType());
             throw new AuthException(INVALID_PASSWORD);
         }
-
         log.info("로그인 성공: (id={}, type={})", id, user.getMemberType());
         return user;
     }
