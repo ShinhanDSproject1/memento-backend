@@ -12,7 +12,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
-public interface MentosRepository extends JpaRepository<Mentos, Long> {
+public interface MentosRepository extends JpaRepository<Mentos, Long>, MentosCustomRepository {
 
     /* Status가 ACTIVE한 데이터만 조회 */
     Optional<Mentos> findByMentosSeqAndStatus(Long mentosSeq, BaseStatus status);

@@ -14,9 +14,8 @@ import com.shinhanDS5gi.memento.dto.admin.GetMemberListResponse;
 import com.shinhanDS5gi.memento.repository.MentoCertificationRepository;
 import com.shinhanDS5gi.memento.repository.*;
 import com.shinhanDS5gi.memento.repository.member.MemberRepository;
-
-
 import com.shinhanDS5gi.memento.repository.mentos.MentosRepository;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -91,6 +90,7 @@ public class MemberServiceImpl implements MemberService {
     /* 로그아웃 */
     @Override
     public void logout(Long memberSeq) {
+        //memberSeq를 가진 멤버를 member테이블에서 조회
         memberRepo.findById(memberSeq)
                 .orElseThrow(() -> new MemberException(CANNOT_FOUND_MEMBER));
         log.info("로그아웃 성공: memberSeq={}", memberSeq);
@@ -121,6 +121,7 @@ public class MemberServiceImpl implements MemberService {
             // 다른 타입 여부 확인
             MemberType otherType = (pathType == MemberType.MENTI) ? MemberType.MENTO : MemberType.MENTI;
             Optional<Member> otherOpt = memberRepo.findByMemberIdAndMemberType(id, otherType);
+
             if (otherOpt.isPresent()) {
                 log.warn("로그인 실패: 타입 불일치 (id={}, 선택한 타입={})", id, pathType);
                 throw new AuthException(CANNOT_LOGIN);
@@ -135,6 +136,7 @@ public class MemberServiceImpl implements MemberService {
             log.warn("로그인 실패: 비밀번호 틀림 (id={}, type={})", id, user.getMemberType());
             throw new AuthException(INVALID_PASSWORD);
         }
+
         log.info("로그인 성공: (id={}, type={})", id, user.getMemberType());
         return user;
     }
