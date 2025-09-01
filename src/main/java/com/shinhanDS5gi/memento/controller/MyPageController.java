@@ -2,6 +2,7 @@ package com.shinhanDS5gi.memento.controller;
 
 import com.shinhanDS5gi.memento.common.response.BaseResponse;
 import com.shinhanDS5gi.memento.dto.CreateReviewRequest;
+import com.shinhanDS5gi.memento.dto.MyMentosByMentiSliceResponse;
 import com.shinhanDS5gi.memento.dto.MyProfileResponse;
 import com.shinhanDS5gi.memento.dto.UpdateMyPasswordRequest;
 import com.shinhanDS5gi.memento.dto.UpdateMyProfileRequest;
@@ -36,6 +37,17 @@ public class MyPageController {
         Long currentMemberId = 1L;
         MyProfileResponse profile = myPageService.getMyProfile(currentMemberId);
         return new BaseResponse<>(SUCCESS, profile);
+    }
+
+    /* 나의 멘토스 내역 조회하기 (멘티 기준) */
+    @GetMapping("/my-mentos-list")
+    public BaseResponse<MyMentosByMentiSliceResponse> getMyMentoringHistory(
+            @RequestParam(defaultValue = "3") int limit, // 3개씩 보여주기
+            @RequestParam(required = false) Long cursor
+    ) {
+        Long currentMemberId = 1L;
+        var page = myPageService.getMyMentosByMenti(currentMemberId, limit, cursor);
+        return new BaseResponse<>(SUCCESS, page);
     }
 
     /* 나의 프로필 정보(휴대폰 번호, 생년월일) 수정하기 */
