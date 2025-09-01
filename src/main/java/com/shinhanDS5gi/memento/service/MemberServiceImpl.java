@@ -70,7 +70,7 @@ public class MemberServiceImpl implements MemberService {
     /* 회원탈퇴 */
     @Override
     @Transactional
-    public void withdraw(Long memberSeq) { // 회원 PK로 탈퇴 수행
+    public void withdraw(Long memberSeq) {
         //ACTIVE인 회원만 찾음 → 없거나 이미 INACTIVE면 바로 오류메세지
         log.info("[MemberServiceImpl.expelMemberByAdmin]");
         Member member = memberRepo.findByMemberSeqAndStatus(memberSeq, BaseStatus.ACTIVE)
@@ -91,7 +91,6 @@ public class MemberServiceImpl implements MemberService {
     /* 로그아웃 */
     @Override
     public void logout(Long memberSeq) {
-        //memberSeq를 가진 멤버를 member테이블에서 조회
         memberRepo.findById(memberSeq)
                 .orElseThrow(() -> new MemberException(CANNOT_FOUND_MEMBER));
         log.info("로그아웃 성공: memberSeq={}", memberSeq);
@@ -144,6 +143,7 @@ public class MemberServiceImpl implements MemberService {
 
     /* 멘토 회원가입 */
     @Override
+    @Transactional
     public void signupMento(MentoSignupRequest req) {
         // 1) 중복 아이디 체크
         if (memberRepo.existsByMemberId(req.getMemberId())) {
@@ -164,9 +164,7 @@ public class MemberServiceImpl implements MemberService {
         memberRepo.save(member);
         // 4) 자격증 저장
         List<MentoCertificationRequest> certReqs = req.getCertification();
-        //자격증 없으면 스킵처리 / 있으면 저장
         if (certReqs != null && !certReqs.isEmpty()) {
-            //DTO를 엔티티로 변환해서 List에 저장
             List<MentoCertification> entities = new ArrayList<>(certReqs.size());
             //자격증 하나씩 처리
             for (MentoCertificationRequest c : certReqs) {
@@ -184,6 +182,7 @@ public class MemberServiceImpl implements MemberService {
 
     /* 멘티 회원가입 */
     @Override
+    @Transactional
     public void signupMenti(MentiSignupRequest req) {
         // 1) 중복 아이디 체크
         if (memberRepo.existsByMemberId(req.getMemberId())) {
