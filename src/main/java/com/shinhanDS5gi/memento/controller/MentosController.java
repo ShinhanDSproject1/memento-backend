@@ -1,9 +1,11 @@
 package com.shinhanDS5gi.memento.controller;
 
+import com.shinhanDS5gi.memento.common.exception.MentosException;
 import com.shinhanDS5gi.memento.common.response.BaseResponse;
 import com.shinhanDS5gi.memento.dto.MyMentosResponse;
 import com.shinhanDS5gi.memento.dto.MyMentosSliceResponse;
 import com.shinhanDS5gi.memento.dto.UpdateMentosRequest;
+import com.shinhanDS5gi.memento.dto.mentos.CreateMentosRequest;
 import com.shinhanDS5gi.memento.dto.mentos.GetMentosDetailResponse;
 import com.shinhanDS5gi.memento.dto.mentos.GetMentosListResponse;
 import com.shinhanDS5gi.memento.service.MentosService;
@@ -11,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus.CANNOT_CREATE_MENTOS;
 import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus.SUCCESS;
 
 @Slf4j
@@ -49,14 +52,14 @@ public class MentosController {
 
         return new BaseResponse<>(SUCCESS, null);
     }
-  
+
     /* 멘토스 상세조회 */
     @GetMapping("/detail/{mentosSeq}")
     public BaseResponse<GetMentosDetailResponse> getMentosDetail(@PathVariable("mentosSeq") Long mentosSeq){
         log.info("[MentosController.getMentosDetail]");
         return new BaseResponse<>(mentosService.getMentosDetail(mentosSeq));
     }
-  
+
     /* 멘토스 전체 조회 */
     @GetMapping("/category/{mentosCategorySeq}")
     public BaseResponse<GetMentosListResponse> getMentosList(
@@ -65,5 +68,20 @@ public class MentosController {
             @RequestParam(value = "cursor", required = false) Long cursor){
         log.info("[MentosController.getMentosList]");
         return new BaseResponse<>(mentosService.getMentosList(mentosCategorySeq, limit, cursor));
+    }
+
+    /* 멘토스 생성하기 */
+    @PostMapping("/{memberSeq}")
+    public BaseResponse<Void> createMentos(@PathVariable("memberSeq") Long memberSeq,
+                                           @ModelAttribute CreateMentosRequest createMentosRequest,
+                                           @RequestHeader(value = "Idempotency-Key") String idemKey){
+        log.info("[MentosController.createMentos]");
+        // 프론트에서 멱등키가 같이 오지 않으면 생성이 안되도록 막기
+        if(idemKey.isEmpty()) {
+            throw new MentosException(CANNOT_CREATE_MENTOS);
+        }
+
+        mentosService.createMentos(memberSeq, createMentosRequest, idemKey);
+        return new BaseResponse<>(null);
     }
 }

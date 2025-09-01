@@ -48,6 +48,12 @@ dependencies {
 
     //비밀번호 해시
     implementation 'org.springframework.security:spring-security-crypto'
+
+	// AWS SDK
+	implementation 'org.jsoup:jsoup:1.15.4'
+	implementation platform("software.amazon.awssdk:bom:2.33.0")
+	implementation "software.amazon.awssdk:s3"
+
 }
 
 tasks.named('test') {

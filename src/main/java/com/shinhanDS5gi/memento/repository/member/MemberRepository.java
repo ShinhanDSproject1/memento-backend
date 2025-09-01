@@ -23,4 +23,7 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberCus
 
     //로그인 시 아이디 중복확인을 위해 작성
     boolean existsByMemberId(String memberId);
+
+    // memberSeq, status, memberType 으로 멤버 찾기
+    Optional<Member> findByMemberSeqAndStatusAndMemberType(Long memberSeq, BaseStatus status, MemberType memberType);
 }

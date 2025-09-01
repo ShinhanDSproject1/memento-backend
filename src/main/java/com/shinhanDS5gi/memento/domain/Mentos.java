@@ -48,12 +48,12 @@ public class Mentos extends BaseTime {
 
     private String mentosDetail;
 
-    @Column(nullable = false)
-    private String keywordOne;
-    @Column(nullable = false)
-    private String keywordTwo;
-    @Column(nullable = false)
-    private String keywordThree;
+//    @Column(nullable = false)
+//    private String keywordOne;
+//    @Column(nullable = false)
+//    private String keywordTwo;
+//    @Column(nullable = false)
+//    private String keywordThree;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -89,14 +89,30 @@ public class Mentos extends BaseTime {
         this.mentosRoadaddress = requestDto.getMentosRoadaddress();
         this.mentosBname = requestDto.getMentosBname();
         this.mentosDetail = requestDto.getMentosDetail();
-        this.keywordOne = requestDto.getKeywordOne();
-        this.keywordTwo = requestDto.getKeywordTwo();
-        this.keywordThree = requestDto.getKeywordThree();
+//        this.keywordOne = requestDto.getKeywordOne();
+//        this.keywordTwo = requestDto.getKeywordTwo();
+//        this.keywordThree = requestDto.getKeywordThree();
     }
 
     /* 멘토스 상태 비활성화 */
     public void inactivate() {
         this.status = BaseStatus.INACTIVE;
+    }
+
+    //멘토스 생성하기
+    public Mentos(String mentosTitle, String mentosContent, int price, String mentosImage, String mentosPostcode,
+                  String mentosRoadaddress, String mentosBname, String mentosDetail, Category category, Member member, BaseStatus status) {
+        this.mentosTitle = mentosTitle;
+        this.mentosContent = mentosContent;
+        this.price = price;
+        this.mentosImage = mentosImage;
+        this.mentosPostcode = mentosPostcode;
+        this.mentosRoadaddress = mentosRoadaddress;
+        this.mentosBname = mentosBname;
+        this.mentosDetail = mentosDetail;
+        this.category = category;
+        this.member = member;
+        this.status = status;
     }
 
 }
