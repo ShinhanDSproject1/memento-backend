@@ -1,4 +1,4 @@
-package com.shinhanDS5gi.memento.repository;
+package com.shinhanDS5gi.memento.repository.Review;
 
 import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.dto.MentoReviewsListResponse;
