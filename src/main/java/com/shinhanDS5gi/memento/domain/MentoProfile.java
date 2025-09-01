@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.domain.base.BaseTime;
 import com.shinhanDS5gi.memento.domain.member.Member;
-import com.shinhanDS5gi.memento.dto.UpdateMentoProfileRequest;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
