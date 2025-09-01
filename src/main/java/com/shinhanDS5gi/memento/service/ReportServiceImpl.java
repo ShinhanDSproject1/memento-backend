@@ -1,6 +1,7 @@
 package com.shinhanDS5gi.memento.service;
 
 import com.shinhanDS5gi.memento.common.exception.MemberException;
+import com.shinhanDS5gi.memento.common.exception.MentosException;
 import com.shinhanDS5gi.memento.common.exception.ReportException;
 import com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus;
 import com.shinhanDS5gi.memento.domain.Mentos;
@@ -54,14 +55,15 @@ public class ReportServiceImpl implements ReportService {
         memberService.expelMemberByAdmin(target.getMemberSeq());
     }
 
-
     /* 신고 작성하기 */
     @Override
     @Transactional
     public void createReport(Long memberSeq, CreateReportRequest requestDto) {
-        Member reporter = memberRepository.findById(memberSeq).orElseThrow(()-> new ReportException(CANNOT_FOUND_MEMBER));
-        Mentos reportedMentos = mentosRepository.findById(requestDto.getMentosSeq())
-                .orElseThrow(() -> new ReportException(CANNOT_FOUND_REPORT));
+        Member reporter = memberRepository.findByMemberSeqAndStatus(memberSeq, BaseStatus.ACTIVE)
+                .orElseThrow(()-> new MemberException(CANNOT_FOUND_MEMBER));
+        Mentos reportedMentos = mentosRepository.findByMentosSeqAndStatus(requestDto.getMentosSeq(), BaseStatus.ACTIVE)
+                .orElseThrow(() -> new MentosException(CANNOT_FOUND_REPORT));
+
         Report report = requestDto.toEntity(reporter, reportedMentos);
         reportRepository.save(report);
     }

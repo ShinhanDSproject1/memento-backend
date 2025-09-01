@@ -5,9 +5,6 @@ import com.shinhanDS5gi.memento.domain.member.Member;
 import com.shinhanDS5gi.memento.domain.member.MemberType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
-import com.shinhanDS5gi.memento.domain.member.MemberType;
-
-import java.util.List;
 import java.util.Optional;
 
 public interface MemberRepository extends JpaRepository<Member, Long>, MemberCustomRepository{

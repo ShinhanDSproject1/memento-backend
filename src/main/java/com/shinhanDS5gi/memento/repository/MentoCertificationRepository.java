@@ -7,8 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
-import java.util.List;
-
 //멘토 자격증 저장용
 public interface MentoCertificationRepository extends JpaRepository<MentoCertification, Long> {
     @Modifying(clearAutomatically = true, flushAutomatically = true)

@@ -26,4 +26,5 @@ public interface MentosService {
 
     /* 멘토스 생성하기 */
     void createMentos(Long memberSeq, CreateMentosRequest createMentosRequest, String idemKey);
+
 }

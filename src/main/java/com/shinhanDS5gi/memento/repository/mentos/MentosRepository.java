@@ -14,6 +14,9 @@ import java.util.Optional;
 
 public interface MentosRepository extends JpaRepository<Mentos, Long>, MentosCustomRepository {
 
+    /* Status가 ACTIVE한 데이터만 조회 */
+    Optional<Mentos> findByMentosSeqAndStatus(Long mentosSeq, BaseStatus status);
+
     /* 접속한 멘토 유저의 활성화된 멘토스 목록 조회 */
     @Query("SELECT m FROM Mentos m WHERE m.member.memberSeq = :memberSeq AND m.status = :status AND m.mentosSeq < :cursor ORDER BY m.mentosSeq DESC")
     Slice<Mentos> findMyMentosSlice(@Param("memberSeq") Long memberSeq, @Param("cursor") Long cursor, @Param("status") BaseStatus status, Pageable pageable);
@@ -27,5 +30,4 @@ public interface MentosRepository extends JpaRepository<Mentos, Long>, MentosCus
 
     GetMentosDetailProjection findMentosDetailByMentosSeqAndStatus(Long mentosSeq, BaseStatus status);
 
-    Optional<Mentos> findByMentosSeqAndStatus(Long mentosSeq, BaseStatus status);
 }

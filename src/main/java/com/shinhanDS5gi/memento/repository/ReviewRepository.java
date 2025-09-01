@@ -26,4 +26,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewCus
     int updateReviewStatus(@Param("memberSeq") Long memberSeq,
                            @Param("afterStatus") BaseStatus afterStatus,
                            @Param("beforeStatus") BaseStatus beforeStatus);
+
+
 }
