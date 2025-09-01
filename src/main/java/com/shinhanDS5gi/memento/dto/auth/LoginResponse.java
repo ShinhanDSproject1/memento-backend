@@ -10,5 +10,6 @@ import lombok.NoArgsConstructor;
 //로그인 Response DTO
 public class LoginResponse {
     private String memberName;
+    private String memberType;
 
 }

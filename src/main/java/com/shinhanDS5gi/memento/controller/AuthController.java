@@ -41,7 +41,7 @@ public class AuthController {
     public BaseResponse<LoginResponse> login(@PathVariable("user-type") MemberType type,
                                              @RequestBody LoginRequest request) {
         Member member = memberService.login(type, request);
-        return new BaseResponse<>(SUCCESS, new LoginResponse(member.getMemberName()));
+        return new BaseResponse<>(SUCCESS, new LoginResponse(member.getMemberName(),member.getMemberType().name()));
     }
 
     /* 회원가입 (멘토) */
