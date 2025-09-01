@@ -7,10 +7,11 @@ import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.dto.MyMentosResponse;
 import com.shinhanDS5gi.memento.dto.MyMentosSliceResponse;
 import com.shinhanDS5gi.memento.dto.UpdateMentosRequest;
+import com.shinhanDS5gi.memento.dto.mentos.GetMentosListResponse;
+import com.shinhanDS5gi.memento.repository.mentos.MentosRepository;
 import com.shinhanDS5gi.memento.dto.mentos.GetMentosDetailProjection;
 import com.shinhanDS5gi.memento.dto.mentos.GetMentosDetailResponse;
 import com.shinhanDS5gi.memento.repository.ReviewRepository;
-import com.shinhanDS5gi.memento.repository.mentos.MentosRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -124,5 +125,19 @@ public class MentosServiceImpl implements MentosService {
                 .mentosDescription(projection.getMentosDescription()).mentosPrice(projection.getMentosPrice()).build();
 
         return resultResponse;
+    }
+
+    @Override
+    public GetMentosListResponse getMentosList(Long mentosCategorySeq, Integer limit, Long cursor) {
+        log.info("[MentosServiceImpl.getMentosList]");
+        List<GetMentosListResponse.MentosDetail> mentosDetailList = mentosRepository.findAllByCategorySeqAndLimitAndCursor(mentosCategorySeq, limit, cursor, BaseStatus.ACTIVE);
+
+        GetMentosListResponse result;
+        if(mentosDetailList.size()<=limit){
+            result = GetMentosListResponse.builder().mentos(mentosDetailList.stream().limit(limit).toList()).hasNext(false).build();
+        }else{
+            result = GetMentosListResponse.builder().mentos(mentosDetailList.stream().limit(limit).toList()).hasNext(true).build();
+        }
+        return result;
     }
 }
