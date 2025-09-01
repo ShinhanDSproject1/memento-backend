@@ -18,10 +18,10 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus.*;
 import java.util.List;
 
 import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus.CANNOT_FOUND_MEMBER;
-import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus.*;
 
 @Service
 @RequiredArgsConstructor
