@@ -1,6 +1,7 @@
 package com.shinhanDS5gi.memento.service;
 
 import com.shinhanDS5gi.memento.common.exception.MentoProfileException;
+import com.shinhanDS5gi.memento.common.exception.MemberException;
 import com.shinhanDS5gi.memento.domain.MentoProfile;
 import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.domain.member.Member;
@@ -29,8 +30,8 @@ public class MentoProfileServiceImpl implements MentoProfileService {
     public void createMentoProfile(Long memberSeq, CreateMentoProfileRequest requestDto) {
 
         /* 회원 가입한 사용자인가? */
-        Member member = memberRepository.findById(memberSeq)
-                .orElseThrow(() -> new MentoProfileException(CANNOT_FOUND_MEMBER));
+        Member member = memberRepository.findByMemberSeqAndStatus(memberSeq, BaseStatus.ACTIVE)
+                .orElseThrow(() -> new MemberException(CANNOT_FOUND_MEMBER));
 
         /* 멘토인가? */
         if (member.getMemberType() != MemberType.MENTO) {

@@ -3,8 +3,8 @@ package com.shinhanDS5gi.memento.service;
 import com.shinhanDS5gi.memento.dto.MyMentosResponse;
 import com.shinhanDS5gi.memento.dto.MyMentosSliceResponse;
 import com.shinhanDS5gi.memento.dto.UpdateMentosRequest;
-import com.shinhanDS5gi.memento.dto.mentos.GetMentosDetailResponse;
 import com.shinhanDS5gi.memento.dto.mentos.GetMentosListResponse;
+import com.shinhanDS5gi.memento.dto.mentos.GetMentosDetailResponse;
 
 public interface MentosService {
 
@@ -17,9 +17,9 @@ public interface MentosService {
     /* 멘토스 게시글 삭제(비활성화)  */
     void inactiveMentos(Long mentosSeq, Long currentMemberId);
 
-    /* 멘토스 상세조회 */
-    GetMentosDetailResponse getMentosDetail(Long mentosSeq);
-  
     /* 멘토스 전체조회(카테고리별) */
     GetMentosListResponse getMentosList(Long mentosCategorySeq, Integer limit, Long cursor);
+
+    /* 멘토스 상세조회 */
+    GetMentosDetailResponse getMentosDetail(Long mentosSeq);
 }

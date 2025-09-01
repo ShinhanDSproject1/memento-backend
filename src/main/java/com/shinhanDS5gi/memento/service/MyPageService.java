@@ -18,4 +18,5 @@ public interface MyPageService {
 
     /* 나의 멘토스 내역 조회(멘티 기준) */
     MyMentosByMentiSliceResponse getMyMentosByMenti(Long memberSeq, int limit, Long cursor);
+
 }

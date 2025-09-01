@@ -91,6 +91,7 @@ public class MemberServiceImpl implements MemberService {
     /* 로그아웃 */
     @Override
     public void logout(Long memberSeq) {
+        //memberSeq를 가진 멤버를 member테이블에서 조회
         memberRepo.findById(memberSeq)
                 .orElseThrow(() -> new MemberException(CANNOT_FOUND_MEMBER));
         log.info("로그아웃 성공: memberSeq={}", memberSeq);
@@ -121,6 +122,7 @@ public class MemberServiceImpl implements MemberService {
             // 다른 타입 여부 확인
             MemberType otherType = (pathType == MemberType.MENTI) ? MemberType.MENTO : MemberType.MENTI;
             Optional<Member> otherOpt = memberRepo.findByMemberIdAndMemberType(id, otherType);
+
             if (otherOpt.isPresent()) {
                 log.warn("로그인 실패: 타입 불일치 (id={}, 선택한 타입={})", id, pathType);
                 throw new AuthException(CANNOT_LOGIN);
@@ -135,12 +137,10 @@ public class MemberServiceImpl implements MemberService {
             log.warn("로그인 실패: 비밀번호 틀림 (id={}, type={})", id, user.getMemberType());
             throw new AuthException(INVALID_PASSWORD);
         }
+
         log.info("로그인 성공: (id={}, type={})", id, user.getMemberType());
         return user;
     }
-
-
-
 
     /* 멘토 회원가입 */
     @Override
@@ -164,6 +164,7 @@ public class MemberServiceImpl implements MemberService {
         memberRepo.save(member);
         // 4) 자격증 저장
         List<MentoCertificationRequest> certReqs = req.getCertification();
+        //자격증 없으면 스킵처리 / 있으면 저장
         if (certReqs != null && !certReqs.isEmpty()) {
             //DTO를 엔티티로 변환해서 List에 저장
             List<MentoCertification> entities = new ArrayList<>(certReqs.size());
@@ -180,8 +181,6 @@ public class MemberServiceImpl implements MemberService {
             certRepo.saveAll(entities);
         }
     }
-
-
 
     /* 멘티 회원가입 */
     @Override
