@@ -1,7 +1,8 @@
-package com.shinhanDS5gi.memento.repository;
+package com.shinhanDS5gi.memento.repository.mentos;
 
 import com.shinhanDS5gi.memento.domain.Mentos;
 import com.shinhanDS5gi.memento.domain.base.BaseStatus;
+import com.shinhanDS5gi.memento.dto.mentos.GetMentosDetailProjection;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -25,4 +26,6 @@ public interface MentosRepository extends JpaRepository<Mentos, Long> {
     int updateMentosStatus(@Param("memberSeq") Long memberSeq,
                            @Param("afterStatus") BaseStatus afterStatus,
                            @Param("beforeStatus") BaseStatus beforeStatus);
+
+    GetMentosDetailProjection findMentosDetailByMentosSeqAndStatus(Long mentosSeq, BaseStatus status);
 }
