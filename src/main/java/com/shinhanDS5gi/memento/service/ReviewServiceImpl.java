@@ -15,7 +15,6 @@ import com.shinhanDS5gi.memento.repository.mentos.MentosRepository;
 import com.shinhanDS5gi.memento.repository.ReservationRepository;
 import com.shinhanDS5gi.memento.repository.ReviewRepository;
 import com.shinhanDS5gi.memento.repository.member.MemberRepository;
-import com.shinhanDS5gi.memento.repository.mentos.MentosRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -75,7 +74,7 @@ public class ReviewServiceImpl implements ReviewService {
 
         /* 실제로 멘토스를 예약한 유저인가? */
         Reservation reservation = reservationRepository.findByMember_MemberSeqAndMentos_MentosSeqAndStatus(memberSeq, requestDto.getMentosSeq(), BaseStatus.ACTIVE)
-                .orElseThrow(() -> new MemberException(FAILURE, "해당 멘토스를 수강한 내역이 없어 리뷰를 작성할 수 없습니다."));
+                .orElseThrow(() -> new ReviewException(FAILURE, "해당 멘토스를 수강한 내역이 없어 리뷰를 작성할 수 없습니다."));
 
         /* 진행 완료된 멘토스인가? */
         if (reservation.getMentosAt().isAfter(LocalDateTime.now())) {

@@ -35,7 +35,7 @@ public class MentoProfileServiceImpl implements MentoProfileService {
 
         /* 멘토인가? */
         if (member.getMemberType() != MemberType.MENTO) {
-            throw new MentoProfileException(FAILURE, "멘토 회원만 프로필을 생성할 수 있습니다.");
+            throw new MemberException(FAILURE, "멘토 회원만 프로필을 생성할 수 있습니다.");
         }
 
         /* 이미 멘토프로필 생성하진 않았는가? */

@@ -9,12 +9,12 @@ import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.dto.MyMentosResponse;
 import com.shinhanDS5gi.memento.dto.MyMentosSliceResponse;
 import com.shinhanDS5gi.memento.dto.UpdateMentosRequest;
-import com.shinhanDS5gi.memento.dto.mentos.GetMentosListResponse;
-import com.shinhanDS5gi.memento.repository.CategoryRepository;
-import com.shinhanDS5gi.memento.repository.mentos.MentosRepository;
 import com.shinhanDS5gi.memento.dto.mentos.GetMentosDetailProjection;
 import com.shinhanDS5gi.memento.dto.mentos.GetMentosDetailResponse;
 import com.shinhanDS5gi.memento.repository.ReviewRepository;
+import com.shinhanDS5gi.memento.dto.mentos.GetMentosListResponse;
+import com.shinhanDS5gi.memento.repository.CategoryRepository;
+import com.shinhanDS5gi.memento.repository.mentos.MentosRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -88,7 +88,7 @@ public class MentosServiceImpl implements MentosService {
     public void updateMentos(Long mentosSeq, Long currentMemberId, UpdateMentosRequest requestDto) {
         // DB에서 Mentos 엔티티를 조회
         Mentos mentos = mentosRepository.findByMentosSeqAndStatus(mentosSeq, BaseStatus.ACTIVE)
-                .orElseThrow(() -> new MemberException(CANNOT_FOUND_MENTOS));
+                .orElseThrow(() -> new MentosException(CANNOT_FOUND_MENTOS));
 
         // 수정 권한 확인
         if (!Objects.equals(mentos.getMember().getMemberSeq(), currentMemberId)) {
@@ -103,7 +103,7 @@ public class MentosServiceImpl implements MentosService {
     public void inactiveMentos(Long mentosSeq, Long currentMemberId) {
         // 삭제할 멘토스 DB 조회
         Mentos mentos = mentosRepository.findByMentosSeqAndStatus(mentosSeq, BaseStatus.ACTIVE)
-                .orElseThrow(() -> new MemberException(CANNOT_FOUND_MENTOS));
+                .orElseThrow(() -> new MentosException(CANNOT_FOUND_MENTOS));
 
         // 삭제 권한 확인
         if (!Objects.equals(mentos.getMember().getMemberSeq(), currentMemberId)) {
@@ -130,7 +130,7 @@ public class MentosServiceImpl implements MentosService {
 
         return resultResponse;
     }
-
+  
     /* 멘토스 전체조회(카테고리별) */
     @Override
     public GetMentosListResponse getMentosList(Long mentosCategorySeq, Integer limit, Long cursor) {
