@@ -40,7 +40,7 @@ public class MentoController {
     @PostMapping("/mento-certifications")
     public BaseResponse<Void> createMentoCertification(@RequestBody CreateMentoCertificationRequest requestDto) {
 
-        Long currentMemberId = 2L; // 임시 사용자 ID
+        Long currentMemberId = 1L; // 임시 사용자 ID
         mentoCertificationService.createMentoCertification(currentMemberId, requestDto);
 
         return new BaseResponse<>(SUCCESS, null);
@@ -50,7 +50,7 @@ public class MentoController {
     @PostMapping("/mento-profiles")
     public BaseResponse<Void> createMentoProfile(@RequestBody CreateMentoProfileRequest requestDto) {
 
-        Long currentMemberId = 2L; // 임시 사용자 ID
+        Long currentMemberId = 1L; // 임시 사용자 ID
         mentoProfileService.createMentoProfile(currentMemberId, requestDto);
 
         return new BaseResponse<>(SUCCESS, null);
@@ -60,7 +60,7 @@ public class MentoController {
     @PatchMapping("/mento-profiles")
     public BaseResponse<Void> updateMentoProfile(@RequestBody UpdateMentoProfileRequest requestDto) {
 
-        Long currentMemberId = 2L;
+        Long currentMemberId = 1L;
         mentoProfileService.updateMentoProfile(currentMemberId, requestDto);
 
         return new BaseResponse<>(SUCCESS, null);
