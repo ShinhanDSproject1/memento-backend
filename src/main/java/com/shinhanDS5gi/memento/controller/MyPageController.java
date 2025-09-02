@@ -34,7 +34,7 @@ public class MyPageController {
     /* 나의 프로필 조회하기 */
     @GetMapping("/profile")
     public BaseResponse<MyProfileResponse> getMyProfile() {
-        Long currentMemberSeq = 1L;
+        Long currentMemberSeq = 2L;
         MyProfileResponse profile = myPageService.getMyProfile(currentMemberSeq);
         return new BaseResponse<>(SUCCESS, profile);
     }

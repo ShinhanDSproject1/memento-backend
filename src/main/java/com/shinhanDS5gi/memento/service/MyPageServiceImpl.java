@@ -4,8 +4,10 @@ import com.shinhanDS5gi.memento.common.exception.MemberException;
 import com.shinhanDS5gi.memento.domain.Reservation;
 import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.domain.member.Member;
+import com.shinhanDS5gi.memento.domain.member.MemberType;
 import com.shinhanDS5gi.memento.dto.mypage.MyMentosByMentiResponse;
 import com.shinhanDS5gi.memento.dto.mypage.MyMentosByMentiSliceResponse;
+import com.shinhanDS5gi.memento.dto.mento.MentoCertificationsResponse;
 import com.shinhanDS5gi.memento.dto.mypage.MyProfileResponse;
 import com.shinhanDS5gi.memento.dto.mypage.UpdateMyPasswordRequest;
 import com.shinhanDS5gi.memento.dto.mypage.UpdateMyProfileRequest;
@@ -13,12 +15,12 @@ import com.shinhanDS5gi.memento.repository.ReservationRepository;
 import com.shinhanDS5gi.memento.repository.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Slice;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,6 +35,7 @@ public class MyPageServiceImpl implements MyPageService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final ReservationRepository reservationRepository;
+    private final MentoCertificationService mentoCertificationService;
 
     /* 나의 프로필 정보 조회 */
     @Override
@@ -41,11 +44,19 @@ public class MyPageServiceImpl implements MyPageService {
         Member member = memberRepository.findByMemberSeqAndStatus(memberSeq, BaseStatus.ACTIVE)
                 .orElseThrow(() -> new MemberException(CANNOT_FOUND_MEMBER));
 
+        List<MentoCertificationsResponse> certifications = Collections.emptyList();
+
+        if (member.getMemberType() == MemberType.MENTO) {
+            certifications = mentoCertificationService.getMentoCertifications(memberSeq);
+        }
+
         return MyProfileResponse.builder()
                 .memberName(member.getMemberName())
                 .memberPhoneNumber(member.getMemberPhoneNumber())
                 .memberBirthDate(member.getMemberBirthDate())
                 .memberId(member.getMemberId())
+                .memberType(member.getMemberType().toString())
+                .certifications(certifications) // 조회된 자격증 목록 or 빈 리스트 추가
                 .build();
     }
 
