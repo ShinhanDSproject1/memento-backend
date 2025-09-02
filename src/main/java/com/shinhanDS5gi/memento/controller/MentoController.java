@@ -51,6 +51,15 @@ public class MentoController {
         return new BaseResponse<>(SUCCESS, null);
     }
 
+    /* 멘토 보유 자격증 목록 조회 */
+    @GetMapping("/mento-certifications")
+    public BaseResponse<List<MentoCertificationsResponse>> getMentoCertifications() {
+        Long currentMemberSeq = 1L;
+        List<MentoCertificationsResponse> certifications = mentoCertificationService.getMentoCertifications(currentMemberSeq);
+
+        return new BaseResponse<>(SUCCESS, certifications);
+    }
+
     /* 멘토 프로필 생성 */
     @PostMapping(value = "/mento-profiles", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public BaseResponse<Void> createMentoProfile(@RequestPart("requestDto") CreateMentoProfileRequest requestDto,
