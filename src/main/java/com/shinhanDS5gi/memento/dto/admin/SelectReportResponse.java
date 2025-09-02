@@ -1,5 +1,6 @@
 package com.shinhanDS5gi.memento.dto.admin;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.shinhanDS5gi.memento.domain.report.ReportType;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,6 +16,7 @@ public class SelectReportResponse {
     private final String reportImage;
     private final String reporterName; // 신고자 이름
     private final Long reportedMentosSeq;  // 신고된 멘토스 시퀀스
-    private final LocalDateTime createdAt; // 신고 생성 시간
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
+    private final LocalDateTime createdAt; // 신고 생성 시간
 }
