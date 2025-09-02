@@ -1,6 +1,6 @@
 package com.shinhanDS5gi.memento.service;
 
-import com.shinhanDS5gi.memento.dto.MyMentiResponse;
+import com.shinhanDS5gi.memento.dto.mento.MyMentiResponse;
 
 import java.util.List;
 

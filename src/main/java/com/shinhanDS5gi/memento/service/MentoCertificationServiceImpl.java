@@ -6,7 +6,7 @@ import com.shinhanDS5gi.memento.domain.MentoCertification;
 import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.domain.member.Member;
 import com.shinhanDS5gi.memento.domain.member.MemberType;
-import com.shinhanDS5gi.memento.dto.CreateMentoCertificationRequest;
+import com.shinhanDS5gi.memento.dto.mento.CreateMentoCertificationRequest;
 import com.shinhanDS5gi.memento.repository.member.MemberRepository;
 import com.shinhanDS5gi.memento.repository.MentoCertificationRepository;
 import lombok.RequiredArgsConstructor;

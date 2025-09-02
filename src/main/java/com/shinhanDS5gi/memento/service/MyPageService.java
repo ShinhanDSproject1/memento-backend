@@ -1,9 +1,9 @@
 package com.shinhanDS5gi.memento.service;
 
-import com.shinhanDS5gi.memento.dto.MyMentosByMentiSliceResponse;
-import com.shinhanDS5gi.memento.dto.MyProfileResponse;
-import com.shinhanDS5gi.memento.dto.UpdateMyPasswordRequest;
-import com.shinhanDS5gi.memento.dto.UpdateMyProfileRequest;
+import com.shinhanDS5gi.memento.dto.mypage.MyMentosByMentiSliceResponse;
+import com.shinhanDS5gi.memento.dto.mypage.MyProfileResponse;
+import com.shinhanDS5gi.memento.dto.mypage.UpdateMyPasswordRequest;
+import com.shinhanDS5gi.memento.dto.mypage.UpdateMyProfileRequest;
 
 public interface MyPageService {
 

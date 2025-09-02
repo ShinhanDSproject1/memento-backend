@@ -1,4 +1,4 @@
-package com.shinhanDS5gi.memento.dto;
+package com.shinhanDS5gi.memento.dto.mento;
 
 
 import lombok.AllArgsConstructor;

@@ -1,7 +1,7 @@
 package com.shinhanDS5gi.memento.controller;
 
 import com.shinhanDS5gi.memento.common.response.BaseResponse;
-import com.shinhanDS5gi.memento.dto.*;
+import com.shinhanDS5gi.memento.dto.mento.*;
 import com.shinhanDS5gi.memento.service.MentoCertificationService;
 import com.shinhanDS5gi.memento.service.MentoProfileService;
 import com.shinhanDS5gi.memento.service.MentoService;

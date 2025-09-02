@@ -8,7 +8,7 @@ import com.shinhanDS5gi.memento.domain.QMentos;
 import com.shinhanDS5gi.memento.domain.QReview;
 import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.domain.member.QMember;
-import com.shinhanDS5gi.memento.dto.MentoReviewsListResponse;
+import com.shinhanDS5gi.memento.dto.mento.MentoReviewsListResponse;
 import com.shinhanDS5gi.memento.dto.mentos.GetMentosDetailResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;

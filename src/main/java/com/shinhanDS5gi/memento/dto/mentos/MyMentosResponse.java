@@ -1,4 +1,4 @@
-package com.shinhanDS5gi.memento.dto;
+package com.shinhanDS5gi.memento.dto.mentos;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -13,5 +13,6 @@ public class MyMentosResponse {
     private final String mentosImage;
     private final int price;
     private final String region;
+    private final String progressStatus; // 진행 전 or 진행 완료
 
 }
