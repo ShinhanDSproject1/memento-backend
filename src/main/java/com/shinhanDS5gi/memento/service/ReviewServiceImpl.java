@@ -13,17 +13,17 @@ import com.shinhanDS5gi.memento.dto.MentoReviewsListResponse;
 import com.shinhanDS5gi.memento.dto.MentoReviewsSliceResponse;
 import com.shinhanDS5gi.memento.repository.mentos.MentosRepository;
 import com.shinhanDS5gi.memento.repository.ReservationRepository;
-import com.shinhanDS5gi.memento.repository.ReviewRepository;
+import com.shinhanDS5gi.memento.repository.Review.ReviewRepository;
 import com.shinhanDS5gi.memento.repository.member.MemberRepository;
-import com.shinhanDS5gi.memento.repository.mentos.MentosRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
 import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus.*;
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -39,9 +39,10 @@ public class ReviewServiceImpl implements ReviewService {
     public MentoReviewsSliceResponse<MentoReviewsListResponse> getMentoReviews(Long mentorSeq, int limit, Long cursor) {
         // 1) 커서 조건 + limit+1로 리뷰 조회
         var rows = reviewRepository.findMentoReviewsByCursor(mentorSeq, cursor, limit, BaseStatus.ACTIVE);
-
+        log.debug("조회된 리뷰 개수={}, 리뷰 목록={}", rows.size(), rows);
         //리뷰 없을 경우
         if (cursor == null && rows.isEmpty()) {
+            log.warn("멘토 {}의 리뷰 없음", mentorSeq);
             throw new ReviewException(NO_REVIEWS_FOUND_FOR_MENTO);
         }
         // 2) 다음 페이지 여부 판단 (limit보다 많으면 hasNext = true)
@@ -50,7 +51,7 @@ public class ReviewServiceImpl implements ReviewService {
         // 3) 조회 결과를 DTO로 변환
         var content = rows.stream()
                 .map(r -> new MentoReviewsListResponse(
-                        r.getReviewId(),
+                        r.getReviewSeq(),
                         r.getMentosTitle(),
                         r.getReviewRating(),
                         r.getMentiName(),
@@ -59,7 +60,7 @@ public class ReviewServiceImpl implements ReviewService {
                 ))
                 .toList();
 
-        Long nextCursor = content.isEmpty() ? null : content.get(content.size() - 1).getReviewId();
+        Long nextCursor = content.isEmpty() ? null : content.get(content.size() - 1).getReviewSeq();
         return new MentoReviewsSliceResponse<>(content, hasNext, nextCursor);
     }
 
