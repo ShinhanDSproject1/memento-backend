@@ -2,6 +2,7 @@ package com.shinhanDS5gi.memento.repository;
 
 import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.domain.report.Report;
+import com.shinhanDS5gi.memento.domain.report.ReportHandleStatus;
 import com.shinhanDS5gi.memento.domain.report.ReportType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -13,11 +14,9 @@ import java.util.Optional;
 
 public interface ReportRepository extends JpaRepository<Report, Long> {
 
-
-    /* 모든 신고 내역을 조회하는 메서드
-        +1 문제를 해결하기 위해 fetch join을 사용하여 연관된 Member, Mentos 엔티티를 함께 조회 */
-    @Query("SELECT r FROM Report r JOIN FETCH r.member m JOIN FETCH r.mentos mt")
-    List<Report> findAllWithMemberAndMentos();
+    /* PENDING 상태인 모든 신고 내역을 조회 */
+    @Query("SELECT r FROM Report r JOIN FETCH r.member m JOIN FETCH r.mentos mt WHERE r.handleStatus = :handleStatus")
+    List<Report> findAllWithMemberAndMentos(@Param("handleStatus") ReportHandleStatus handleStatus);
 
     /* reportSeq를 기준으로 특정 신고 내역 조회 */
     @Query("SELECT r FROM Report r JOIN FETCH r.member m JOIN FETCH r.mentos mt WHERE r.reportSeq = :reportSeq")

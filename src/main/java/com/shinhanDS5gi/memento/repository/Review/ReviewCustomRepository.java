@@ -1,7 +1,7 @@
 package com.shinhanDS5gi.memento.repository.Review;
 
 import com.shinhanDS5gi.memento.domain.base.BaseStatus;
-import com.shinhanDS5gi.memento.dto.MentoReviewsListResponse;
+import com.shinhanDS5gi.memento.dto.mento.MentoReviewsListResponse;
 import com.shinhanDS5gi.memento.dto.mentos.GetMentosDetailResponse;
 
 import java.util.List;

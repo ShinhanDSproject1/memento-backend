@@ -6,7 +6,8 @@ import com.shinhanDS5gi.memento.domain.MentoCertification;
 import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.domain.member.Member;
 import com.shinhanDS5gi.memento.domain.member.MemberType;
-import com.shinhanDS5gi.memento.dto.CreateMentoCertificationRequest;
+import com.shinhanDS5gi.memento.dto.mento.CreateMentoCertificationRequest;
+import com.shinhanDS5gi.memento.dto.mento.MentoCertificationsResponse;
 import com.shinhanDS5gi.memento.repository.member.MemberRepository;
 import com.shinhanDS5gi.memento.repository.MentoCertificationRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus.CANNOT_FOUND_MEMBER;
 import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus.NOT_A_MENTO;
@@ -28,6 +31,21 @@ public class MentoCertificationServiceImpl implements MentoCertificationService 
     private final MentoCertificationRepository mentoCertificationRepository;
     private final S3Uploader s3Uploader;
 
+    /* 내 보유 자격증 목록 조회 */
+    @Override
+    public List<MentoCertificationsResponse> getMentoCertifications(Long memberSeq) {
+
+        memberRepository.findByMemberSeqAndStatus(memberSeq, BaseStatus.ACTIVE)
+                .orElseThrow(() -> new MemberException(CANNOT_FOUND_MEMBER));
+
+        List<MentoCertification> certifications = mentoCertificationRepository.findAllByMember_MemberSeqAndStatus(memberSeq, BaseStatus.ACTIVE);
+
+        return certifications.stream()
+                .map(MentoCertificationsResponse::from)
+                .collect(Collectors.toList());
+    }
+
+    /* 내 자격증 추가 */
     @Override
     @Transactional
     public void createMentoCertification(Long memberSeq, CreateMentoCertificationRequest requestDto, MultipartFile imageFile) throws IOException {
@@ -53,7 +71,6 @@ public class MentoCertificationServiceImpl implements MentoCertificationService 
                 BaseStatus.ACTIVE,
                 member
         );
-
         mentoCertificationRepository.save(certification);
     }
 }

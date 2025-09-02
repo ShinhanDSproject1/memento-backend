@@ -1,8 +1,8 @@
 package com.shinhanDS5gi.memento.controller;
 
 import com.shinhanDS5gi.memento.common.response.BaseResponse;
-import com.shinhanDS5gi.memento.dto.CreateReportRequest;
-import com.shinhanDS5gi.memento.dto.SelectReportResponse;
+import com.shinhanDS5gi.memento.dto.admin.CreateReportRequest;
+import com.shinhanDS5gi.memento.dto.admin.SelectReportResponse;
 import com.shinhanDS5gi.memento.service.MemberService;
 import com.shinhanDS5gi.memento.dto.admin.GetMemberListResponse;
 import com.shinhanDS5gi.memento.service.ReportService;

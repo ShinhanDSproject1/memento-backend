@@ -1,8 +1,8 @@
 package com.shinhanDS5gi.memento.service;
 
-import com.shinhanDS5gi.memento.dto.MentoReviewsListResponse;
-import com.shinhanDS5gi.memento.dto.MentoReviewsSliceResponse;
-import com.shinhanDS5gi.memento.dto.CreateReviewRequest;
+import com.shinhanDS5gi.memento.dto.mento.MentoReviewsListResponse;
+import com.shinhanDS5gi.memento.dto.mento.MentoReviewsSliceResponse;
+import com.shinhanDS5gi.memento.dto.mypage.CreateReviewRequest;
 import org.springframework.transaction.annotation.Transactional;
 
 public interface ReviewService {

@@ -1,11 +1,11 @@
 package com.shinhanDS5gi.memento.controller;
 
 import com.shinhanDS5gi.memento.common.response.BaseResponse;
-import com.shinhanDS5gi.memento.dto.CreateReviewRequest;
-import com.shinhanDS5gi.memento.dto.MyMentosByMentiSliceResponse;
-import com.shinhanDS5gi.memento.dto.MyProfileResponse;
-import com.shinhanDS5gi.memento.dto.UpdateMyPasswordRequest;
-import com.shinhanDS5gi.memento.dto.UpdateMyProfileRequest;
+import com.shinhanDS5gi.memento.dto.mypage.CreateReviewRequest;
+import com.shinhanDS5gi.memento.dto.mypage.MyMentosByMentiSliceResponse;
+import com.shinhanDS5gi.memento.dto.mypage.MyProfileResponse;
+import com.shinhanDS5gi.memento.dto.mypage.UpdateMyPasswordRequest;
+import com.shinhanDS5gi.memento.dto.mypage.UpdateMyProfileRequest;
 import com.shinhanDS5gi.memento.service.MyPageService;
 import com.shinhanDS5gi.memento.service.ReviewService;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +34,7 @@ public class MyPageController {
     /* 나의 프로필 조회하기 */
     @GetMapping("/profile")
     public BaseResponse<MyProfileResponse> getMyProfile() {
-        Long currentMemberSeq = 1L;
+        Long currentMemberSeq = 2L;
         MyProfileResponse profile = myPageService.getMyProfile(currentMemberSeq);
         return new BaseResponse<>(SUCCESS, profile);
     }

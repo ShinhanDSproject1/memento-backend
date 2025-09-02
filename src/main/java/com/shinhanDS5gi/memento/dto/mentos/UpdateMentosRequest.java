@@ -1,4 +1,4 @@
-package com.shinhanDS5gi.memento.dto;
+package com.shinhanDS5gi.memento.dto.mentos;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

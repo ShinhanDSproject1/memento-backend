@@ -1,4 +1,4 @@
-package com.shinhanDS5gi.memento.dto;
+package com.shinhanDS5gi.memento.dto.mypage;
 
 import com.shinhanDS5gi.memento.domain.Mentos;
 import com.shinhanDS5gi.memento.domain.Reservation;

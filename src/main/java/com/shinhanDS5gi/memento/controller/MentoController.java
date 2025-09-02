@@ -1,7 +1,7 @@
 package com.shinhanDS5gi.memento.controller;
 
 import com.shinhanDS5gi.memento.common.response.BaseResponse;
-import com.shinhanDS5gi.memento.dto.*;
+import com.shinhanDS5gi.memento.dto.mento.*;
 import com.shinhanDS5gi.memento.service.MentoCertificationService;
 import com.shinhanDS5gi.memento.service.MentoProfileService;
 import com.shinhanDS5gi.memento.service.MentoService;
@@ -49,6 +49,15 @@ public class MentoController {
         mentoCertificationService.createMentoCertification(currentMemberSeq, requestDto, imageFile);
 
         return new BaseResponse<>(SUCCESS, null);
+    }
+
+    /* 멘토 보유 자격증 목록 조회 */
+    @GetMapping("/mento-certifications")
+    public BaseResponse<List<MentoCertificationsResponse>> getMentoCertifications() {
+        Long currentMemberSeq = 1L;
+        List<MentoCertificationsResponse> certifications = mentoCertificationService.getMentoCertifications(currentMemberSeq);
+
+        return new BaseResponse<>(SUCCESS, certifications);
     }
 
     /* 멘토 프로필 생성 */

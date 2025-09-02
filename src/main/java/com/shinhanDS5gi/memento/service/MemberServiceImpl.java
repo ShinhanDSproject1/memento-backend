@@ -5,7 +5,7 @@ import com.shinhanDS5gi.memento.common.exception.MemberException;
 import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.domain.member.Member;
 import com.shinhanDS5gi.memento.domain.member.MemberType;
-import com.shinhanDS5gi.memento.dto.CreateMentoCertificationRequest;
+import com.shinhanDS5gi.memento.dto.mento.CreateMentoCertificationRequest;
 import com.shinhanDS5gi.memento.dto.auth.LoginRequest;
 import com.shinhanDS5gi.memento.dto.auth.MentoSignupRequest;
 import com.shinhanDS5gi.memento.dto.auth.MentiSignupRequest;
