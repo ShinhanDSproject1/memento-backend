@@ -105,13 +105,15 @@ public class ReportServiceImpl implements ReportService {
     /* 모든 신고 내역 조회 */
     @Override
     public List<SelectReportResponse> findAllReports() {
-        List<Report> reports = reportRepository.findAllWithMemberAndMentos();
+        List<Report> reports = reportRepository.findAllWithMemberAndMentos(ReportHandleStatus.PENDING);
+
         return reports.stream()
                 .map(report -> SelectReportResponse.builder()
                         .reportSeq(report.getReportSeq())
                         .reportType(report.getReportType())
                         .reporterName(report.getMember().getMemberName())
                         .reportedMentosSeq(report.getMentos().getMentosSeq())
+                        .reportImage(report.getReportImage())
                         .createdAt(report.getCreatedAt())
                         .build())
                 .collect(Collectors.toList());
