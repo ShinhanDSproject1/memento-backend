@@ -15,6 +15,6 @@ public class MentoSignupRequest {
     private String memberPhoneNumber;
     private String memberBirthDate;
 
-    private List<MentoCertificationRequest> certification; // 멘토 자격증
+    private String certificationName;  // 멘토 자격증
 
 }

@@ -6,6 +6,9 @@ import com.shinhanDS5gi.memento.domain.member.MemberType;
 import com.shinhanDS5gi.memento.dto.auth.LoginRequest;
 import com.shinhanDS5gi.memento.dto.auth.MentiSignupRequest;
 import com.shinhanDS5gi.memento.dto.auth.MentoSignupRequest;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 public interface MemberService {
 
@@ -22,7 +25,7 @@ public interface MemberService {
     void logout(Long memberSeq);
   
     //회원가입 멘토
-    void signupMento (MentoSignupRequest req);
+    void signupMento (MentoSignupRequest req, MultipartFile certImage)throws IOException;
 
     //회원가입 멘티
     void signupMenti (MentiSignupRequest req);

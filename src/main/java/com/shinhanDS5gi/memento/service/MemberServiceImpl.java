@@ -6,8 +6,8 @@ import com.shinhanDS5gi.memento.domain.MentoCertification;
 import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.domain.member.Member;
 import com.shinhanDS5gi.memento.domain.member.MemberType;
+import com.shinhanDS5gi.memento.dto.CreateMentoCertificationRequest;
 import com.shinhanDS5gi.memento.dto.auth.LoginRequest;
-import com.shinhanDS5gi.memento.dto.auth.MentoCertificationRequest;
 import com.shinhanDS5gi.memento.dto.auth.MentoSignupRequest;
 import com.shinhanDS5gi.memento.dto.auth.MentiSignupRequest;
 import com.shinhanDS5gi.memento.dto.admin.GetMemberListResponse;
@@ -16,12 +16,15 @@ import com.shinhanDS5gi.memento.repository.*;
 import com.shinhanDS5gi.memento.repository.Review.ReviewRepository;
 import com.shinhanDS5gi.memento.repository.member.MemberRepository;
 import com.shinhanDS5gi.memento.repository.mentos.MentosRepository;
+import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +47,7 @@ public class MemberServiceImpl implements MemberService {
     private final ReportRepository reportRepository;
     private final ReservationRepository reservationRepository;
     private final PaymentRepository paymentRepository;
+    private final MentoCertificationService mentoCertificationService;
 
     /* 관리자 페이지 전체 회원 조회하기 */
     @Override
@@ -139,7 +143,7 @@ public class MemberServiceImpl implements MemberService {
     /* 멘토 회원가입 */
     @Override
     @Transactional
-    public void signupMento(MentoSignupRequest req) {
+    public void signupMento(MentoSignupRequest req, @Nullable MultipartFile certImage) throws IOException {
 
         // 1) 중복 아이디 체크
         if (memberRepo.existsByMemberId(req.getMemberId())) {
@@ -159,25 +163,17 @@ public class MemberServiceImpl implements MemberService {
                 .status(BaseStatus.ACTIVE)
                 .build();
         memberRepo.save(member);
-        log.info("[signupMento] Member 저장 완료: memberSeq={}", member.getMemberSeq());
+
 
         // 4) 자격증 저장
-        List<MentoCertificationRequest> certReqs = req.getCertification();
-        if (certReqs != null && !certReqs.isEmpty()) {
-            List<MentoCertification> entities = new ArrayList<>(certReqs.size());
-            //자격증 하나씩 처리
-            for (MentoCertificationRequest c : certReqs) {
-                log.debug("자격증 이름={}, 파일명={}", c.getCertificationName(), c.getCertificationFile());
-                entities.add(new MentoCertification(
-                        null, // PK 자동
-                        c.getCertificationName(), // mentoCertificationName
-                        c.getCertificationFile(), // mentoCertificationImage
-                        BaseStatus.ACTIVE,
-                        member
-                ));
-            }
-            certRepo.saveAll(entities);
-            log.info("[signupMento] 자격증 저장 완료: count={}", entities.size());
+        if (req.getCertificationName() != null && !req.getCertificationName().isBlank()) {
+            CreateMentoCertificationRequest certReq = CreateMentoCertificationRequest.builder()
+                    .name(req.getCertificationName())
+                    .build();
+            mentoCertificationService.createMentoCertification(member.getMemberSeq(), certReq, certImage);
+            log.info("[signupMento] 자격증 등록 완료: {}", req.getCertificationName());
+        } else {
+            log.info("[signupMento] 자격증 없이 가입 완료");
         }
     }
 
@@ -204,7 +200,6 @@ public class MemberServiceImpl implements MemberService {
                 .build();
 
         memberRepo.save(m);
-        log.info("[signupMenti] Member 저장 완료: memberSeq={}", m.getMemberSeq());
     }
 
 

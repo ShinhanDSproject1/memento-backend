@@ -2,6 +2,9 @@ package com.shinhanDS5gi.memento.service;
 
 import com.shinhanDS5gi.memento.dto.CreateMentoProfileRequest;
 import com.shinhanDS5gi.memento.dto.UpdateMentoProfileRequest;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 public interface MentoProfileService {
 
@@ -9,5 +12,5 @@ public interface MentoProfileService {
     void createMentoProfile(Long memberSeq, CreateMentoProfileRequest requestDto);
 
     /* 멘토 프로필 수정 */
-    void updateMentoProfile(Long memberSeq, UpdateMentoProfileRequest requestDto);
+    void updateMentoProfile(Long memberSeq, UpdateMentoProfileRequest requestDto, MultipartFile imageFile) throws IOException;
 }

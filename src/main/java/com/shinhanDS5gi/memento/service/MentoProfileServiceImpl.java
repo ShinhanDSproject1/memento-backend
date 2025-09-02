@@ -2,6 +2,7 @@ package com.shinhanDS5gi.memento.service;
 
 import com.shinhanDS5gi.memento.common.exception.MentoProfileException;
 import com.shinhanDS5gi.memento.common.exception.MemberException;
+import com.shinhanDS5gi.memento.config.S3Uploader;
 import com.shinhanDS5gi.memento.domain.MentoProfile;
 import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.domain.member.Member;
@@ -13,6 +14,9 @@ import com.shinhanDS5gi.memento.repository.MentoProfileRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus.*;
 
@@ -23,6 +27,7 @@ public class MentoProfileServiceImpl implements MentoProfileService {
 
     private final MentoProfileRepository mentoProfileRepository;
     private final MemberRepository memberRepository;
+    private final S3Uploader s3Uploader;
 
     /* 멘토 프로필 생성 */
     @Override
@@ -50,7 +55,7 @@ public class MentoProfileServiceImpl implements MentoProfileService {
     /* 멘토 프로필 수정 */
     @Override
     @Transactional
-    public void updateMentoProfile(Long memberSeq, UpdateMentoProfileRequest requestDto) {
+    public void updateMentoProfile(Long memberSeq, UpdateMentoProfileRequest requestDto, MultipartFile imageFile) throws IOException {
 
         /* 회원 가입한 사용자인가? */
         memberRepository.findByMemberSeqAndStatus(memberSeq, BaseStatus.ACTIVE)
@@ -60,6 +65,14 @@ public class MentoProfileServiceImpl implements MentoProfileService {
         MentoProfile mentoProfile = mentoProfileRepository.findByMember_MemberSeq(memberSeq)
                 .orElseThrow(() -> new MentoProfileException(CANNOT_FOUND_MENTO_PROFILE));
 
-        mentoProfile.update(requestDto);
+        String newImageUrl = null;
+
+        if (imageFile != null && !imageFile.isEmpty()) {
+
+            s3Uploader.delete(mentoProfile.getMentoProfileImage());
+            newImageUrl = s3Uploader.upload(imageFile);
+        }
+
+        mentoProfile.update(requestDto.getMentoProfileContent(), newImageUrl);
     }
 }

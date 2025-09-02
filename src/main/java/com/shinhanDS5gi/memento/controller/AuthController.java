@@ -7,9 +7,14 @@ import com.shinhanDS5gi.memento.domain.member.MemberType;
 import com.shinhanDS5gi.memento.dto.auth.*;
 import com.shinhanDS5gi.memento.service.MemberService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus.SUCCESS;
 
@@ -45,12 +50,16 @@ public class AuthController {
     }
 
     /* 회원가입 (멘토) */
-    @PostMapping("/signup/mento")
-    public BaseResponse<Void> signupMento(@RequestBody MentoSignupRequest requestDto) {
-        memberService.signupMento(requestDto);
+    @PostMapping(value = "/signup/mento", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public BaseResponse<Void> signupMento(
+            @RequestPart("requestDto") @Valid MentoSignupRequest requestDto,
+            @RequestPart(value = "imageFile", required = false) MultipartFile certImage
+    ) throws IOException {
+        memberService.signupMento(requestDto, certImage);
         return new BaseResponse<>(SUCCESS, null);
     }
-    
+
+
     /* 회원가입 (멘티) */
     @PostMapping("/signup/menti")
     public BaseResponse<Void> signupMenti(@RequestBody MentiSignupRequest requestDto) {
