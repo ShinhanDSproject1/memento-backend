@@ -140,8 +140,10 @@ public class MemberServiceImpl implements MemberService {
     @Override
     @Transactional
     public void signupMento(MentoSignupRequest req) {
+
         // 1) 중복 아이디 체크
         if (memberRepo.existsByMemberId(req.getMemberId())) {
+            log.warn("[signupMento] 중복 아이디: {}", req.getMemberId());
             throw new MemberException(CANNOT_SIGNUP);
         }
         // 2) 생년월일 파싱 (yyyy-MM-dd)
@@ -157,12 +159,15 @@ public class MemberServiceImpl implements MemberService {
                 .status(BaseStatus.ACTIVE)
                 .build();
         memberRepo.save(member);
+        log.info("[signupMento] Member 저장 완료: memberSeq={}", member.getMemberSeq());
+
         // 4) 자격증 저장
         List<MentoCertificationRequest> certReqs = req.getCertification();
         if (certReqs != null && !certReqs.isEmpty()) {
             List<MentoCertification> entities = new ArrayList<>(certReqs.size());
             //자격증 하나씩 처리
             for (MentoCertificationRequest c : certReqs) {
+                log.debug("자격증 이름={}, 파일명={}", c.getCertificationName(), c.getCertificationFile());
                 entities.add(new MentoCertification(
                         null, // PK 자동
                         c.getCertificationName(), // mentoCertificationName
@@ -172,6 +177,7 @@ public class MemberServiceImpl implements MemberService {
                 ));
             }
             certRepo.saveAll(entities);
+            log.info("[signupMento] 자격증 저장 완료: count={}", entities.size());
         }
     }
 
@@ -181,6 +187,7 @@ public class MemberServiceImpl implements MemberService {
     public void signupMenti(MentiSignupRequest req) {
         // 1) 중복 아이디 체크
         if (memberRepo.existsByMemberId(req.getMemberId())) {
+            log.warn("[signupMenti] 중복 아이디: {}", req.getMemberId());
             throw new MemberException(CANNOT_SIGNUP);
         }
         // 2) 생년월일 파싱 (yyyy-MM-dd)
@@ -197,6 +204,7 @@ public class MemberServiceImpl implements MemberService {
                 .build();
 
         memberRepo.save(m);
+        log.info("[signupMenti] Member 저장 완료: memberSeq={}", m.getMemberSeq());
     }
 
 

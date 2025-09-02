@@ -41,8 +41,11 @@ public class ReportServiceImpl implements ReportService {
         //신고 조회
         Report report = reportRepository.findById(reportSeq)
                 .orElseThrow(() -> new ReportException(BaseExceptionResponseStatus.CANNOT_FOUND_REPORT));
+        log.info("[rejectionReport] 신고 조회 성공: 요청 reportSeq={}, 조회된 reportSeq={}",
+                reportSeq, report.getReportSeq());
         //중복 처리 방지
         if (report.getHandleStatus() == ReportHandleStatus.REJECTED) {
+            log.warn("[rejectionReport] 이미 거부된 신고: reportSeq={}", reportSeq);
             throw new ReportException(BaseExceptionResponseStatus.ALREADY_REJECTED_REPORT);
         }
         // 거부로 상태 변경
@@ -56,14 +59,18 @@ public class ReportServiceImpl implements ReportService {
         //신고 조회
         Report report = reportRepository.findById(reportSeq)
                 .orElseThrow(() -> new ReportException(BaseExceptionResponseStatus.CANNOT_FOUND_REPORT));
+        log.info("[rejectionReport] 신고 조회 성공: 요청 reportSeq={}, 조회된 reportSeq={}",
+                reportSeq, report.getReportSeq());
         //중복 승인 방지
         if (report.getHandleStatus() == ReportHandleStatus.APPROVED) {
+            log.warn("[approveReport] 이미 승인된 신고: reportSeq={}", reportSeq);
             throw new ReportException(BaseExceptionResponseStatus.ALREADY_APPROVED_REPORT);
         }
         //승인으로 상태 변경
         report.updateHandleStatus(ReportHandleStatus.APPROVED);
         //멤버 제명
         Long reportedMemberSeq = report.getMember().getMemberSeq();
+        log.debug("[approveReport] 제명 대상 memberSeq={}", reportedMemberSeq);
         Member target = memberRepository.findByMemberSeqAndStatus(reportedMemberSeq, BaseStatus.ACTIVE)
                 .orElseThrow(() -> new MemberException(CANNOT_FOUND_MEMBER));
 
