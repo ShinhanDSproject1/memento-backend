@@ -1,4 +1,4 @@
-package com.shinhanDS5gi.memento.dto;
+package com.shinhanDS5gi.memento.dto.mypage;
 
 import lombok.Builder;
 import lombok.Getter;

@@ -1,7 +1,7 @@
 package com.shinhanDS5gi.memento.service;
 
-import com.shinhanDS5gi.memento.dto.CreateReportRequest;
-import com.shinhanDS5gi.memento.dto.SelectReportResponse;
+import com.shinhanDS5gi.memento.dto.admin.CreateReportRequest;
+import com.shinhanDS5gi.memento.dto.admin.SelectReportResponse;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;

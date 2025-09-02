@@ -3,7 +3,7 @@ package com.shinhanDS5gi.memento.repository.Review;
 import com.shinhanDS5gi.memento.domain.Review;
 
 import com.shinhanDS5gi.memento.domain.base.BaseStatus;
-import com.shinhanDS5gi.memento.dto.MentoReviewsListResponse;
+import com.shinhanDS5gi.memento.dto.mento.MentoReviewsListResponse;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import io.lettuce.core.dynamic.annotation.Param;
