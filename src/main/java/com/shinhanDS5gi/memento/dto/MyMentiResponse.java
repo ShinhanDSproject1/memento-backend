@@ -13,12 +13,10 @@ import java.util.stream.Collectors;
 @Getter
 public class MyMentiResponse {
 
-    private final Long mentosSeq;
     private final String mentosTitle;
     private final List<MentiInfo> mentiList; // 멘티 목록
 
     public MyMentiResponse(Mentos mentos, List<Reservation> reservations) {
-        this.mentosSeq = mentos.getMentosSeq();
         this.mentosTitle = mentos.getMentosTitle();
         this.mentiList = reservations.stream()
                 .map(MentiInfo::new)

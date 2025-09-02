@@ -15,14 +15,11 @@ public class CreateMentoProfileRequest {
     @NotBlank(message = "멘토 소개 내용은 필수입니다.")
     private String mentoProfileContent;
 
-    @NotBlank(message = "프로필 이미지는 필수입니다.")
-    private String mentoProfileImage;
-
-    public MentoProfile toEntity(Member member) {
+    public MentoProfile toEntity(Member member, String imageUrl) {
         return new MentoProfile(
                 null,
                 this.mentoProfileContent,
-                this.mentoProfileImage,
+                imageUrl,
                 BaseStatus.ACTIVE,
                 member
         );
