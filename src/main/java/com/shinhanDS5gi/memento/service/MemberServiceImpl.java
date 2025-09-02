@@ -2,7 +2,6 @@ package com.shinhanDS5gi.memento.service;
 
 import com.shinhanDS5gi.memento.common.exception.AuthException;
 import com.shinhanDS5gi.memento.common.exception.MemberException;
-import com.shinhanDS5gi.memento.domain.MentoCertification;
 import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.domain.member.Member;
 import com.shinhanDS5gi.memento.domain.member.MemberType;
@@ -26,7 +25,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -93,7 +91,6 @@ public class MemberServiceImpl implements MemberService {
     public void logout(Long memberSeq) {
         memberRepo.findById(memberSeq)
                 .orElseThrow(() -> new MemberException(CANNOT_FOUND_MEMBER));
-        log.info("로그아웃 성공: memberSeq={}", memberSeq);
     }
 
 
@@ -112,7 +109,6 @@ public class MemberServiceImpl implements MemberService {
                 log.warn("로그인 실패: 비밀번호 틀림 (id={}, type=ADMIN)", id);
                 throw new AuthException(INVALID_PASSWORD);
             }
-            log.info("로그인 성공: (id={}, type=ADMIN)", id);
             return admin;
         }
         // 2) 선택한 타입(MENTO/MENTI) 로그인 처리
@@ -136,7 +132,6 @@ public class MemberServiceImpl implements MemberService {
             log.warn("로그인 실패: 비밀번호 틀림 (id={}, type={})", id, user.getMemberType());
             throw new AuthException(INVALID_PASSWORD);
         }
-        log.info("로그인 성공: (id={}, type={})", id, user.getMemberType());
         return user;
     }
 

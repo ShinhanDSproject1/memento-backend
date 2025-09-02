@@ -3,7 +3,6 @@ package com.shinhanDS5gi.memento.dto.auth;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
 @NoArgsConstructor
 @Getter
 
