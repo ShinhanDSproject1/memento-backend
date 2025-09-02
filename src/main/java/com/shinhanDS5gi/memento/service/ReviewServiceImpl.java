@@ -49,7 +49,7 @@ public class ReviewServiceImpl implements ReviewService {
         // 3) 조회 결과를 DTO로 변환
         var content = rows.stream()
                 .map(r -> new MentoReviewsListResponse(
-                        r.getReviewId(),
+                        r.getReviewSeq(),
                         r.getMentosTitle(),
                         r.getReviewRating(),
                         r.getMentiName(),
@@ -58,7 +58,7 @@ public class ReviewServiceImpl implements ReviewService {
                 ))
                 .toList();
 
-        Long nextCursor = content.isEmpty() ? null : content.get(content.size() - 1).getReviewId();
+        Long nextCursor = content.isEmpty() ? null : content.get(content.size() - 1).getReviewSeq();
         return new MentoReviewsSliceResponse<>(content, hasNext, nextCursor);
     }
 
