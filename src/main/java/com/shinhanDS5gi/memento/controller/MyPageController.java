@@ -26,32 +26,32 @@ public class MyPageController {
     /* 리뷰 작성하기 */
     @PostMapping("/reviews")
     public BaseResponse<Void> createReview(@RequestBody CreateReviewRequest requestDto) {
-        Long currentMemberId = 1L;
-        reviewService.createReview(currentMemberId, requestDto);
+        Long currentMemberSeq = 1L;
+        reviewService.createReview(currentMemberSeq, requestDto);
         return new BaseResponse<>(SUCCESS, null);
     }
 
     /* 나의 프로필 조회하기 */
     @GetMapping("/profile")
     public BaseResponse<MyProfileResponse> getMyProfile() {
-        Long currentMemberId = 1L;
-        MyProfileResponse profile = myPageService.getMyProfile(currentMemberId);
+        Long currentMemberSeq = 1L;
+        MyProfileResponse profile = myPageService.getMyProfile(currentMemberSeq);
         return new BaseResponse<>(SUCCESS, profile);
     }
 
     /* 나의 프로필 정보(휴대폰 번호, 생년월일) 수정하기 */
     @PatchMapping("/profile")
     public BaseResponse<Void> updateMyProfile(@RequestBody UpdateMyProfileRequest requestDto) {
-        Long currentMemberId = 1L;
-        myPageService.updateMyProfile(currentMemberId, requestDto);
+        Long currentMemberSeq = 1L;
+        myPageService.updateMyProfile(currentMemberSeq, requestDto);
         return new BaseResponse<>(SUCCESS, null);
     }
 
     /* 나의 비밀번호 변경하기 */
     @PatchMapping("/password")
     public BaseResponse<Void> updateMyPassword(@RequestBody UpdateMyPasswordRequest requestDto) {
-        Long currentMemberId = 1L;
-        myPageService.updateMyPassword(currentMemberId, requestDto);
+        Long currentMemberSeq = 1L;
+        myPageService.updateMyPassword(currentMemberSeq, requestDto);
         return new BaseResponse<>(SUCCESS, null);
     }
 
@@ -61,8 +61,8 @@ public class MyPageController {
             @RequestParam(defaultValue = "3") int limit, // 3개씩 보여주기
             @RequestParam(required = false) Long cursor
     ) {
-        Long currentMemberId = 1L;
-        var page = myPageService.getMyMentosByMenti(currentMemberId, limit, cursor);
+        Long currentMemberSeq = 1L;
+        var page = myPageService.getMyMentosByMenti(currentMemberSeq, limit, cursor);
         return new BaseResponse<>(SUCCESS, page);
     }
 }

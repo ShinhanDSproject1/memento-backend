@@ -52,11 +52,12 @@ public class MentoController {
     }
 
     /* 멘토 프로필 생성 */
-    @PostMapping("/mento-profiles")
-    public BaseResponse<Void> createMentoProfile(@RequestBody CreateMentoProfileRequest requestDto) {
+    @PostMapping(value = "/mento-profiles", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public BaseResponse<Void> createMentoProfile(@RequestPart("requestDto") CreateMentoProfileRequest requestDto,
+                                                 @RequestPart("imageFile") MultipartFile imageFile) throws IOException {
 
-        Long currentMemberId = 1L; // 임시 사용자 ID
-        mentoProfileService.createMentoProfile(currentMemberId, requestDto);
+        Long currentMemberSeq = 1L;
+        mentoProfileService.createMentoProfile(currentMemberSeq, requestDto, imageFile);
 
         return new BaseResponse<>(SUCCESS, null);
     }
@@ -76,8 +77,8 @@ public class MentoController {
     /* 멘티 조회 (멘토스별 조회) */
     @GetMapping("/menti-list")
     public BaseResponse<List<MyMentiResponse>> getMyMentiList() {
-        Long currentMemberId = 1L; // 임시 멘토 ID
-        List<MyMentiResponse> mentiList = mentoService.getMyMentiList(currentMemberId);
+        Long currentMemberSeq = 1L; // 임시 멘토 ID
+        List<MyMentiResponse> mentiList = mentoService.getMyMentiList(currentMemberSeq);
         return new BaseResponse<>(SUCCESS, mentiList);
     }
 }

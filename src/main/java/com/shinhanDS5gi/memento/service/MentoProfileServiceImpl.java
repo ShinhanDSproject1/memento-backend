@@ -32,7 +32,7 @@ public class MentoProfileServiceImpl implements MentoProfileService {
     /* 멘토 프로필 생성 */
     @Override
     @Transactional
-    public void createMentoProfile(Long memberSeq, CreateMentoProfileRequest requestDto) {
+    public void createMentoProfile(Long memberSeq, CreateMentoProfileRequest requestDto, MultipartFile imageFile) throws IOException {
 
         /* 회원 가입한 사용자인가? */
         Member member = memberRepository.findByMemberSeqAndStatus(memberSeq, BaseStatus.ACTIVE)
@@ -48,7 +48,9 @@ public class MentoProfileServiceImpl implements MentoProfileService {
             throw new MentoProfileException(ALREADY_EXISTS_MENTO_PROFILE);
         }
 
-        MentoProfile mentoProfile = requestDto.toEntity(member);
+        String imageUrl = s3Uploader.upload(imageFile);
+
+        MentoProfile mentoProfile = requestDto.toEntity(member, imageUrl);
         mentoProfileRepository.save(mentoProfile);
     }
 

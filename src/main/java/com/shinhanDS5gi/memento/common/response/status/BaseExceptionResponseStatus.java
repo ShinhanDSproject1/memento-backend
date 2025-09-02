@@ -54,6 +54,8 @@ public enum BaseExceptionResponseStatus implements ResponseStatus{
     CANNOT_FOUND_REPORT(8000, HttpStatus.NOT_FOUND.value(), "해당 ID의 신고 내역을 찾을 수 없습니다."),
     ALREADY_APPROVED_REPORT(8001,HttpStatus.BAD_REQUEST.value(), "이미 신고 승인 처리된 건입니다."),
     ALREADY_REJECTED_REPORT(8002,HttpStatus.BAD_REQUEST.value(),"이미 신고 거부 처리된 건입니다."),
+    ALREADY_REPORTED(8003, HttpStatus.CONFLICT.value(), "이미 동일한 유형으로 신고한 게시글입니다."),
+
     /**
      * MentoProfile 관련 9000대
      */
