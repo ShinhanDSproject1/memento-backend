@@ -48,13 +48,6 @@ public class Mentos extends BaseTime {
 
     private String mentosDetail;
 
-//    @Column(nullable = false)
-//    private String keywordOne;
-//    @Column(nullable = false)
-//    private String keywordTwo;
-//    @Column(nullable = false)
-//    private String keywordThree;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private BaseStatus status;
@@ -88,9 +81,6 @@ public class Mentos extends BaseTime {
         this.mentosRoadaddress = requestDto.getMentosRoadaddress();
         this.mentosBname = requestDto.getMentosBname();
         this.mentosDetail = requestDto.getMentosDetail();
-//        this.keywordOne = requestDto.getKeywordOne();
-//        this.keywordTwo = requestDto.getKeywordTwo();
-//        this.keywordThree = requestDto.getKeywordThree();
         if (newImageUrl != null) {
             this.mentosImage = newImageUrl;
         }

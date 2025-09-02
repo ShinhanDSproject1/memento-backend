@@ -56,8 +56,8 @@ public class AdminController {
             @RequestPart("requestDto") CreateReportRequest requestDto,
             @RequestPart("imageFile") MultipartFile imageFile
     ) throws IOException {
-        Long currentMemberId = 1L;
-        reportService.createReport(currentMemberId, requestDto, imageFile);
+        Long currentMemberSeq = 1L;
+        reportService.createReport(currentMemberSeq, requestDto, imageFile);
         return new BaseResponse<>(SUCCESS, null);
     }
 

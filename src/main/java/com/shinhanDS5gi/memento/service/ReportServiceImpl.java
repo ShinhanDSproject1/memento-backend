@@ -85,8 +85,9 @@ public class ReportServiceImpl implements ReportService {
                 .orElseThrow(() -> new MentosException(CANNOT_FOUND_REPORT));
         
         // 중복신고 방지 메서드
-        if (reportRepository.existsByMember_MemberSeqAndMentos_MentosSeqAndReportType(
-                memberSeq, requestDto.getMentosSeq(), requestDto.getReportType())) {
+        if (reportRepository.existsByMember_MemberSeqAndMentos_MentosSeqAndReportTypeAndStatus(
+                memberSeq, requestDto.getMentosSeq(), requestDto.getReportType(), BaseStatus.ACTIVE
+        )) {
             throw new ReportException(ALREADY_REPORTED);
         }
 

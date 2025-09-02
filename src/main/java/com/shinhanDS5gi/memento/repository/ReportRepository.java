@@ -24,7 +24,7 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
     Optional<Report> findByIdWithMemberAndMentos(@Param("reportSeq") Long reportSeq);
 
     /* 같은 사유의 중복 신고 방지 메서드 */
-    boolean existsByMember_MemberSeqAndMentos_MentosSeqAndReportType(Long memberSeq, Long mentosSeq, ReportType reportType);
+    boolean existsByMember_MemberSeqAndMentos_MentosSeqAndReportTypeAndStatus(Long memberSeq, Long mentosSeq, ReportType reportType, BaseStatus status);
 
     @Modifying(clearAutomatically = true)
     @Query("update Report r set r.status = :afterStatus where r.member.memberSeq = :memberSeq and r.status = :beforeStatus")

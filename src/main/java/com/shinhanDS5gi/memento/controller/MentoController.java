@@ -45,8 +45,8 @@ public class MentoController {
             @RequestPart("requestDto") CreateMentoCertificationRequest requestDto,
             @RequestPart("imageFile") MultipartFile imageFile) throws IOException {
 
-        Long currentMemberId = 1L;
-        mentoCertificationService.createMentoCertification(currentMemberId, requestDto, imageFile);
+        Long currentMemberSeq = 1L;
+        mentoCertificationService.createMentoCertification(currentMemberSeq, requestDto, imageFile);
 
         return new BaseResponse<>(SUCCESS, null);
     }
@@ -56,8 +56,8 @@ public class MentoController {
     public BaseResponse<Void> createMentoProfile(@RequestPart("requestDto") CreateMentoProfileRequest requestDto,
                                                  @RequestPart("imageFile") MultipartFile imageFile) throws IOException {
 
-        Long currentMemberId = 1L;
-        mentoProfileService.createMentoProfile(currentMemberId, requestDto, imageFile);
+        Long currentMemberSeq = 1L;
+        mentoProfileService.createMentoProfile(currentMemberSeq, requestDto, imageFile);
 
         return new BaseResponse<>(SUCCESS, null);
     }
@@ -68,8 +68,8 @@ public class MentoController {
             @RequestPart("requestDto") UpdateMentoProfileRequest requestDto,
             @RequestPart(value = "imageFile", required = false) MultipartFile imageFile) throws IOException {
 
-        Long currentMemberId = 1L;
-        mentoProfileService.updateMentoProfile(currentMemberId, requestDto, imageFile);
+        Long currentMemberSeq = 1L;
+        mentoProfileService.updateMentoProfile(currentMemberSeq, requestDto, imageFile);
 
         return new BaseResponse<>(SUCCESS, null);
     }
@@ -77,8 +77,8 @@ public class MentoController {
     /* 멘티 조회 (멘토스별 조회) */
     @GetMapping("/menti-list")
     public BaseResponse<List<MyMentiResponse>> getMyMentiList() {
-        Long currentMemberId = 1L; // 임시 멘토 ID
-        List<MyMentiResponse> mentiList = mentoService.getMyMentiList(currentMemberId);
+        Long currentMemberSeq = 1L; // 임시 멘토 ID
+        List<MyMentiResponse> mentiList = mentoService.getMyMentiList(currentMemberSeq);
         return new BaseResponse<>(SUCCESS, mentiList);
     }
 }

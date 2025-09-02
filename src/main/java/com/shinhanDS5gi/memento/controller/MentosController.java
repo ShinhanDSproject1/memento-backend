@@ -34,8 +34,8 @@ public class MentosController {
             @RequestParam(defaultValue = "5") int limit,
             @RequestParam(required = false) Long cursor
     ) {
-        Long currentMemberId = 1L; // 임시 사용자 ID
-        MyMentosSliceResponse<MyMentosResponse> myMentos = mentosService.getMyMentosSlice(currentMemberId, cursor, limit);
+        Long currentMemberSeq = 1L; // 임시 사용자 ID
+        MyMentosSliceResponse<MyMentosResponse> myMentos = mentosService.getMyMentosSlice(currentMemberSeq, cursor, limit);
         return new BaseResponse<>(SUCCESS, myMentos);
     }
 
@@ -46,16 +46,16 @@ public class MentosController {
             @RequestPart("requestDto") UpdateMentosRequest requestDto,
             @RequestPart(value = "imageFile", required = false) MultipartFile imageFile) throws IOException {
 
-        Long currentMemberId = 1L;
-        mentosService.updateMentos(mentosSeq, currentMemberId, requestDto, imageFile);
+        Long currentMemberSeq = 1L;
+        mentosService.updateMentos(mentosSeq, currentMemberSeq, requestDto, imageFile);
         return new BaseResponse<>(SUCCESS, null);
     }
 
     /* 멘토스 게시글 삭제 (비활성화) */
     @PatchMapping("/{mentosSeq}")
     public BaseResponse<Void> inactiveMentos(@PathVariable("mentosSeq") Long mentosSeq) {
-        Long currentMemberId = 1L;
-        mentosService.inactiveMentos(mentosSeq, currentMemberId);
+        Long currentMemberSeq = 1L;
+        mentosService.inactiveMentos(mentosSeq, currentMemberSeq);
 
         return new BaseResponse<>(SUCCESS, null);
     }
