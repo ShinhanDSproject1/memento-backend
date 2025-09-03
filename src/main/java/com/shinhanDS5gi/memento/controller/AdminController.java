@@ -54,10 +54,11 @@ public class AdminController {
     @PostMapping(value = "/reports", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public BaseResponse<Void> createReport(
             @RequestPart("requestDto") CreateReportRequest requestDto,
-            @RequestPart("imageFile") MultipartFile imageFile
+            @RequestPart("imageFile") MultipartFile imageFile,
+            @RequestHeader("Idem-Key") String IdemKey
     ) throws IOException {
         Long currentMemberSeq = 1L;
-        reportService.createReport(currentMemberSeq, requestDto, imageFile);
+        reportService.createReport(currentMemberSeq, requestDto, imageFile, IdemKey);
         return new BaseResponse<>(SUCCESS, null);
     }
 

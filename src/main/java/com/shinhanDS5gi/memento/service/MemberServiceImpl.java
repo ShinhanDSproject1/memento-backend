@@ -46,6 +46,7 @@ public class MemberServiceImpl implements MemberService {
     private final ReservationRepository reservationRepository;
     private final PaymentRepository paymentRepository;
     private final MentoCertificationService mentoCertificationService;
+    private final IdempotencyService idempotencyService;
 
     /* 관리자 페이지 전체 회원 조회하기 */
     @Override
@@ -138,7 +139,11 @@ public class MemberServiceImpl implements MemberService {
     /* 멘토 회원가입 */
     @Override
     @Transactional
-    public void signupMento(MentoSignupRequest req, @Nullable MultipartFile certImage) throws IOException {
+    public void signupMento(MentoSignupRequest req, @Nullable MultipartFile certImage, String idemKey) throws IOException {
+        // 멱등키 중복 여부 (추가)
+        if (idempotencyService.isDuplicate(idemKey)) {
+            throw new MemberException(ALREADY_SUCCESS_REQUEST);
+        }
 
         // 1) 중복 아이디 체크
         if (memberRepo.existsByMemberId(req.getMemberId())) {
@@ -157,25 +162,32 @@ public class MemberServiceImpl implements MemberService {
                 .memberType(MemberType.MENTO)
                 .status(BaseStatus.ACTIVE)
                 .build();
-        memberRepo.save(member);
-
+        Member savedMember = memberRepo.save(member);
 
         // 4) 자격증 저장
         if (req.getCertificationName() != null && !req.getCertificationName().isBlank()) {
             CreateMentoCertificationRequest certReq = CreateMentoCertificationRequest.builder()
                     .name(req.getCertificationName())
                     .build();
-            mentoCertificationService.createMentoCertification(member.getMemberSeq(), certReq, certImage);
+            mentoCertificationService.createMentoCertification(member.getMemberSeq(), certReq, certImage, idemKey);
             log.info("[signupMento] 자격증 등록 완료: {}", req.getCertificationName());
         } else {
             log.info("[signupMento] 자격증 없이 가입 완료");
         }
+
+        // 멱등키 Redis 저장
+        idempotencyService.saveKey(idemKey, String.valueOf(savedMember.getMemberSeq()));
     }
 
     /* 멘티 회원가입 */
     @Override
     @Transactional
-    public void signupMenti(MentiSignupRequest req) {
+    public void signupMenti(MentiSignupRequest req, String idemKey) {
+        // 멱등키 중복 검사
+        if (idempotencyService.isDuplicate(idemKey)) {
+            throw new MemberException(ALREADY_SUCCESS_REQUEST);
+        }
+
         // 1) 중복 아이디 체크
         if (memberRepo.existsByMemberId(req.getMemberId())) {
             log.warn("[signupMenti] 중복 아이디: {}", req.getMemberId());
@@ -194,10 +206,11 @@ public class MemberServiceImpl implements MemberService {
                 .status(BaseStatus.ACTIVE)
                 .build();
 
-        memberRepo.save(m);
+        Member savedMember = memberRepo.save(m);
+
+        // 멱등키 Redis 저장
+        idempotencyService.saveKey(idemKey, String.valueOf(savedMember.getMemberSeq()));
     }
-
-
 
     /* 회원 제명하기 (관리자) */
     @Transactional

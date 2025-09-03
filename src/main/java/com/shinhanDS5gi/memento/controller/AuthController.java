@@ -53,17 +53,19 @@ public class AuthController {
     @PostMapping(value = "/signup/mento", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public BaseResponse<Void> signupMento(
             @RequestPart("requestDto") @Valid MentoSignupRequest requestDto,
-            @RequestPart(value = "imageFile", required = false) MultipartFile certImage
+            @RequestPart(value = "imageFile", required = false) MultipartFile certImage,
+            @RequestHeader("Idem-Key") String IdemKey
     ) throws IOException {
-        memberService.signupMento(requestDto, certImage);
+        memberService.signupMento(requestDto, certImage, IdemKey);
         return new BaseResponse<>(SUCCESS, null);
     }
 
 
     /* 회원가입 (멘티) */
     @PostMapping("/signup/menti")
-    public BaseResponse<Void> signupMenti(@RequestBody MentiSignupRequest requestDto) {
-        memberService.signupMenti(requestDto);
+    public BaseResponse<Void> signupMenti(@RequestBody MentiSignupRequest requestDto,
+                                          @RequestHeader("Idem-Key") String idemKey) {
+        memberService.signupMenti(requestDto, idemKey);
         return new BaseResponse<>(SUCCESS, null);
     }
 }
