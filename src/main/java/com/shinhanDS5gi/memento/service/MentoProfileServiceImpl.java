@@ -1,6 +1,5 @@
 package com.shinhanDS5gi.memento.service;
 
-import com.shinhanDS5gi.memento.common.exception.MentoCertificationException;
 import com.shinhanDS5gi.memento.common.exception.MentoProfileException;
 import com.shinhanDS5gi.memento.common.exception.MemberException;
 import com.shinhanDS5gi.memento.config.S3Uploader;
