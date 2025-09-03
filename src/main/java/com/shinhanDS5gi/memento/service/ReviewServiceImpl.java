@@ -33,6 +33,7 @@ public class ReviewServiceImpl implements ReviewService {
     private final MemberRepository memberRepository;
     private final MentosRepository mentosRepository;
     private final ReservationRepository reservationRepository;
+    private final IdempotencyService idempotencyService;
 
     /* 멘토 리뷰 조회하기 */
     @Override
@@ -67,7 +68,13 @@ public class ReviewServiceImpl implements ReviewService {
     /* 리뷰 작성하기 */
     @Transactional
     @Override
-    public void createReview(Long memberSeq, CreateReviewRequest requestDto) {
+    public void createReview(Long memberSeq, CreateReviewRequest requestDto, String idemKey) {
+
+        // 멱등키 중복 여부 검사
+        if (idempotencyService.isDuplicate(idemKey)) {
+            throw new ReviewException(ALREADY_SUCCESS_REQUEST);
+        }
+
         /* 리뷰 작성자(유저), 리뷰 대상(멘토스) 조회 */
         Member reviewer = memberRepository.findByMemberSeqAndStatus(memberSeq, BaseStatus.ACTIVE)
                 .orElseThrow(()-> new MemberException(CANNOT_FOUND_MEMBER));
@@ -89,6 +96,9 @@ public class ReviewServiceImpl implements ReviewService {
         }
 
         Review review = requestDto.toEntity(reviewer, reviewedMentos);
-        reviewRepository.save(review);
+        Review savedReview = reviewRepository.save(review);
+
+        // 멱등키 저장
+        idempotencyService.saveKey(idemKey, String.valueOf(savedReview.getReviewSeq()));
     }
 }

@@ -11,6 +11,7 @@ import com.shinhanDS5gi.memento.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestHeader;
 
 import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus.SUCCESS;
 
@@ -25,16 +26,16 @@ public class MyPageController {
 
     /* 리뷰 작성하기 */
     @PostMapping("/reviews")
-    public BaseResponse<Void> createReview(@RequestBody CreateReviewRequest requestDto) {
-        Long currentMemberSeq = 1L;
-        reviewService.createReview(currentMemberSeq, requestDto);
+    public BaseResponse<Void> createReview(@RequestBody CreateReviewRequest requestDto, @RequestHeader("Idem-Key") String idemKey) {
+        Long currentMemberSeq = 4L;
+        reviewService.createReview(currentMemberSeq, requestDto, idemKey);
         return new BaseResponse<>(SUCCESS, null);
     }
 
     /* 나의 프로필 조회하기 */
     @GetMapping("/profile")
     public BaseResponse<MyProfileResponse> getMyProfile() {
-        Long currentMemberSeq = 2L;
+        Long currentMemberSeq = 1L;
         MyProfileResponse profile = myPageService.getMyProfile(currentMemberSeq);
         return new BaseResponse<>(SUCCESS, profile);
     }

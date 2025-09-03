@@ -1,5 +1,6 @@
 package com.shinhanDS5gi.memento.service;
 
+import com.shinhanDS5gi.memento.common.exception.MentoCertificationException;
 import com.shinhanDS5gi.memento.common.exception.MentoProfileException;
 import com.shinhanDS5gi.memento.common.exception.MemberException;
 import com.shinhanDS5gi.memento.config.S3Uploader;
@@ -28,11 +29,16 @@ public class MentoProfileServiceImpl implements MentoProfileService {
     private final MentoProfileRepository mentoProfileRepository;
     private final MemberRepository memberRepository;
     private final S3Uploader s3Uploader;
+    private final IdempotencyService idempotencyService;
 
     /* 멘토 프로필 생성 */
     @Override
     @Transactional
-    public void createMentoProfile(Long memberSeq, CreateMentoProfileRequest requestDto, MultipartFile imageFile) throws IOException {
+    public void createMentoProfile(Long memberSeq, CreateMentoProfileRequest requestDto, MultipartFile imageFile, String idemKey) throws IOException {
+
+        if (idempotencyService.isDuplicate(idemKey)) {
+            throw new MentoProfileException(ALREADY_SUCCESS_REQUEST);
+        }
 
         /* 회원 가입한 사용자인가? */
         Member member = memberRepository.findByMemberSeqAndStatus(memberSeq, BaseStatus.ACTIVE)
@@ -51,7 +57,10 @@ public class MentoProfileServiceImpl implements MentoProfileService {
         String imageUrl = s3Uploader.upload(imageFile);
 
         MentoProfile mentoProfile = requestDto.toEntity(member, imageUrl);
-        mentoProfileRepository.save(mentoProfile);
+        MentoProfile savedProfile = mentoProfileRepository.save(mentoProfile);
+
+        // 멱등키 저장
+        idempotencyService.saveKey(idemKey, String.valueOf(savedProfile.getMentoProfileSeq()));
     }
 
     /* 멘토 프로필 수정 */

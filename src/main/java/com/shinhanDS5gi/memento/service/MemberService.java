@@ -25,7 +25,7 @@ public interface MemberService {
     void logout(Long memberSeq);
   
     //회원가입 멘토
-    void signupMento (MentoSignupRequest req, MultipartFile certImage)throws IOException;
+    void signupMento (MentoSignupRequest req, MultipartFile certImage, String idemKey)throws IOException;
 
     //회원가입 멘티
     void signupMenti (MentiSignupRequest req);

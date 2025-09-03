@@ -12,5 +12,5 @@ public interface ReviewService {
 
     /* 리뷰 작성하기 */
     @Transactional
-    void createReview(Long memberSeq, CreateReviewRequest requestDTO);
+    void createReview(Long memberSeq, CreateReviewRequest requestDTO, String idemKey);
 }
