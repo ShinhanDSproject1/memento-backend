@@ -182,7 +182,12 @@ public class MemberServiceImpl implements MemberService {
     /* 멘티 회원가입 */
     @Override
     @Transactional
-    public void signupMenti(MentiSignupRequest req) {
+    public void signupMenti(MentiSignupRequest req, String idemKey) {
+        // 멱등키 중복 검사
+        if (idempotencyService.isDuplicate(idemKey)) {
+            throw new MemberException(ALREADY_SUCCESS_REQUEST);
+        }
+
         // 1) 중복 아이디 체크
         if (memberRepo.existsByMemberId(req.getMemberId())) {
             log.warn("[signupMenti] 중복 아이디: {}", req.getMemberId());
@@ -201,10 +206,11 @@ public class MemberServiceImpl implements MemberService {
                 .status(BaseStatus.ACTIVE)
                 .build();
 
-        memberRepo.save(m);
+        Member savedMember = memberRepo.save(m);
+
+        // 멱등키 Redis 저장
+        idempotencyService.saveKey(idemKey, String.valueOf(savedMember.getMemberSeq()));
     }
-
-
 
     /* 회원 제명하기 (관리자) */
     @Transactional

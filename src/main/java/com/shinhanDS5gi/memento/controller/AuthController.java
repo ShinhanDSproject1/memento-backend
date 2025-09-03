@@ -63,8 +63,9 @@ public class AuthController {
 
     /* 회원가입 (멘티) */
     @PostMapping("/signup/menti")
-    public BaseResponse<Void> signupMenti(@RequestBody MentiSignupRequest requestDto) {
-        memberService.signupMenti(requestDto);
+    public BaseResponse<Void> signupMenti(@RequestBody MentiSignupRequest requestDto,
+                                          @RequestHeader("Idem-Key") String idemKey) {
+        memberService.signupMenti(requestDto, idemKey);
         return new BaseResponse<>(SUCCESS, null);
     }
 }
