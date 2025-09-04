@@ -128,6 +128,9 @@ public class PaymentServiceImpl implements PaymentService {
             throw new MentosException(PAYMENT_FAILED);
         }
 
+        //예약을 inactive로 변경
+        reservation.deactivate();
+
         // 4) 승인 성공 → 결제 저장
         Payment payment = new Payment(
                 null,
@@ -141,6 +144,7 @@ public class PaymentServiceImpl implements PaymentService {
         // 결제 완료 후 (성공 시) 채팅방 신규 생성
         ChattingRoom newChatRoom = ChattingRoom.create(payment);
 
+        //결제내역 저장
         paymentRepository.save(payment);
 
         // 생성된 채팅방과 채팅 참여자 정보 DB에 저장
