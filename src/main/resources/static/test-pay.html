@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <title>테스트 결제</title>
+</head>
+<body>
+<button id="pay">테스트 결제</button>
+<pre id="log" style="white-space:pre-wrap; font-family:monospace;"></pre>
+
+<script src="https://js.tosspayments.com/v1"></script>
+<script>
+    const LOG = (...a) => {
+      console.log(...a);
+      document.getElementById('log').textContent += a.join(' ') + '\n';
+    };
+
+    const clientKey = "test_ck_QbgMGZzorzqR7g7KxwMPVl5E1em4";
+    const reservationSeq = 1; // ★ 실제 존재하는 예약 PK
+
+    document.getElementById("pay").addEventListener("click", async () => {
+      try {
+        LOG("click!");
+        // 1) 백엔드에서 결제정보 받기
+        const res = await fetch(`/mentos/payments/${reservationSeq}`, { method: "POST" });
+        LOG("init status:", res.status);
+        const body = await res.json();
+        const data = body.data || body.result || body;
+        LOG("init data:", JSON.stringify(data));
+
+        if (!data || !data.orderId) {
+          alert("init 응답에 필수값이 없습니다.");
+          return;
+        }
+        if (!String(data.successUrl).includes("localhost")) {
+          alert("successUrl이 로컬이 아닙니다: " + data.successUrl);
+          return;
+        }
+
+        // 2) 결제창 호출
+        const tossPayments = TossPayments(clientKey);
+        await tossPayments.requestPayment("카드", {
+          amount: data.amount,
+          orderId: data.orderId,
+          orderName: data.orderName,
+          successUrl: data.successUrl,
+          failUrl: data.failUrl,
+        });
+      } catch (e) {
+        LOG("requestPayment error:", e?.code || "", e?.message || e);
+        alert("결제창 에러: " + (e?.message || e));
+      }
+    });
+</script>
+</body>
+</html>
