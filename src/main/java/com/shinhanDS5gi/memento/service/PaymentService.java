@@ -1,7 +1,6 @@
 package com.shinhanDS5gi.memento.service;
 
 
-import com.shinhanDS5gi.memento.domain.payment.Payment;
 import com.shinhanDS5gi.memento.dto.mypage.PaymentRequest;
 
 public interface PaymentService {
