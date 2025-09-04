@@ -50,6 +50,7 @@ public enum BaseExceptionResponseStatus implements ResponseStatus{
     /** Payment 관련 6000대 */
     PAYMENT_FAILED(6000, HttpStatus.BAD_REQUEST.value(), "결제에 실패했습니다."),
     REFUND_FAILED(6001, HttpStatus.BAD_REQUEST.value(), "환불에 실패했습니다."),
+    RESERVATION_NOT_FOUND(6002, HttpStatus.BAD_REQUEST.value(), "예약된 멘토스를 찾을 수 없습니다."),
 
 
     /**

@@ -59,7 +59,7 @@ public class PaymentServiceImpl implements PaymentService {
 
         // 예약 조회
         Reservation reservation = reservationRepository.findById(reservationSeq)
-                .orElseThrow(() -> new IllegalArgumentException("예약 없음: " + reservationSeq));
+                .orElseThrow(() -> new MentosException(RESERVATION_NOT_FOUND));
 
         Mentos mentos = reservation.getMentos();
 
@@ -80,26 +80,26 @@ public class PaymentServiceImpl implements PaymentService {
     @Transactional
     @Override
     public void confirm(String paymentKey, String orderId, long amount) {
-        // 0) orderId에서 reservationSeq 복구 및 예약 조회
+
+        // 1) orderId에서 reservationSeq 복구 및 예약 조회
         Long reservationSeq = extractReservationSeqFromOrderId(orderId);
         Reservation reservation = reservationRepository.findById(reservationSeq)
-                .orElseThrow(() -> new IllegalArgumentException("예약을 찾을 수 없습니다. reservationSeq=" + reservationSeq));
+                .orElseThrow(() -> new MentosException(RESERVATION_NOT_FOUND));
 
         Mentos mentos = reservation.getMentos();
 
-        // 1) 금액 검증 (클라이언트 값 신뢰 금지)
+        // 2) 금액 검증-> 실패하면 결제 실패
         if (mentos.getPrice() != amount) {
-            // 금액 불일치 → 결제 실패(6000)
             throw new MentosException(PAYMENT_FAILED);
         }
 
         // 3) 토스 confirm 호출
         try {
-            // (A) Basic Auth 헤더 구성
+            // 시크릿키 인코딩해서 Basic Auth 헤더 만들기
             String basic = "Basic " + Base64.getEncoder()
                     .encodeToString((secretKey + ":").getBytes(StandardCharsets.UTF_8));
 
-            // (B) 승인 요청
+            // 토스 승인(confirm) API 호출
             tossWebClient.post()
                     .uri("/v1/payments/confirm")
                     .header(HttpHeaders.AUTHORIZATION, basic)
@@ -110,17 +110,18 @@ public class PaymentServiceImpl implements PaymentService {
                             "amount", amount
                     ))
                     .retrieve()
-                    // 토스가 에러 주면 본문 로깅 후 6000 변환
+                    // 토스가 결제실패 주면 오류 응답 매핑
                     .onStatus(HttpStatusCode::isError, res ->
                             res.bodyToMono(String.class).flatMap(body -> {
                                 log.error("Toss confirm error: status={}, body={}", res.statusCode(), body);
                                 return Mono.error(new MentosException(PAYMENT_FAILED));
                             })
                     )
+                    //정상 응답 → 결제 승인 성공으로 처리
                     .toBodilessEntity()
                     .block();
+            //예외처리(네트워크 및, 모든 예외)
         } catch (WebClientResponseException e) {
-            // 네트워크/4xx/5xx 등 예외 케이스 공통 변환
             log.error("Toss confirm exception: status={}, body={}", e.getStatusCode(), e.getResponseBodyAsString());
             throw new MentosException(PAYMENT_FAILED);
         } catch (Exception e) {
@@ -141,6 +142,7 @@ public class PaymentServiceImpl implements PaymentService {
                 reservation.getMember(),         // 결제자
                 reservation                      // 예약
         );
+
         // 결제 완료 후 (성공 시) 채팅방 신규 생성
         ChattingRoom newChatRoom = ChattingRoom.create(payment);
 
@@ -157,19 +159,18 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     @Transactional
     public void fail(String code, String message, String orderId) {
-        // 실패 로그만 남기고, 프런트에는 통일된 에러 응답(PAYMENT_FAILED) 전달
         log.warn("Toss payment failed: code={}, message={}, orderId={}", code, message, orderId);
         throw new MentosException(BaseExceptionResponseStatus.PAYMENT_FAILED);
 
     }
 
-    /** orderId 생성: 6자 이상, 허용문자('_' 사용), 유니크(타임스탬프 포함) */
+    /** 토스가 원하는 규정에 맞게 orderId 생성(예약번호) */
     private String makeOrderId(Long reservationSeq) {
         String ts = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
         return "RES_" + reservationSeq + "_" + ts; // 예) RES_1_20250904151322
     }
 
-    /** "RES_<seq>_<ts>" or "RES-<seq>" or "<seq>" 지원 */
+    /** orderId를 해석해서 예약번호(reservationSeq)만 복구  */
     private Long extractReservationSeqFromOrderId(String orderId) {
         if (orderId == null || orderId.isBlank()) {
             throw new IllegalArgumentException("orderId가 비어있습니다.");
