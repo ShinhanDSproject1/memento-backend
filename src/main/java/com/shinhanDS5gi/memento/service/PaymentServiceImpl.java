@@ -5,7 +5,7 @@ import com.shinhanDS5gi.memento.domain.Mentos;
 import com.shinhanDS5gi.memento.repository.mentos.MentosRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import com.shinhanDS5gi.memento.domain.Reservation;
+import com.shinhanDS5gi.memento.domain.Reservation.Reservation;
 import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.domain.payment.PayType;
 import com.shinhanDS5gi.memento.domain.payment.Payment;

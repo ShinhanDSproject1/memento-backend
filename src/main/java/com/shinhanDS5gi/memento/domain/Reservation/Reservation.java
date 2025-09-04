@@ -1,6 +1,7 @@
-package com.shinhanDS5gi.memento.domain;
+package com.shinhanDS5gi.memento.domain.Reservation;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.shinhanDS5gi.memento.domain.Mentos;
 import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.domain.base.BaseTime;
 import com.shinhanDS5gi.memento.domain.member.Member;
