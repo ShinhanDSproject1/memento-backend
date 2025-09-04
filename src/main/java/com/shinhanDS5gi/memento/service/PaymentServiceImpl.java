@@ -2,7 +2,8 @@ package com.shinhanDS5gi.memento.service;
 
 import com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus;
 import com.shinhanDS5gi.memento.domain.Mentos;
-import com.shinhanDS5gi.memento.repository.mentos.MentosRepository;
+import com.shinhanDS5gi.memento.domain.chat.ChattingRoom;
+import com.shinhanDS5gi.memento.repository.chat.ChattingRoomRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import com.shinhanDS5gi.memento.domain.Reservation;
@@ -41,7 +42,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final WebClient tossWebClient;
     private final PaymentRepository paymentRepository;
     private final ReservationRepository reservationRepository;
-    private final MentosRepository mentosRepository;
+    private final ChattingRoomRepository chattingRoomRepository;
 
     @Value("${toss.secret-key}")
     private String secretKey;
@@ -137,7 +138,15 @@ public class PaymentServiceImpl implements PaymentService {
                 reservation.getMember(),         // 결제자
                 reservation                      // 예약
         );
+        // 결제 완료 후 (성공 시) 채팅방 신규 생성
+        ChattingRoom newChatRoom = ChattingRoom.create(payment);
+
         paymentRepository.save(payment);
+
+        // 생성된 채팅방과 채팅 참여자 정보 DB에 저장
+        chattingRoomRepository.save(newChatRoom);
+
+
     }
 
     /** 실패 콜백: 동일 규격으로 6000 에러 처리 */

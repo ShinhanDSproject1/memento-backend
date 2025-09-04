@@ -1,6 +1,7 @@
 package com.shinhanDS5gi.memento.service;
 
 
+import com.shinhanDS5gi.memento.domain.payment.Payment;
 import com.shinhanDS5gi.memento.dto.mypage.PaymentRequest;
 
 public interface PaymentService {
@@ -13,7 +14,6 @@ public interface PaymentService {
 
     /* 실패 리다이렉트 처리 (필요시 로그/통계) */
     void fail(String code, String message, String orderId);
-
 
 }
 

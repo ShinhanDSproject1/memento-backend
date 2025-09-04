@@ -37,5 +37,15 @@ public class ChattingRoom extends BaseTime {
     private BaseStatus status;
 
 
+    // 생성 메서드
+    public static ChattingRoom create(Payment payment) {
+        ChattingRoom room = new ChattingRoom();
+        room.payment = payment;
+        room.status = BaseStatus.ACTIVE;
+
+        return room;
+    }
+
+
 }
 
