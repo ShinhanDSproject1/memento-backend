@@ -1,6 +1,6 @@
 package com.shinhanDS5gi.memento.domain.payment;
 
-import com.shinhanDS5gi.memento.domain.Reservation.Reservation;
+import com.shinhanDS5gi.memento.domain.Reservation;
 import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.domain.base.BaseTime;
 import com.shinhanDS5gi.memento.domain.member.Member;

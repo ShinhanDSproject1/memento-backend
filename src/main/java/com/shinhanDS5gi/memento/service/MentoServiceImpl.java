@@ -1,7 +1,7 @@
 package com.shinhanDS5gi.memento.service;
 
 import com.shinhanDS5gi.memento.domain.Mentos;
-import com.shinhanDS5gi.memento.domain.Reservation.Reservation;
+import com.shinhanDS5gi.memento.domain.Reservation;
 import com.shinhanDS5gi.memento.dto.mento.MyMentiResponse;
 import com.shinhanDS5gi.memento.repository.ReservationRepository;
 import lombok.RequiredArgsConstructor;

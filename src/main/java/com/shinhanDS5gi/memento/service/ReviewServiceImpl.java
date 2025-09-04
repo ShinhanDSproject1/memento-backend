@@ -4,7 +4,7 @@ import com.shinhanDS5gi.memento.common.exception.ReviewException;
 import com.shinhanDS5gi.memento.common.exception.MemberException;
 import com.shinhanDS5gi.memento.common.exception.MentosException;
 import com.shinhanDS5gi.memento.domain.Mentos;
-import com.shinhanDS5gi.memento.domain.Reservation.Reservation;
+import com.shinhanDS5gi.memento.domain.Reservation;
 import com.shinhanDS5gi.memento.domain.Review;
 import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.domain.member.Member;

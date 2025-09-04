@@ -1,7 +1,7 @@
 package com.shinhanDS5gi.memento.dto.mento;
 
 import com.shinhanDS5gi.memento.domain.Mentos;
-import com.shinhanDS5gi.memento.domain.Reservation.Reservation;
+import com.shinhanDS5gi.memento.domain.Reservation;
 import com.shinhanDS5gi.memento.domain.member.Member;
 import lombok.Getter;
 
