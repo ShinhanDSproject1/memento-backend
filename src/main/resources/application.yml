@@ -27,3 +27,12 @@ aws:
   s3:
     bucket: ${AWS_S3_BUCKET_NAME}
     upload-dir: ${AWS_S3_UPLOAD_DIR}
+
+toss:
+  secret-key: ${TOSS_SECRET_KEY}
+  api-host: https://api.tosspayments.com
+
+app:
+  url:
+    success: http://localhost:9999/payments/success
+    fail: http://localhost:9999/payments/fail
