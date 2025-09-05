@@ -11,7 +11,10 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 public class GetAvailableDateResponse {
+    private Long mentosSeq;
+    private String mentosTitle;
     private LocalTime startTime;
     private LocalTime endTime;
     private List<String> availableTime;
+    private int price;
 }
