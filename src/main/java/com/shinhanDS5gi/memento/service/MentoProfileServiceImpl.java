@@ -75,7 +75,7 @@ public class MentoProfileServiceImpl implements MentoProfileService {
         MentoProfile mentoProfile = mentoProfileRepository.findByMember_MemberSeq(memberSeq)
                 .orElseThrow(() -> new MentoProfileException(CANNOT_FOUND_MENTO_PROFILE));
 
-        String newImageUrl = null;
+        String newImageUrl = mentoProfile.getMentoProfileImage();
 
         if (imageFile != null && !imageFile.isEmpty()) {
 
@@ -83,6 +83,6 @@ public class MentoProfileServiceImpl implements MentoProfileService {
             newImageUrl = s3Uploader.upload(imageFile);
         }
 
-        mentoProfile.update(requestDto.getMentoProfileContent(), newImageUrl);
+        mentoProfile.update(requestDto, newImageUrl);
     }
 }

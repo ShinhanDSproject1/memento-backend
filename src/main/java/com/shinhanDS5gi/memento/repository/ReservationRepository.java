@@ -14,13 +14,20 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     Optional<Reservation> findByMember_MemberSeqAndMentos_MentosSeqAndStatus(Long memberSeq, Long mentosSeq, BaseStatus status);
 
     /* 멘토가 작성한 모든 멘토스의 예약 목록 조회 */
-    @Query("SELECT r FROM Reservation r JOIN FETCH r.mentos m JOIN FETCH r.member menti WHERE m.member.memberSeq = :mentorId AND r.status = 'ACTIVE' ORDER BY m.mentosSeq, r.mentosAt")
+    @Query("SELECT r FROM Reservation r " +
+            "JOIN FETCH r.mentos m " +
+            "JOIN FETCH m.member mem " +
+            "JOIN FETCH mem.mentoProfile mp " +
+            "JOIN FETCH r.member menti " +
+            "WHERE m.member.memberSeq = :mentorId AND r.status = 'ACTIVE' " +
+            "ORDER BY m.mentosSeq, r.mentosAt")
     List<Reservation> findAllByMentorId(@Param("mentorId") Long mentorId);
 
     /* 특정 멘티의 멘토스 예약 목록을 커서 기반 페이징으로 조회 */
     @Query("SELECT r FROM Reservation r " +
             "JOIN FETCH r.mentos m " +
-            "JOIN FETCH m.member " +
+            "JOIN FETCH m.member mem " +
+            "JOIN FETCH mem.mentoProfile mp " +
             "WHERE r.member.memberSeq = :memberSeq AND r.status = :status " +
             "ORDER BY " +
             "  CASE WHEN r.mentosAt > CURRENT_TIMESTAMP THEN 1 ELSE 2 END ASC, " +

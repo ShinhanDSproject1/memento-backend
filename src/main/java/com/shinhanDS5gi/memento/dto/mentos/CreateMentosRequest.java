@@ -2,7 +2,6 @@ package com.shinhanDS5gi.memento.dto.mentos;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 
 @Getter
@@ -17,8 +16,4 @@ public class CreateMentosRequest {
     private MultipartFile mentosImage;
     private Long categorySeq;
     private int price;
-    private String mentosPostcode;
-    private String mentosRoadaddress;
-    private String mentosBname;
-    private String mentosDetail;
 }
