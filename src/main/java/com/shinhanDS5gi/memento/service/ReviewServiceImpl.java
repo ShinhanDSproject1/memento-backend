@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus.*;
@@ -86,7 +87,7 @@ public class ReviewServiceImpl implements ReviewService {
                 .orElseThrow(() -> new ReviewException(FAILURE, "해당 멘토스를 수강한 내역이 없어 리뷰를 작성할 수 없습니다."));
 
         /* 진행 완료된 멘토스인가? */
-        if (reservation.getMentosAt().isAfter(LocalDateTime.now())) {
+        if (reservation.getMentosAt().isAfter(LocalDate.now())) {
             throw new ReviewException(FAILURE, "아직 진행하지 않은 멘토스에 대한 리뷰는 작성할 수 없습니다.");
         }
 

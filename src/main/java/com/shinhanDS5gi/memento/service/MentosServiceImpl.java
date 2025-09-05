@@ -5,19 +5,15 @@ import com.shinhanDS5gi.memento.common.exception.MemberException;
 import com.shinhanDS5gi.memento.common.exception.MentosException;
 import com.shinhanDS5gi.memento.config.S3Uploader;
 import com.shinhanDS5gi.memento.domain.Category;
+import com.shinhanDS5gi.memento.domain.MentoProfile;
 import com.shinhanDS5gi.memento.domain.Mentos;
 import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.domain.member.Member;
 import com.shinhanDS5gi.memento.domain.member.MemberType;
-import com.shinhanDS5gi.memento.dto.mentos.MyMentosResponse;
-import com.shinhanDS5gi.memento.dto.mentos.MyMentosSliceResponse;
-import com.shinhanDS5gi.memento.dto.mentos.UpdateMentosRequest;
-import com.shinhanDS5gi.memento.dto.mentos.CreateMentosRequest;
-import com.shinhanDS5gi.memento.dto.mentos.GetMentosDetailProjection;
-import com.shinhanDS5gi.memento.dto.mentos.GetMentosDetailResponse;
-import com.shinhanDS5gi.memento.repository.Review.ReviewRepository;
-import com.shinhanDS5gi.memento.dto.mentos.GetMentosListResponse;
+import com.shinhanDS5gi.memento.dto.mentos.*;
+import com.shinhanDS5gi.memento.repository.MentoProfileRepository;
 import com.shinhanDS5gi.memento.repository.CategoryRepository;
+import com.shinhanDS5gi.memento.repository.Review.ReviewRepository;
 import com.shinhanDS5gi.memento.repository.member.MemberRepository;
 import com.shinhanDS5gi.memento.repository.mentos.MentosRepository;
 import lombok.RequiredArgsConstructor;
@@ -43,8 +39,9 @@ public class MentosServiceImpl implements MentosService {
 
     private final MemberRepository memberRepository;
     private final MentosRepository mentosRepository;
-    private final ReviewRepository reviewRepository;
     private final CategoryRepository categoryRepository;
+    private final MentoProfileRepository mentoProfileRepository;
+    private final ReviewRepository reviewRepository;
 
     private final S3Uploader s3Uploader;
     private final IdempotencyService idempotencyService;
@@ -54,6 +51,11 @@ public class MentosServiceImpl implements MentosService {
     public MyMentosSliceResponse<MyMentosResponse> getMyMentosSlice(Long currentMemberId, Long cursor, int limit) {
         // 첫 페이지 요청 시 cursor 초기값 설정
         Long currentCursor = (cursor == null) ? Long.MAX_VALUE : cursor;
+
+        // 멘토의 프로필의 장소 정보 조회
+        MentoProfile mentoProfile = mentoProfileRepository.findByMember_MemberSeq(currentMemberId)
+                .orElseThrow(() -> new MentosException(CANNOT_FOUND_MENTO_PROFILE));
+        String region = mentoProfile.getMentoBname();
 
         // Repository 호출
         Slice<Mentos> mentosSlice = mentosRepository.findMyMentosSlice(
@@ -75,7 +77,7 @@ public class MentosServiceImpl implements MentosService {
                         .mentosTitle(mentos.getMentosTitle())
                         .mentosImage(mentos.getMentosImage())
                         .price(mentos.getPrice())
-                        .region(mentos.getMentosBname())
+                        .region(region)
                         .build())
                 .collect(Collectors.toList());
 
@@ -188,8 +190,7 @@ public class MentosServiceImpl implements MentosService {
             } else {
                 // s3 에 업로드된 url 로 db 에 저장하기
                 String uploadedMentosImage = s3Uploader.upload(createMentosRequest.getMentosImage());
-                Mentos mentos = new Mentos(createMentosRequest.getMentosTitle(), createMentosRequest.getMentosContent(), createMentosRequest.getPrice(), uploadedMentosImage, createMentosRequest.getMentosPostcode(),
-                        createMentosRequest.getMentosRoadaddress(), createMentosRequest.getMentosBname(), createMentosRequest.getMentosDetail(), category, member, BaseStatus.ACTIVE);
+                Mentos mentos = new Mentos(createMentosRequest.getMentosTitle(), createMentosRequest.getMentosContent(), createMentosRequest.getPrice(), uploadedMentosImage, category, member, BaseStatus.ACTIVE);
 
                 Mentos createdMentos = mentosRepository.save(mentos);
                 log.info("[MentosServiceImpl.createMentos...멘토스 생성 완료]");

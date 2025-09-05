@@ -51,7 +51,7 @@ public class MentosRepositoryImpl implements MentosCustomRepository {
                         mentos.mentosImage.as("mentosImg"),
                         mentos.mentosTitle,
                         mentos.price.as("mentosPrice"),
-                        mentos.mentosBname.as("region"),
+                        mentoProfile.mentoBname.as("region"),
                         new CaseBuilder().when(existsApproved).then(true).otherwise(false).as("approved")))
                 .from(mentos)
                 .where(builder)
@@ -75,7 +75,8 @@ public class MentosRepositoryImpl implements MentosCustomRepository {
                         mentos.mentosTitle,
                         Expressions.stringTemplate(
                                 "concat({0}, ' ', coalesce({1}, ''))",
-                                mentos.mentosRoadaddress, mentos.mentosDetail
+                                mentoProfile.mentoRoadAddress,
+                                mentoProfile.mentoDetail
                         ).as("mentosLocation"),
                         reviewTotalCnt,
                         reviewRatingAvg,
