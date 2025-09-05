@@ -1,6 +1,7 @@
 package com.shinhanDS5gi.memento.service;
 
 import com.shinhanDS5gi.memento.common.exception.MentosException;
+import com.shinhanDS5gi.memento.domain.Mentos;
 import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.dto.reservation.GetAvailableDateResponse;
 import com.shinhanDS5gi.memento.dto.reservation.MentoTimeWindowProjection;
@@ -38,6 +39,9 @@ public class ReservationServiceImpl implements ReservationService {
         // 입력 파싱
         final LocalDate date = LocalDate.parse(selectedDate, ISO_DATE);
 
+        Mentos mentos = mentosRepository.findByMentosSeqAndStatus(mentosSeq, BaseStatus.ACTIVE)
+                .orElseThrow(()-> new MentosException(CANNOT_FOUND_MENTOS));
+
         // 1) 멘토 시간창(프로필) 조회
         MentoTimeWindowProjection w = mentosRepository
                 .findTimeWindowByMentosSeqAndStatus(mentosSeq, BaseStatus.ACTIVE)
@@ -59,7 +63,7 @@ public class ReservationServiceImpl implements ReservationService {
         List<LocalTime> allSlots = hourlySlots(startTime, endTime);
 
         // 4) 확정 예약 슬롯 (DB 1회) - ACTIVE만 제외
-        List<LocalTime> reserved = reservationRepository.findMentosTimeByMentos_MentosSeqAndMentosAtAndStatus(
+        List<LocalTime> reserved = reservationRepository.findBookedTimes(
                 mentosSeq, date, BaseStatus.ACTIVE
         );
 
@@ -78,9 +82,12 @@ public class ReservationServiceImpl implements ReservationService {
 
         // 8) 응답
         return GetAvailableDateResponse.builder()
+                .mentosSeq(mentosSeq)
+                .mentosTitle(mentos.getMentosTitle())
                 .startTime(startTime)
                 .endTime(endTime)
                 .availableTime(available)
+                .price(mentos.getPrice())
                 .build();
     }
 
