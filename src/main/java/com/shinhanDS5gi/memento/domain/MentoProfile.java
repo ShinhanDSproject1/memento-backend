@@ -9,6 +9,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalTime;
+
 @Entity
 @Getter
 @NoArgsConstructor
@@ -25,6 +27,14 @@ public class MentoProfile extends BaseTime {
 
     @Column(nullable = false)
     private String mentoProfileImage;
+
+    private LocalTime startTime;
+    private LocalTime endTime;
+    private String mentoPostcode;
+    private String mentoRoadaddress;
+    private String mentoDetail;
+    private String mentoBname;
+    private String availableDays;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
