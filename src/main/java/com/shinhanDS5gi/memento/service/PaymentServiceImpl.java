@@ -14,8 +14,7 @@ import com.shinhanDS5gi.memento.dto.mypage.PaymentRequest;
 import com.shinhanDS5gi.memento.repository.PaymentRepository;
 import com.shinhanDS5gi.memento.repository.ReservationRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
+
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,10 +22,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Base64;
 import java.util.Map;
 import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus.*;
 
@@ -44,8 +41,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final ReservationRepository reservationRepository;
     private final ChattingRoomRepository chattingRoomRepository;
 
-    @Value("${toss.secret-key}")
-    private String secretKey;
+
 
     @Value("${app.url.success}")
     private String successUrl;
@@ -84,7 +80,7 @@ public class PaymentServiceImpl implements PaymentService {
         // 1) orderId에서 reservationSeq 복구 및 예약 조회
         Long reservationSeq = extractReservationSeqFromOrderId(orderId);
         Reservation reservation = reservationRepository.findById(reservationSeq)
-                .orElseThrow(() -> new MentosException(RESERVATION_NOT_FOUND));
+                .orElseThrow(() -> new MentosException(PAYMENT_FAILED));
 
         Mentos mentos = reservation.getMentos();
 
@@ -95,15 +91,10 @@ public class PaymentServiceImpl implements PaymentService {
 
         // 3) 토스 confirm 호출
         try {
-            // 시크릿키 인코딩해서 Basic Auth 헤더 만들기
-            String basic = "Basic " + Base64.getEncoder()
-                    .encodeToString((secretKey + ":").getBytes(StandardCharsets.UTF_8));
 
             // 토스 승인(confirm) API 호출
             tossWebClient.post()
                     .uri("/v1/payments/confirm")
-                    .header(HttpHeaders.AUTHORIZATION, basic)
-                    .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(Map.of(
                             "paymentKey", paymentKey,
                             "orderId", orderId,
@@ -129,19 +120,17 @@ public class PaymentServiceImpl implements PaymentService {
             throw new MentosException(PAYMENT_FAILED);
         }
 
-        //예약을 inactive로 변경
-        reservation.deactivate();
 
         // 4) 승인 성공 → 결제 저장
-        Payment payment = new Payment(
-                null,
-                LocalDateTime.now(),             // payedAt
-                (int) amount,                    // price
-                PayType.PAID,                    // 결제상태
-                BaseStatus.ACTIVE,               // 활성
-                reservation.getMember(),         // 결제자
-                reservation                      // 예약
-        );
+        Payment payment = Payment.builder()
+                .paymentKey(paymentKey)           // 토스에서 받은 paymentKey
+                .payedAt(LocalDateTime.now())     // 결제 시각
+                .price((int) amount)              // 금액
+                .payType(PayType.PAID)            // 결제 타입
+                .status(BaseStatus.ACTIVE)        // 상태
+                .member(reservation.getMember())  // 결제자
+                .reservation(reservation)         // 예약
+                .build();
 
         // 결제 완료 후 (성공 시) 채팅방 신규 생성
         ChattingRoom newChatRoom = ChattingRoom.create(payment);
