@@ -47,11 +47,11 @@ public class CreateMentoProfileRequest {
                 imageUrl,
                 this.startTime,
                 this.endTime,
-                this.availableDays,
                 this.mentoPostcode,
                 this.mentoRoadAddress,
-                this.mentoBname,
                 this.mentoDetail,
+                this.mentoBname,
+                this.availableDays,
                 BaseStatus.ACTIVE,
                 member
         );
