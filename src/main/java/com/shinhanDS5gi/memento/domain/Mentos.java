@@ -37,17 +37,6 @@ public class Mentos extends BaseTime {
     @Column(nullable = false)
     private String mentosImage;
 
-    @Column(nullable = false)
-    private String mentosPostcode;
-
-    @Column(nullable = false)
-    private String mentosRoadaddress;
-
-    @Column(nullable = false)
-    private String mentosBname;
-
-    private String mentosDetail;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private BaseStatus status;
@@ -77,10 +66,6 @@ public class Mentos extends BaseTime {
         this.mentosTitle = requestDto.getMentosTitle();
         this.mentosContent = requestDto.getMentosContent();
         this.price = requestDto.getPrice();
-        this.mentosPostcode = requestDto.getMentosPostcode();
-        this.mentosRoadaddress = requestDto.getMentosRoadaddress();
-        this.mentosBname = requestDto.getMentosBname();
-        this.mentosDetail = requestDto.getMentosDetail();
         if (newImageUrl != null) {
             this.mentosImage = newImageUrl;
         }
@@ -92,16 +77,12 @@ public class Mentos extends BaseTime {
     }
 
     //멘토스 생성하기
-    public Mentos(String mentosTitle, String mentosContent, int price, String mentosImage, String mentosPostcode,
-                  String mentosRoadaddress, String mentosBname, String mentosDetail, Category category, Member member, BaseStatus status) {
+    public Mentos(String mentosTitle, String mentosContent, int price, String mentosImage,
+                  Category category, Member member, BaseStatus status) {
         this.mentosTitle = mentosTitle;
         this.mentosContent = mentosContent;
         this.price = price;
         this.mentosImage = mentosImage;
-        this.mentosPostcode = mentosPostcode;
-        this.mentosRoadaddress = mentosRoadaddress;
-        this.mentosBname = mentosBname;
-        this.mentosDetail = mentosDetail;
         this.category = category;
         this.member = member;
         this.status = status;

@@ -22,12 +22,17 @@ public class MyMentosByMentiResponse {
         Mentos mentos = reservation.getMentos();
         String status = reservation.getMentosAt().isBefore(LocalDateTime.now()) ? "진행 완료" : "진행 전";
 
+        String region = null;
+        if (mentos.getMember() != null && mentos.getMember().getMentoProfile() != null) {
+            region = mentos.getMember().getMentoProfile().getMentoBname();
+        }
+
         return MyMentosByMentiResponse.builder()
                 .mentosSeq(mentos.getMentosSeq())
                 .mentosTitle(mentos.getMentosTitle())
                 .mentosImage(mentos.getMentosImage())
                 .price(mentos.getPrice())
-                .region(mentos.getMentosBname())
+                .region(region)
                 .progressStatus(status)
                 .build();
     }

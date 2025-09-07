@@ -78,17 +78,22 @@ public class MentosController {
     }
 
     /* 멘토스 생성하기 */
-    @PostMapping("/{memberSeq}")
-    public BaseResponse<Void> createMentos(@PathVariable("memberSeq") Long memberSeq,
-                                           @ModelAttribute CreateMentosRequest createMentosRequest,
-                                           @RequestHeader(value = "Idempotency-Key") String idemKey){
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public BaseResponse<Void> createMentos(
+            @RequestPart("requestDto") CreateMentosRequest createMentosRequest,
+            @RequestPart("imageFile") MultipartFile imageFile,
+            @RequestHeader(value = "Idem-Key") String idemKey) throws IOException {
+
         log.info("[MentosController.createMentos]");
+
         // 프론트에서 멱등키가 같이 오지 않으면 생성이 안되도록 막기
-        if(idemKey.isEmpty()) {
+        if(idemKey == null || idemKey.isEmpty()) {
             throw new MentosException(CANNOT_CREATE_MENTOS);
         }
 
-        mentosService.createMentos(memberSeq, createMentosRequest, idemKey);
-        return new BaseResponse<>(null);
+        Long currentMemberSeq = 1L; // 임시 사용자 ID
+        mentosService.createMentos(currentMemberSeq, createMentosRequest, imageFile, idemKey);
+
+        return new BaseResponse<>(SUCCESS, null);
     }
 }
