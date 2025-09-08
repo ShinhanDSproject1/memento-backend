@@ -10,11 +10,15 @@ public interface SeatHoldService {
     List<LocalTime> findHeldSlots(long mentosSeq, LocalDate date);
 
     /** 홀드 시도: 없을 때만 생성(NX) + TTL 설정, 성공이면 true */
-    boolean holdSlot(long mentosSeq, LocalDate date, LocalTime time, String holderId, long ttlSec);
+    boolean holdSlot(long mentosSeq, LocalDate date, LocalTime time, String holderId);
 
     /** 홀드 해제(결제 취소 등) */
     void releaseSlot(long mentosSeq, LocalDate date, LocalTime time);
 
     /** 필요 시: 특정 홀더의 홀드는 제외하고 조회 (옵션) */
     List<LocalTime> findHeldSlotsExcludingHolder(long mentosSeq, LocalDate date, String holderId);
+
+    /** mentosSeq, 날짜, 시간 기준으로 홀드된 슬롯 여부 확인 */
+    boolean isHeld(long mentosSeq, LocalDate date, LocalTime time);
+
 }
