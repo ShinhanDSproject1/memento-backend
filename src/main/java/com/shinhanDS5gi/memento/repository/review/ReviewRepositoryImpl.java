@@ -1,4 +1,4 @@
-package com.shinhanDS5gi.memento.repository.Review;
+package com.shinhanDS5gi.memento.repository.review;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;

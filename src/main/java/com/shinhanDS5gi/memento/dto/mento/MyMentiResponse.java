@@ -5,6 +5,7 @@ import com.shinhanDS5gi.memento.domain.Reservation;
 import com.shinhanDS5gi.memento.domain.member.Member;
 import lombok.Getter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,7 +29,7 @@ public class MyMentiResponse {
     public static class MentiInfo {
         private final Long memberSeq;
         private final String memberName;
-        private final LocalDateTime mentosAt; // 멘토링 진행 일시. 멘토링 진행 완료 시 멘티 목록에서 제거해야 하기 때문
+        private final LocalDate mentosAt; // 멘토링 진행 일시. 멘토링 진행 완료 시 멘티 목록에서 제거해야 하기 때문
 
         public MentiInfo(Reservation reservation) {
             Member menti = reservation.getMember();
