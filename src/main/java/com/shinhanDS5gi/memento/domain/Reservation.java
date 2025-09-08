@@ -43,4 +43,9 @@ public class Reservation extends BaseTime {
     @JsonIgnore
     @OneToMany(mappedBy = "reservation")
     private List<Payment> paymentList = new ArrayList<>();
+
+    //환불시 inactive
+    public void deactivate() {
+        this.status = BaseStatus.INACTIVE;
+    }
 }

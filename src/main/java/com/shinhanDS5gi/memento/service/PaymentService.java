@@ -4,6 +4,6 @@ import com.shinhanDS5gi.memento.domain.payment.Payment;
 
 public interface PaymentService {
 
-    /* 결제 완료 처리 후 채팅 방 생성 */
-    Payment processPaymentCompletion(Long paymentId);
+    /* 환불하기 */
+    void refundFull(Long paymentSeq, String reason);
 }

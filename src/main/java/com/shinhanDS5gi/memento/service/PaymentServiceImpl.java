@@ -1,36 +1,64 @@
 package com.shinhanDS5gi.memento.service;
 
+import com.shinhanDS5gi.memento.common.exception.MentosException;
+import com.shinhanDS5gi.memento.domain.Reservation;
 import com.shinhanDS5gi.memento.domain.chat.ChattingRoom;
 import com.shinhanDS5gi.memento.domain.payment.Payment;
 import com.shinhanDS5gi.memento.repository.PaymentRepository;
 import com.shinhanDS5gi.memento.repository.chat.ChattingRoomRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
+import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus.*;
+import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PaymentServiceImpl implements PaymentService {
 
     private final PaymentRepository paymentRepository;
     private final ChattingRoomRepository chattingRoomRepository;
+    private final WebClient tossWebClient;
 
+    // 환불하기
     @Override
     @Transactional
-    public Payment processPaymentCompletion(Long paymentId) {
-        // 결제 완료 로직 필요
+    public void refundFull(Long paymentSeq, String reason) {
+        Payment payment = paymentRepository.findById(paymentSeq)
+                .orElseThrow(() -> new MentosException(PAYMENT_NOT_FOUND));
 
-        Payment payment = paymentRepository.findById(paymentId)
-                .orElseThrow(() -> new IllegalArgumentException("결제 정보를 찾을 수 없습니다."));
+        // 1) 토스 환불 API 호출
+        String respJson = tossWebClient.post()
+                .uri("/v1/payments/{paymentKey}/cancel", payment.getPaymentKey())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .bodyValue(Map.of("cancelReason", reason))
+                .retrieve()
+                .onStatus(HttpStatusCode::isError, r ->
+                        r.bodyToMono(String.class).flatMap(msg ->
+                                Mono.error(new MentosException(REFUND_FAILED))
+                        )
+                )
+                .bodyToMono(String.class) // Toss에서 내려준 JSON 전체 받기
+                .block();
 
-        // 결제 상태 변경 로직 필요
+        log.info("Toss refund response = {}", respJson);
 
-        // 결제 완료 후 (성공 시) 채팅방 신규 생성
-        ChattingRoom newChatRoom = ChattingRoom.create(payment);
+        // 2) DB 업데이트
+        payment.markRefunded();  // 결제 REFUND + INACTIVE
 
-        // 생성된 채팅방과 채팅 참여자 정보 DB에 저장
-        chattingRoomRepository.save(newChatRoom);
+        Reservation reservation = payment.getReservation();
+        if (reservation != null) {
+            reservation.deactivate(); // 예약 INACTIVE
 
-        return payment;
+            chattingRoomRepository.findByPayment(payment)
+                    .ifPresent(ChattingRoom::deactivate);// 채팅방 INACTIVE
+        }
     }
 }

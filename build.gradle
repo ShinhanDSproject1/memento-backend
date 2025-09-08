@@ -61,6 +61,9 @@ dependencies {
 	implementation "software.amazon.awssdk:s3"
     implementation 'com.amazonaws:aws-java-sdk-s3:1.12.261'
 
+    //토스 결제 API 호출용 WebClient가 필요
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
 }
 
 tasks.named('test') {

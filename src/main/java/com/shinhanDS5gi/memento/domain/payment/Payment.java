@@ -6,6 +6,7 @@ import com.shinhanDS5gi.memento.domain.base.BaseTime;
 import com.shinhanDS5gi.memento.domain.member.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Payment extends BaseTime {
@@ -32,6 +34,9 @@ public class Payment extends BaseTime {
     @Column(nullable = false)
     private PayType payType;
 
+    @Column(nullable = false)
+    private String paymentKey; //토스 환불 키
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private BaseStatus status;
@@ -43,4 +48,10 @@ public class Payment extends BaseTime {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reservation_seq")
     private Reservation reservation;
+
+    //환불시 inactive
+    public void markRefunded() {
+        this.payType = PayType.FAILED;
+        this.status = BaseStatus.INACTIVE;
+    }
 }

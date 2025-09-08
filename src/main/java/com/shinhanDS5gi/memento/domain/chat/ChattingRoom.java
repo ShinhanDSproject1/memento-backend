@@ -61,4 +61,9 @@ public class ChattingRoom extends BaseTime {
         this.lastMessage = message;
         this.lastMessageAt = sentAt;
     }
+
+    //환불시 inactive
+    public void deactivate() {
+        this.status = BaseStatus.INACTIVE;
+    }
 }

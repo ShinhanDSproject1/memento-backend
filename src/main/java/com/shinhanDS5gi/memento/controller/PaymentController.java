@@ -12,19 +12,14 @@ import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionRespo
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/payments")
+@RequestMapping("/mentos")
 public class PaymentController {
 
     private final PaymentService paymentService;
 
-    /**
-     * (테스트용 임시 API)
-     * 특정 결제를 완료 처리하고 채팅방을 생성합니다.
-     * @param paymentId 결제 ID
-     */
-    @PostMapping("/{paymentId}/complete")
-    public BaseResponse<Void> completePaymentAndCreateChatRoom(@PathVariable Long paymentId) {
-        paymentService.processPaymentCompletion(paymentId);
+    @PostMapping("/refund/{paymentSeq}")
+    public BaseResponse<Void> refund(@PathVariable Long paymentSeq) {
+        paymentService.refundFull(paymentSeq, "USER_REQUEST");
         return new BaseResponse<>(SUCCESS, null);
     }
 }
