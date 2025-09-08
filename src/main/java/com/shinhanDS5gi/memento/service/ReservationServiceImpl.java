@@ -1,27 +1,30 @@
 package com.shinhanDS5gi.memento.service;
 
 import com.shinhanDS5gi.memento.common.exception.MentosException;
+import com.shinhanDS5gi.memento.common.exception.ReservationException;
 import com.shinhanDS5gi.memento.domain.Mentos;
 import com.shinhanDS5gi.memento.domain.base.BaseStatus;
+import com.shinhanDS5gi.memento.dto.reservation.CreateReservationRequest;
 import com.shinhanDS5gi.memento.dto.reservation.GetAvailableDateResponse;
 import com.shinhanDS5gi.memento.dto.reservation.MentoTimeWindowProjection;
-import com.shinhanDS5gi.memento.repository.MentoProfileRepository;
 import com.shinhanDS5gi.memento.repository.ReservationRepository;
 import com.shinhanDS5gi.memento.repository.mentos.MentosRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus.CANNOT_FOUND_MENTOS;
+import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus.*;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ReservationServiceImpl implements ReservationService {
 
     private final ReservationRepository reservationRepository;
@@ -89,6 +92,30 @@ public class ReservationServiceImpl implements ReservationService {
                 .availableTime(available)
                 .price(mentos.getPrice())
                 .build();
+    }
+
+    /* 예약 하기 */
+    @Transactional
+    @Override
+    public void makeReservation(Long memberSeq, CreateReservationRequest createReservationRequest) {
+        log.info("[ReservationServiceImpl.makeReservation]");
+        Long mentosSeq = createReservationRequest.getMentosSeq();
+        LocalDate mentosAt = LocalDate.parse(createReservationRequest.getMentosAt());
+        LocalTime mentosTime = LocalTime.parse(createReservationRequest.getMentosTime());
+
+        // 해당 시간에 확정된 예약이 없는지 다시 한번 확인 (reservation 테이블)
+        boolean isConfirmedReservation = reservationRepository.existsByMentos_MentosSeqAndMentosAtAndMentosTimeAndStatus(mentosSeq, mentosAt, mentosTime, BaseStatus.ACTIVE);
+
+        // 해당 시간에 hold 된 예약이 없는지 다시 한번 확인 (redis)
+        if(isConfirmedReservation || seatHoldService.isHeld(mentosSeq,mentosAt, mentosTime)){
+            // 예약이 있다면 예약을 할 수 없다는 뜻이니까 예외처리
+            throw new ReservationException(ALREADY_EXIST_RESERVATION);
+        }
+
+        // redis 에 hold 하기 (예약 하기)
+        if(!seatHoldService.holdSlot(mentosSeq, mentosAt, mentosTime, String.valueOf(memberSeq))){
+            throw new ReservationException(FAILURE_CREATE_RESERVATION);
+        }
     }
 
     private boolean isDayAllowed(String availableDays, DayOfWeek day) {
