@@ -13,7 +13,7 @@ import com.shinhanDS5gi.memento.domain.member.MemberType;
 import com.shinhanDS5gi.memento.dto.mentos.*;
 import com.shinhanDS5gi.memento.repository.MentoProfileRepository;
 import com.shinhanDS5gi.memento.repository.CategoryRepository;
-import com.shinhanDS5gi.memento.repository.Review.ReviewRepository;
+import com.shinhanDS5gi.memento.repository.review.ReviewRepository;
 import com.shinhanDS5gi.memento.repository.member.MemberRepository;
 import com.shinhanDS5gi.memento.repository.mentos.MentosRepository;
 import lombok.RequiredArgsConstructor;

@@ -13,7 +13,7 @@ import com.shinhanDS5gi.memento.dto.mento.MentoReviewsListResponse;
 import com.shinhanDS5gi.memento.dto.mento.MentoReviewsSliceResponse;
 import com.shinhanDS5gi.memento.repository.mentos.MentosRepository;
 import com.shinhanDS5gi.memento.repository.ReservationRepository;
-import com.shinhanDS5gi.memento.repository.Review.ReviewRepository;
+import com.shinhanDS5gi.memento.repository.review.ReviewRepository;
 import com.shinhanDS5gi.memento.repository.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus.*;
 @Slf4j
