@@ -1,6 +1,7 @@
 package com.shinhanDS5gi.memento.service;
 
 import com.shinhanDS5gi.memento.dto.admin.CreateReportRequest;
+import com.shinhanDS5gi.memento.dto.admin.SelectReportDetailResponse;
 import com.shinhanDS5gi.memento.dto.admin.SelectReportResponse;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -22,5 +23,5 @@ public interface ReportService {
     List<SelectReportResponse> findAllReports();
 
     /* 특정 신고 상세 내역 조회 */
-    SelectReportResponse findReportById(Long reportSeq);
+    SelectReportDetailResponse findReportById(Long reportSeq);
 }

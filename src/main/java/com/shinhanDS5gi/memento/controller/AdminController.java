@@ -2,6 +2,7 @@ package com.shinhanDS5gi.memento.controller;
 
 import com.shinhanDS5gi.memento.common.response.BaseResponse;
 import com.shinhanDS5gi.memento.dto.admin.CreateReportRequest;
+import com.shinhanDS5gi.memento.dto.admin.SelectReportDetailResponse;
 import com.shinhanDS5gi.memento.dto.admin.SelectReportResponse;
 import com.shinhanDS5gi.memento.service.MemberService;
 import com.shinhanDS5gi.memento.dto.admin.GetMemberListResponse;
@@ -71,8 +72,8 @@ public class AdminController {
 
     /* 특정 신고 내역 상세 조회 */
     @GetMapping("/reports/{reportSeq}")
-    public BaseResponse<SelectReportResponse> getReportById(@PathVariable("reportSeq") Long reportSeq) {
-        SelectReportResponse report = reportService.findReportById(reportSeq);
+    public BaseResponse<SelectReportDetailResponse> getReportById(@PathVariable("reportSeq") Long reportSeq) {
+        SelectReportDetailResponse report = reportService.findReportById(reportSeq);
         return new BaseResponse<>(report);
     }
 

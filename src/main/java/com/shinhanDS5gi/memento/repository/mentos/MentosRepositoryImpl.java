@@ -15,7 +15,6 @@ import com.shinhanDS5gi.memento.domain.QReview;
 import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.domain.member.QMember;
 import com.shinhanDS5gi.memento.dto.mentos.GetMentosDetailProjection;
-import com.shinhanDS5gi.memento.dto.mentos.GetMentosDetailResponse;
 import com.shinhanDS5gi.memento.dto.mentos.GetMentosListResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -54,6 +53,8 @@ public class MentosRepositoryImpl implements MentosCustomRepository {
                         mentoProfile.mentoBname.as("region"),
                         new CaseBuilder().when(existsApproved).then(true).otherwise(false).as("approved")))
                 .from(mentos)
+                .join(mentos.member, member)
+                .leftJoin(mentoProfile).on(mentoProfile.member.eq(member))
                 .where(builder)
                 .orderBy(mentos.mentosSeq.desc())
                 .limit(limit + 1)
@@ -85,8 +86,11 @@ public class MentosRepositoryImpl implements MentosCustomRepository {
                         mentoProfile.mentoProfileContent.as("mentoDescription"),
                         mentos.mentosContent.as("mentosDescription"),
                         mentos.price.as("mentosPrice")
-                )).from(mentos).join(mentos.member, member).leftJoin(mentoProfile)
-                .on(mentoProfile.member.eq(member))
-                .where(builder).fetchOne();
+                ))
+                .from(mentos)
+                .join(mentos.member, member)
+                .leftJoin(mentoProfile).on(mentoProfile.member.eq(member)) // ✅ location/description 조회 가능
+                .where(builder)
+                .fetchOne();
     }
 }

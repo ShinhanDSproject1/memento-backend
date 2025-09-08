@@ -11,6 +11,7 @@ import com.shinhanDS5gi.memento.domain.member.Member;
 import com.shinhanDS5gi.memento.domain.report.Report;
 import com.shinhanDS5gi.memento.domain.report.ReportHandleStatus;
 import com.shinhanDS5gi.memento.dto.admin.CreateReportRequest;
+import com.shinhanDS5gi.memento.dto.admin.SelectReportDetailResponse;
 import com.shinhanDS5gi.memento.dto.admin.SelectReportResponse;
 import com.shinhanDS5gi.memento.repository.member.MemberRepository;
 import com.shinhanDS5gi.memento.repository.ReportRepository;
@@ -94,7 +95,7 @@ public class ReportServiceImpl implements ReportService {
                 .orElseThrow(()-> new MemberException(CANNOT_FOUND_MEMBER));
         Mentos reportedMentos = mentosRepository.findByMentosSeqAndStatus(requestDto.getMentosSeq(), BaseStatus.ACTIVE)
                 .orElseThrow(() -> new MentosException(CANNOT_FOUND_REPORT));
-        
+
         // 중복신고 방지 메서드
         if (reportRepository.existsByMember_MemberSeqAndMentos_MentosSeqAndReportTypeAndStatus(
                 memberSeq, requestDto.getMentosSeq(), requestDto.getReportType(), BaseStatus.ACTIVE
@@ -117,29 +118,15 @@ public class ReportServiceImpl implements ReportService {
         List<Report> reports = reportRepository.findAllWithMemberAndMentos(ReportHandleStatus.PENDING);
 
         return reports.stream()
-                .map(report -> SelectReportResponse.builder()
-                        .reportSeq(report.getReportSeq())
-                        .reportType(report.getReportType())
-                        .reporterName(report.getMember().getMemberName())
-                        .reportedMentosSeq(report.getMentos().getMentosSeq())
-                        .reportImage(report.getReportImage())
-                        .createdAt(report.getCreatedAt())
-                        .build())
+                .map(SelectReportResponse::from)
                 .collect(Collectors.toList());
     }
 
     /* 특정 신고 내역 상세 조회 */
     @Override
-    public SelectReportResponse findReportById(Long reportSeq) {
+    public SelectReportDetailResponse findReportById(Long reportSeq) {
         return reportRepository.findByIdWithMemberAndMentos(reportSeq)
-                .map(report -> SelectReportResponse.builder()
-                        .reportSeq(report.getReportSeq())
-                        .reportType(report.getReportType())
-                        .reportImage(report.getReportImage())
-                        .reporterName(report.getMember().getMemberName())
-                        .reportedMentosSeq(report.getMentos().getMentosSeq())
-                        .createdAt(report.getCreatedAt())
-                        .build())
-                .orElse(null);
+                .map(SelectReportDetailResponse::from)
+                .orElseThrow(() -> new ReportException(CANNOT_FOUND_REPORT));
     }
 }

@@ -28,6 +28,11 @@ public class MyMentosByMentiResponse {
             region = mentos.getMember().getMentoProfile().getMentoBname();
         }
 
+        String region = null;
+        if (mentos.getMember() != null && mentos.getMember().getMentoProfile() != null) {
+            region = mentos.getMember().getMentoProfile().getMentoBname();
+        }
+
         return MyMentosByMentiResponse.builder()
                 .mentosSeq(mentos.getMentosSeq())
                 .mentosTitle(mentos.getMentosTitle())
