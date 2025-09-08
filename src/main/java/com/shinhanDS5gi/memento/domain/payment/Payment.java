@@ -17,7 +17,6 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class Payment extends BaseTime {
 
     @Id

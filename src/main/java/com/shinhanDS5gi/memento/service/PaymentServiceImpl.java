@@ -51,7 +51,6 @@ public class PaymentServiceImpl implements PaymentService {
     private final ChattingRoomRepository chattingRoomRepository;
     private final WebClient tossWebClient;
     private final MemberRepository memberRepository;
-    private final WebClient tossWebClient;
 
 
     @Value("${app.url.success}")
