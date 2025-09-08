@@ -22,7 +22,7 @@ public enum BaseExceptionResponseStatus implements ResponseStatus{
     NO_MENTOS_FOUND_FOR_MEMBER(2503, HttpStatus.NOT_FOUND.value(), "멘토가 작성한 멘토스 내역이 존재하지 않습니다."),
     NO_REVIEWS_FOUND_FOR_MENTO(2504, HttpStatus.NOT_FOUND.value(), "요청하신 멘토의 멘토스 리뷰는 존재하지 않습니다."),
     CANNOT_CREATE_MENTOS(2505, HttpStatus.BAD_REQUEST.value(), "멘토스를 생성할 수 없습니다."),
-
+    MENTOS_NOT_FOUND(2506,HttpStatus.BAD_REQUEST.value(), "요청하신 멘토스가 없습니다."),
     /**
      * Token 관련 3000대
      */

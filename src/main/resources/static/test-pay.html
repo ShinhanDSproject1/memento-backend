@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <title>테스트 결제</title>
+</head>
+<body>
+<button id="pay">테스트 결제</button>
+<pre id="log" style="white-space:pre-wrap; font-family:monospace;"></pre>
+
+<script src="https://js.tosspayments.com/v1"></script>
+<script>
+    const LOG = (...a) => {
+      console.log(...a);
+      document.getElementById('log').textContent += a.join(' ') + '\n';
+    };
+
+    const clientKey = "test_ck_QbgMGZzorzqR7g7KxwMPVl5E1em4";
+
+    // ★ 서버가 Redis에 홀드해둔 슬롯 정보(예시)
+    const memberSeq  = 2;                // path 변수
+    const mentosSeq  = 1;
+    const mentosAt   = "2025-09-08";     // yyyy-MM-dd
+    const mentosTime = "12:00";          // HH:mm
+
+    document.getElementById("pay").addEventListener("click", onPay);
+
+    async function onPay() {
+      try {
+        LOG("click!");
+
+        // 1) init + verify (백엔드)
+        const initRes = await fetch(`/mentos/payments/${memberSeq}/init`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ mentosSeq, mentosAt, mentosTime })
+        });
+        LOG("init status:", initRes.status);
+        const initBody = await initRes.json();
+        const data = initBody.data || initBody.result || initBody;
+        LOG("init data:", JSON.stringify(data));
+
+        if (!data?.orderId) return alert("orderId 없음");
+        // successUrl/failUrl은 서버가 내려준 값을 그대로 사용
+        const { amount, orderId, orderName, successUrl, failUrl } = data;
+
+        // 2) Toss 결제창 호출
+        const tossPayments = TossPayments(clientKey);
+        await tossPayments.requestPayment("카드", {
+          amount, orderId, orderName,
+          successUrl,   // 프론트 성공 페이지 URL이어야 함
+          failUrl       // 프론트 실패 페이지 URL
+        });
+
+      } catch (e) {
+        LOG("requestPayment error:", e?.code || "", e?.message || e);
+        alert("결제창 에러: " + (e?.message || e));
+      }
+    }
+</script>
+</body>
+</html>

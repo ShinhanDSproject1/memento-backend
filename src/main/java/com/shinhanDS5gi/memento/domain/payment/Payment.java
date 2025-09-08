@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Payment extends BaseTime {
 
     @Id
@@ -29,6 +30,9 @@ public class Payment extends BaseTime {
 
     @Column(nullable = false)
     private int price;
+
+    @Column(nullable = false)
+    private String paymentKey;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
