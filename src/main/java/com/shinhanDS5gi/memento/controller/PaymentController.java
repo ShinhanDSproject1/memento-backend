@@ -43,7 +43,7 @@ public class PaymentController {
     /**
      * 결제 성공 콜백
      */
-    @PostMapping("/payments/success")
+    @PostMapping("/payments/success/{memberSeq}/init")
     public BaseResponse<Void> success(
             @PathVariable Long memberSeq,
             @RequestParam String paymentKey,

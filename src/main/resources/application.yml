@@ -37,5 +37,5 @@ toss:
 
 app:
   url:
-    success: http://localhost:9999/payments/success
+    success: http://localhost:3000/payments/success
     fail: http://localhost:9999/payments/fail
