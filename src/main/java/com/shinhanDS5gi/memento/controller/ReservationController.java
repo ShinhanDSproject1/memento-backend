@@ -1,7 +1,7 @@
 package com.shinhanDS5gi.memento.controller;
 
 import com.shinhanDS5gi.memento.common.response.BaseResponse;
-import com.shinhanDS5gi.memento.domain.Reservation;
+import com.shinhanDS5gi.memento.dto.reservation.CreateReservationRequest;
 import com.shinhanDS5gi.memento.dto.reservation.GetAvailableDateResponse;
 import com.shinhanDS5gi.memento.service.ReservationService;
 import lombok.Getter;
@@ -23,5 +23,13 @@ public class ReservationController {
                                                                    @RequestParam("selectedDate") String selectedDate){
         log.info("[ReservationController.getAvailableTime]");
         return new BaseResponse<>(reservationService.getAvailableTime(mentosSeq, memberSeq, selectedDate));
+    }
+
+    @PostMapping("/{memberSeq}")
+    public BaseResponse<Void> makeReservation(@PathVariable("memberSeq") Long memberSeq,
+                                              @RequestBody CreateReservationRequest createReservationRequest){
+        log.info("[ReservationController.makeReservation]");
+        reservationService.makeReservation(memberSeq, createReservationRequest);
+        return new BaseResponse<>(null);
     }
 }
