@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>내 주변 멘토링 찾기 (테스트)</title>
+    <style>
+      /* 기본 스타일 */
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #f8f9fa;
+        color: #333;
+      }
+      .container {
+        max-width: 1000px;
+        margin: auto;
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        text-align: center;
+        color: #007bff;
+      }
+      .controls {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      button {
+        background-color: #007bff;
+        color: white;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+      #status {
+        text-align: center;
+        margin-top: 15px;
+        font-weight: 500;
+        color: #6c757d;
+      }
+      #map {
+        width: 100%;
+        height: 600px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+      }
+
+      /* 인포윈도우 스타일 */
+      .infowindow-content {
+        padding: 15px;
+        font-size: 14px;
+        line-height: 1.6;
+      }
+      .infowindow-content .mentor-info {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+      .infowindow-content .profile-img {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        margin-right: 15px;
+        object-fit: cover;
+        border: 2px solid #eee;
+      }
+      .infowindow-content .mentor-details h3 {
+        margin: 0 0 5px 0;
+        font-size: 18px;
+      }
+      .infowindow-content .mentor-details p {
+        margin: 0;
+        color: #555;
+      }
+      .infowindow-content h4 {
+        margin-top: 0;
+        margin-bottom: 10px;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 5px;
+      }
+      .infowindow-content .mentos-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      .infowindow-content .mentos-list li {
+        background: #f1f3f5;
+        padding: 8px 12px;
+        border-radius: 5px;
+        margin-bottom: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>내 주변 멘토링 찾기</h1>
+      <div class="controls">
+        <button id="find-me-btn">내 위치 주변 멘토 찾기</button>
+      </div>
+      <p id="status">
+        버튼을 눌러 현재 위치를 기반으로 주변 멘토를 검색하세요.
+      </p>
+
+      <!-- 지도를 표시할 div 입니다 -->
+      <div id="map"></div>
+    </div>
+
+    <script>
+        const findMeBtn = document.getElementById("find-me-btn");
+        const statusEl = document.getElementById("status");
+        const mapContainer = document.getElementById("map");
+
+        let map = null;
+        let markers = [];
+        let infoWindow = null;
+        let isFetching = false;
+
+        // 변경: 실제 이미지가 업로드되는 base 경로 (환경에 맞게 수정)
+        const baseImagePath = '/uploads/'; // 서버에서 이미지 제공하는 경로로 바꾸세요
+        const fallbackImage = '/static/images/default-60.png'; // 로컬 fallback 이미지 경로 (프로젝트에 파일 추가)
+
+        function escapeHtml(str = '') {
+          return String(str)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+        }
+
+        function initDefaultMap() {
+          const options = {
+            center: new kakao.maps.LatLng(37.5665, 126.978),
+            level: 7,
+          };
+          map = new kakao.maps.Map(mapContainer, options);
+          infoWindow = new kakao.maps.InfoWindow({ removable: true });
+        }
+
+        findMeBtn.addEventListener("click", () => {
+          statusEl.textContent = "위치 정보를 가져오는 중...";
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+              onSuccessGeolocation,
+              onErrorGeolocation
+            );
+          } else {
+            statusEl.textContent =
+              "이 브라우저는 위치 정보(Geolocation)를 지원하지 않습니다.";
+          }
+        });
+
+        // 위치 정보 가져오기
+        function onSuccessGeolocation(position) {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+
+          statusEl.textContent = `현재 위치를 찾았습니다!`;
+
+          // 내 위치 위경도 화면 표시
+          let coordBox = document.getElementById("coord-box");
+          if (!coordBox) {
+            coordBox = document.createElement("p");
+            coordBox.id = "coord-box";
+            coordBox.style.textAlign = "center";
+            coordBox.style.margin = "10px 0";
+            coordBox.style.fontWeight = "bold";
+            document.querySelector(".controls").after(coordBox);
+          }
+          coordBox.textContent = `위도: ${lat.toFixed(4)}, 경도: ${lon.toFixed(4)}`;
+
+          // 지도를 현재 위치로 이동
+          const currentPos = new kakao.maps.LatLng(lat, lon);
+          map.setCenter(currentPos);
+          map.setLevel(5);
+
+         const myMarkerImage = new kakao.maps.MarkerImage(
+             "http://maps.google.com/mapfiles/ms/icons/blue-dot.png", // 샘플 아이콘
+             new kakao.maps.Size(32, 32), // 크기
+             { offset: new kakao.maps.Point(16, 32) } // 중심 좌표
+           );
+
+           new kakao.maps.Marker({
+             map: map,
+             position: currentPos,
+             title: "내 위치",
+             image: myMarkerImage
+           });
+
+           // 백엔드 API 호출
+           fetchNearbyMentors(lat, lon);
+        }
+
+        function onErrorGeolocation() {
+          statusEl.textContent =
+            "위치 정보를 가져오는데 실패했습니다. 브라우저의 위치 정보 허용 설정을 확인해주세요.";
+        }
+
+        async function fetchNearbyMentors(latitude, longitude) {
+          if (isFetching) {
+            console.log("이미 주변 멘토를 찾는 중입니다.");
+            return;
+          }
+          isFetching = true;
+          statusEl.textContent = "주변 멘토 정보를 불러오는 중...";
+          findMeBtn.disabled = true;
+
+          const distance = 10;  // 근방 10km 이내로 조회
+          const url = `http://localhost:9999/map/mentos?latitude=${latitude}&longitude=${longitude}&distance=${distance}`;
+
+          try {
+            const response = await fetch(url);
+            const data = await response.json();
+            console.log('API 응답:', data);
+
+            if (data && data.code === 1000 && Array.isArray(data.result)) {
+              statusEl.textContent = `${data.result.length}명의 주변 멘토를 찾았습니다.`;
+              displayMarkers(data.result);
+            } else {
+              statusEl.textContent = `멘토 정보 로딩 실패: ${data?.message || '응답 형식 오류'}`;
+            }
+          } catch (error) {
+            console.error("API 호출 오류:", error);
+            statusEl.textContent = "서버와 통신하는 중 오류가 발생했습니다.";
+          } finally {
+            isFetching = false;
+            findMeBtn.disabled = false;
+          }
+        }
+
+        // 멘토 마커 (빨간 핀)
+        function displayMarkers(mentors) {
+          // 기존 마커 제거
+          markers.forEach((m) => m.setMap(null));
+          markers = [];
+
+          if (!Array.isArray(mentors) || mentors.length === 0) {
+            statusEl.textContent = "주변 멘토가 없습니다.";
+            return;
+          }
+
+          const bounds = new kakao.maps.LatLngBounds();
+
+          mentors.forEach((mentor) => {
+            const lat = Number(mentor.latitude);
+            const lng = Number(mentor.longitude);
+            if (isNaN(lat) || isNaN(lng)) {
+              console.warn("유효하지 않은 좌표, 스킵:", mentor);
+              return;
+            }
+
+            const position = new kakao.maps.LatLng(lat, lng);
+
+            // 🔴 멘토 마커 (빨간 핀 아이콘)
+            const mentorMarkerImage = new kakao.maps.MarkerImage(
+              "http://maps.google.com/mapfiles/ms/icons/red-pushpin.png",
+              new kakao.maps.Size(32, 32),
+              { offset: new kakao.maps.Point(10, 32) }
+            );
+
+            const marker = new kakao.maps.Marker({
+              map: map,
+              position: position,
+              title: mentor.mentoName || "멘토",
+              image: mentorMarkerImage
+            });
+
+            // mentosList 가 없을 경우 기본값
+            const mentosList = Array.isArray(mentor.mentosList)
+              ? mentor.mentosList
+              : [];
+            const mentosListHtml = mentosList.length
+              ? mentosList
+                  .map(
+                    (m) =>
+                      `<li>${escapeHtml(m.mentosTitle)} (${Number(
+                        m.price || 0
+                      ).toLocaleString()}원)</li>`
+                  )
+                  .join("")
+              : "<li>등록된 멘토링이 없습니다.</li>";
+
+            // 이미지 경로 처리
+            let profileImgSrc = mentor.mentoProfileImage
+              ? mentor.mentoProfileImage.startsWith("http")
+                ? mentor.mentoProfileImage
+                : baseImagePath + mentor.mentoProfileImage
+              : fallbackImage;
+
+            const distanceText =
+              typeof mentor.distance === "number"
+                ? mentor.distance.toFixed(2)
+                : mentor.distance
+                ? Number(mentor.distance).toFixed(2)
+                : "-";
+
+            const content = `
+              <div class="infowindow-content">
+                <div class="mentor-info">
+                  <img src="${escapeHtml(profileImgSrc)}" alt="${escapeHtml(
+              mentor.mentoName || ""
+            )}" class="profile-img"
+                       onerror="this.onerror=null; this.src='${escapeHtml(
+                         fallbackImage
+                       )}';">
+                  <div class="mentor-details">
+                    <h3>${escapeHtml(mentor.mentoName || "")}</h3>
+                    <p>${escapeHtml(mentor.mentoProfileContent || "")}</p>
+                    <p><strong>거리:</strong> ${distanceText} km</p>
+                  </div>
+                </div>
+                <h4>진행중인 멘토링</h4>
+                <ul class="mentos-list">${mentosListHtml}</ul>
+              </div>
+            `;
+
+            kakao.maps.event.addListener(marker, "click", function () {
+              infoWindow.setContent(content);
+              infoWindow.open(map, marker);
+            });
+
+            markers.push(marker);
+            bounds.extend(position);
+          });
+
+          // 모든 마커가 보이도록 조정
+          try {
+            if (markers.length > 1) {
+              map.setBounds(bounds);
+            } else if (markers.length === 1) {
+              map.setCenter(bounds.getCenter());
+            }
+          } catch (e) {
+            console.warn("지도 bounds 조정 중 에러", e);
+          }
+        }
+
+      async function loadKakaoMap() {
+        try {
+          // 백엔드에서 JS API Key 가져오기
+          const res = await fetch("http://localhost:9999/api/config/maps-key");
+          const { apiKey } = await res.json();
+
+          // 동적으로 SDK 스크립트 추가
+          const script = document.createElement("script");
+          script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${apiKey}&libraries=services&autoload=false`;
+          script.onload = () => {
+            kakao.maps.load(() => {
+              initDefaultMap(); // 기존 맵 초기화 함수 실행
+            });
+          };
+          document.head.appendChild(script);
+        } catch (err) {
+          console.error("카카오맵 API 키 불러오기 실패:", err);
+          document.getElementById("status").textContent =
+            "카카오맵 로딩 실패: API 키를 불러올 수 없습니다.";
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", loadKakaoMap);
+    </script>
+  </body>
+</html>

@@ -1,4 +1,4 @@
-package com.shinhanDS5gi.memento.repository;
+package com.shinhanDS5gi.memento.repository.mento;
 
 import com.shinhanDS5gi.memento.domain.MentoCertification;
 import com.shinhanDS5gi.memento.domain.base.BaseStatus;

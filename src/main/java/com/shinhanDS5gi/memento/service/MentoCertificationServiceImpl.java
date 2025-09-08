@@ -10,7 +10,7 @@ import com.shinhanDS5gi.memento.domain.member.MemberType;
 import com.shinhanDS5gi.memento.dto.mento.CreateMentoCertificationRequest;
 import com.shinhanDS5gi.memento.dto.mento.MentoCertificationsResponse;
 import com.shinhanDS5gi.memento.repository.member.MemberRepository;
-import com.shinhanDS5gi.memento.repository.MentoCertificationRepository;
+import com.shinhanDS5gi.memento.repository.mento.MentoCertificationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

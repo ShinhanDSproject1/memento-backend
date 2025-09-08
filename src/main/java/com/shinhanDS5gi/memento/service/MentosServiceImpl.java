@@ -15,7 +15,7 @@ import com.shinhanDS5gi.memento.dto.mentos.MyMentosSliceResponse;
 import com.shinhanDS5gi.memento.dto.mentos.UpdateMentosRequest;
 import com.shinhanDS5gi.memento.dto.mentos.CreateMentosRequest;
 import com.shinhanDS5gi.memento.dto.mentos.GetMentosDetailResponse;
-import com.shinhanDS5gi.memento.repository.MentoProfileRepository;
+import com.shinhanDS5gi.memento.repository.mento.MentoProfileRepository;
 import com.shinhanDS5gi.memento.dto.mentos.GetMentosListResponse;
 import com.shinhanDS5gi.memento.repository.CategoryRepository;
 import com.shinhanDS5gi.memento.repository.Review.ReviewRepository;
