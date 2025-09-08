@@ -3,6 +3,7 @@ package com.shinhanDS5gi.memento.service;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface SeatHoldService {
 
@@ -15,10 +16,8 @@ public interface SeatHoldService {
     /** 홀드 해제(결제 취소 등) */
     void releaseSlot(long mentosSeq, LocalDate date, LocalTime time);
 
-    /** 필요 시: 특정 홀더의 홀드는 제외하고 조회 (옵션) */
-    List<LocalTime> findHeldSlotsExcludingHolder(long mentosSeq, LocalDate date, String holderId);
-
     /** mentosSeq, 날짜, 시간 기준으로 홀드된 슬롯 여부 확인 */
     boolean isHeld(long mentosSeq, LocalDate date, LocalTime time);
 
+    Optional<Long> findMemberSeqByKey(Long mentosSeq, LocalDate mentosAt, LocalTime mentosTime);
 }

@@ -15,6 +15,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -83,34 +84,17 @@ public class SeatHoldServiceImpl implements SeatHoldService {
     }
 
     @Override
-    public List<LocalTime> findHeldSlotsExcludingHolder(long mentosSeq, LocalDate date, String holderId) {
-        log.info("[SeatHoldServiceImpl.findHeldSlotsExcludingHolder]");
-        String pattern = dayPattern(mentosSeq, date);
-        String prefix  = dayPrefix(mentosSeq, date);
-        List<LocalTime> result = new ArrayList<>();
-
-        RedisConnection conn = redis.getRequiredConnectionFactory().getConnection();
-        try (Cursor<byte[]> cur = conn.scan(ScanOptions.scanOptions().match(pattern).count(512).build())) {
-            while (cur.hasNext()) {
-                String k = new String(cur.next(), StandardCharsets.UTF_8);
-                String timePart = k.substring(prefix.length()); // "11:00"
-                if (timePart.length() != 5 || timePart.charAt(2) != ':') {
-                    log.warn("Skip invalid hold key time part: key={}, timePart={}", k, timePart);
-                    continue;
-                }
-                String v = redis.opsForValue().get(k);
-                if (v == null || !v.equals(holderId)) {
-                    result.add(LocalTime.parse(timePart, TIME_FMT));
-                }
-            }
-        }
-        return result;
-    }
-
-    @Override
     public boolean isHeld(long mentosSeq, LocalDate date, LocalTime time) {
         log.info("[SeatHoldServiceImpl.isHeld]");
         String k = key(mentosSeq, date, time);
         return Boolean.TRUE.equals(redis.hasKey(k));
+    }
+
+    @Override
+    public Optional<Long> findMemberSeqByKey(Long mentosSeq, LocalDate mentosAt, LocalTime mentosTime) {
+        log.info("[SeatHoldServiceImpl.findMemberSeqByKey]");
+        String k = key(mentosSeq, mentosAt, mentosTime);
+        String v = redis.opsForValue().get(k);
+        return (v == null || v.isBlank()) ? Optional.empty() : Optional.of(Long.parseLong(v));
     }
 }
