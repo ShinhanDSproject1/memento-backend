@@ -12,7 +12,7 @@ import com.shinhanDS5gi.memento.dto.auth.MentiSignupRequest;
 import com.shinhanDS5gi.memento.dto.admin.GetMemberListResponse;
 import com.shinhanDS5gi.memento.repository.MentoCertificationRepository;
 import com.shinhanDS5gi.memento.repository.*;
-import com.shinhanDS5gi.memento.repository.Review.ReviewRepository;
+import com.shinhanDS5gi.memento.repository.review.ReviewRepository;
 import com.shinhanDS5gi.memento.repository.member.MemberRepository;
 import com.shinhanDS5gi.memento.repository.mentos.MentosRepository;
 import jakarta.annotation.Nullable;

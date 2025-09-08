@@ -10,15 +10,15 @@ import com.shinhanDS5gi.memento.domain.Mentos;
 import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.domain.member.Member;
 import com.shinhanDS5gi.memento.domain.member.MemberType;
+import com.shinhanDS5gi.memento.repository.MentoProfileRepository;
+import com.shinhanDS5gi.memento.repository.CategoryRepository;
+import com.shinhanDS5gi.memento.repository.review.ReviewRepository;
 import com.shinhanDS5gi.memento.dto.mentos.MyMentosResponse;
 import com.shinhanDS5gi.memento.dto.mentos.MyMentosSliceResponse;
 import com.shinhanDS5gi.memento.dto.mentos.UpdateMentosRequest;
 import com.shinhanDS5gi.memento.dto.mentos.CreateMentosRequest;
 import com.shinhanDS5gi.memento.dto.mentos.GetMentosDetailResponse;
-import com.shinhanDS5gi.memento.repository.MentoProfileRepository;
 import com.shinhanDS5gi.memento.dto.mentos.GetMentosListResponse;
-import com.shinhanDS5gi.memento.repository.CategoryRepository;
-import com.shinhanDS5gi.memento.repository.Review.ReviewRepository;
 import com.shinhanDS5gi.memento.repository.member.MemberRepository;
 import com.shinhanDS5gi.memento.repository.mentos.MentosRepository;
 import lombok.RequiredArgsConstructor;
@@ -215,10 +215,28 @@ public class MentosServiceImpl implements MentosService {
     @Transactional
     public void createMentos(Long memberSeq, CreateMentosRequest createMentosRequest, MultipartFile imageFile, String idemKey) throws IOException {
         log.info("[MentosServiceImpl.createMentos]");
+        try {
+            Member member = memberRepository.findByMemberSeqAndStatusAndMemberType(memberSeq, BaseStatus.ACTIVE, MemberType.MENTO)
+                    .orElseThrow(() -> new MemberException(NOT_A_MENTO));
 
-        if (idempotencyService.isDuplicate(idemKey)) {
-            log.warn("[MentosServiceImpl.createMentos] 멱등성 키 중복: {}", idemKey);
-            throw new MentosException(ALREADY_SUCCESS_REQUEST);
+            log.info("[MentosServiceImpl.createMentos]....categorySeq==>" + createMentosRequest.getCategorySeq());
+            Category category = categoryRepository.findByCategorySeqAndStatus(createMentosRequest.getCategorySeq(), BaseStatus.ACTIVE)
+                    .orElseThrow(() -> new CategoryException(CANNOT_FOUND_CATEGORY));
+
+            if (idempotencyService.isDuplicate(idemKey)) {
+                log.info("[MentosServiceImpl.createMentos...멘토스 생성 이미 완료...동일한 요청]");
+                throw new MentosException(ALREADY_SUCCESS_REQUEST);
+            } else {
+                // s3 에 업로드된 url 로 db 에 저장하기
+                String uploadedMentosImage = s3Uploader.upload(createMentosRequest.getMentosImage());
+                Mentos mentos = new Mentos(createMentosRequest.getMentosTitle(), createMentosRequest.getMentosContent(), createMentosRequest.getPrice(), uploadedMentosImage, category, member, BaseStatus.ACTIVE);
+
+                Mentos createdMentos = mentosRepository.save(mentos);
+                log.info("[MentosServiceImpl.createMentos...멘토스 생성 완료]");
+                idempotencyService.saveKey(idemKey, String.valueOf(createdMentos.getMentosSeq()));
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
 
         Member member = memberRepository.findByMemberSeqAndStatusAndMemberType(memberSeq, BaseStatus.ACTIVE, MemberType.MENTO)
