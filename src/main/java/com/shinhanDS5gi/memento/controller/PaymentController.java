@@ -19,7 +19,6 @@ import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionRespo
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/payments")
 public class PaymentController {
 
     private final PaymentService paymentService;
