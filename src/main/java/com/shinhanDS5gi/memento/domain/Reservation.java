@@ -7,6 +7,7 @@ import com.shinhanDS5gi.memento.domain.member.Member;
 import com.shinhanDS5gi.memento.domain.payment.Payment;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -18,6 +19,7 @@ import java.util.List;
 
 @Entity
 @Getter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Reservation extends BaseTime {
@@ -48,4 +50,7 @@ public class Reservation extends BaseTime {
     @JsonIgnore
     @OneToMany(mappedBy = "reservation")
     private List<Payment> paymentList = new ArrayList<>();
+
+    //결제 시 예약 테이블 inactive
+    public void deactivate() { this.status = BaseStatus.INACTIVE; }
 }
