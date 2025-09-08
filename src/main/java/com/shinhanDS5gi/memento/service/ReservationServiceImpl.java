@@ -1,0 +1,150 @@
+package com.shinhanDS5gi.memento.service;
+
+import com.shinhanDS5gi.memento.common.exception.MentosException;
+import com.shinhanDS5gi.memento.common.exception.ReservationException;
+import com.shinhanDS5gi.memento.domain.Mentos;
+import com.shinhanDS5gi.memento.domain.base.BaseStatus;
+import com.shinhanDS5gi.memento.dto.reservation.CreateReservationRequest;
+import com.shinhanDS5gi.memento.dto.reservation.GetAvailableDateResponse;
+import com.shinhanDS5gi.memento.dto.reservation.MentoTimeWindowProjection;
+import com.shinhanDS5gi.memento.repository.ReservationRepository;
+import com.shinhanDS5gi.memento.repository.mentos.MentosRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.*;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus.*;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+public class ReservationServiceImpl implements ReservationService {
+
+    private final ReservationRepository reservationRepository;
+    private final MentosRepository mentosRepository;
+    private final SeatHoldService seatHoldService;
+
+    private static final DateTimeFormatter ISO_DATE = DateTimeFormatter.ISO_DATE;
+    private static final DateTimeFormatter HHMM = DateTimeFormatter.ofPattern("HH:mm");
+
+    // 예약 가능한 시간 조회하기
+    @Override
+    public GetAvailableDateResponse getAvailableTime(Long mentosSeq, Long memberSeq, String selectedDate) {
+        log.info("[ReservationServiceImpl.getAvailableTime]");
+
+        // 입력 파싱
+        final LocalDate date = LocalDate.parse(selectedDate, ISO_DATE);
+
+        Mentos mentos = mentosRepository.findByMentosSeqAndStatus(mentosSeq, BaseStatus.ACTIVE)
+                .orElseThrow(()-> new MentosException(CANNOT_FOUND_MENTOS));
+
+        // 1) 멘토 시간창(프로필) 조회
+        MentoTimeWindowProjection w = mentosRepository
+                .findTimeWindowByMentosSeqAndStatus(mentosSeq, BaseStatus.ACTIVE)
+                .orElseThrow(() -> new MentosException(CANNOT_FOUND_MENTOS));
+
+        final LocalTime startTime = w.getStartTime();
+        final LocalTime endTime   = w.getEndTime();
+        final String availableDays = w.getAvailableDays();
+
+        // 요청 날짜의 요일이 availableDays에 없으면 빈 배열 반환
+        if (!isDayAllowed(availableDays, date.getDayOfWeek())) {
+            return GetAvailableDateResponse.builder()
+                    .startTime(startTime)
+                    .endTime(endTime)
+                    .availableTime(Collections.emptyList())
+                    .build();
+        }
+
+        List<LocalTime> allSlots = hourlySlots(startTime, endTime);
+
+        // 4) 확정 예약 슬롯 (DB 1회) - ACTIVE만 제외
+        List<LocalTime> reserved = reservationRepository.findBookedTimes(
+                mentosSeq, date, BaseStatus.ACTIVE
+        );
+
+        // 5) 임시 홀드 슬롯 (Redis 1회)
+        List<LocalTime> held = seatHoldService.findHeldSlots(mentosSeq, date);
+
+        // 6) 사용 불가 집합 = 확정 + 홀드
+        Set<LocalTime> unavailable = new HashSet<>(reserved);
+        unavailable.addAll(held);
+
+        // 7) 가용 슬롯 = 전체 - 사용불가
+        List<String> available = allSlots.stream()
+                .filter(t -> !unavailable.contains(t))
+                .map(t -> t.format(HHMM))
+                .collect(Collectors.toList());
+
+        // 8) 응답
+        return GetAvailableDateResponse.builder()
+                .mentosSeq(mentosSeq)
+                .mentosTitle(mentos.getMentosTitle())
+                .startTime(startTime)
+                .endTime(endTime)
+                .availableTime(available)
+                .price(mentos.getPrice())
+                .build();
+    }
+
+    /* 예약 하기 */
+    @Transactional
+    @Override
+    public void makeReservation(Long memberSeq, CreateReservationRequest createReservationRequest) {
+        log.info("[ReservationServiceImpl.makeReservation]");
+        Long mentosSeq = createReservationRequest.getMentosSeq();
+        LocalDate mentosAt = LocalDate.parse(createReservationRequest.getMentosAt());
+        LocalTime mentosTime = LocalTime.parse(createReservationRequest.getMentosTime());
+
+        // 해당 시간에 확정된 예약이 없는지 다시 한번 확인 (reservation 테이블)
+        boolean isConfirmedReservation = reservationRepository.existsByMentos_MentosSeqAndMentosAtAndMentosTimeAndStatus(mentosSeq, mentosAt, mentosTime, BaseStatus.ACTIVE);
+
+        // 해당 시간에 hold 된 예약이 없는지 다시 한번 확인 (redis)
+        if(isConfirmedReservation || seatHoldService.isHeld(mentosSeq,mentosAt, mentosTime)){
+            // 예약이 있다면 예약을 할 수 없다는 뜻이니까 예외처리
+            throw new ReservationException(ALREADY_EXIST_RESERVATION);
+        }
+
+        // redis 에 hold 하기 (예약 하기)
+        if(!seatHoldService.holdSlot(mentosSeq, mentosAt, mentosTime, String.valueOf(memberSeq))){
+            throw new ReservationException(FAILURE_CREATE_RESERVATION);
+        }
+    }
+
+    private boolean isDayAllowed(String availableDays, DayOfWeek day) {
+        if (availableDays == null || availableDays.isBlank()) return true;
+
+        // 요일을 토큰셋으로 변환
+        Set<String> tokens = Arrays.stream(availableDays.split(","))
+                .map(s -> s.trim().toUpperCase(Locale.ROOT))
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toSet());
+
+        String token = switch (day) {
+            case MONDAY    -> "MON";
+            case TUESDAY   -> "TUE";
+            case WEDNESDAY -> "WED";
+            case THURSDAY  -> "THU";
+            case FRIDAY    -> "FRI";
+            case SATURDAY  -> "SAT";
+            case SUNDAY    -> "SUN";
+        };
+        return tokens.contains(token);
+    }
+
+    private List<LocalTime> hourlySlots(LocalTime start, LocalTime end) {
+        List<LocalTime> slots = new ArrayList<>();
+        for (LocalTime t = start; t.isBefore(end); t = t.plusHours(1)) {
+            slots.add(t);
+        }
+
+        return slots;
+    }
+}

@@ -9,18 +9,25 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus.SUCCESS;
 
 @Slf4j
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api/payments")
 public class PaymentController {
 
     private final PaymentService paymentService;
 
-    /** 결제 전 예약 확인 및 결제창 실행 */
-    @PostMapping(value ="/mentos/payments/{memberSeq}/init",consumes = "application/json")
+    /**
+     * 결제 전 예약 확인 및 결제창 실행
+     */
+    @PostMapping(value = "/mentos/payments/{memberSeq}/init", consumes = "application/json")
     public BaseResponse<PaymentRequest> initAndVerify(
             @PathVariable Long memberSeq,
             @RequestBody ReservationConfirmedRequest req
@@ -34,7 +41,9 @@ public class PaymentController {
         return new BaseResponse<>(res);
     }
 
-    /** 결제 성공 콜백  */
+    /**
+     * 결제 성공 콜백
+     */
     @PostMapping("/payments/success")
     public BaseResponse<Void> success(
             @PathVariable Long memberSeq,
@@ -43,11 +52,13 @@ public class PaymentController {
             @RequestParam long amount,
             @RequestBody ReservationConfirmedRequest req
     ) {
-        paymentService.confirm(memberSeq,paymentKey, orderId, amount, req);
+        paymentService.confirm(memberSeq, paymentKey, orderId, amount, req);
         return new BaseResponse<>(SUCCESS, null);
     }
 
-    /** 결제 실패 콜백 */
+    /**
+     * 결제 실패 콜백
+     */
     @GetMapping("/payments/fail")
     public BaseResponse<Void> fail(
             @RequestParam String code,
@@ -56,5 +67,6 @@ public class PaymentController {
     ) {
         paymentService.fail(code, message, orderId);
         return new BaseResponse<>(SUCCESS, null);
+
     }
 }

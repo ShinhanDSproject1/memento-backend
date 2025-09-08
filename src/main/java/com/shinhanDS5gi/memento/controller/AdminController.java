@@ -2,6 +2,7 @@ package com.shinhanDS5gi.memento.controller;
 
 import com.shinhanDS5gi.memento.common.response.BaseResponse;
 import com.shinhanDS5gi.memento.dto.admin.CreateReportRequest;
+import com.shinhanDS5gi.memento.dto.admin.SelectReportDetailResponse;
 import com.shinhanDS5gi.memento.dto.admin.SelectReportResponse;
 import com.shinhanDS5gi.memento.service.MemberService;
 import com.shinhanDS5gi.memento.dto.admin.GetMemberListResponse;
@@ -54,10 +55,11 @@ public class AdminController {
     @PostMapping(value = "/reports", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public BaseResponse<Void> createReport(
             @RequestPart("requestDto") CreateReportRequest requestDto,
-            @RequestPart("imageFile") MultipartFile imageFile
+            @RequestPart("imageFile") MultipartFile imageFile,
+            @RequestHeader("Idem-Key") String IdemKey
     ) throws IOException {
         Long currentMemberSeq = 1L;
-        reportService.createReport(currentMemberSeq, requestDto, imageFile);
+        reportService.createReport(currentMemberSeq, requestDto, imageFile, IdemKey);
         return new BaseResponse<>(SUCCESS, null);
     }
 
@@ -70,8 +72,8 @@ public class AdminController {
 
     /* 특정 신고 내역 상세 조회 */
     @GetMapping("/reports/{reportSeq}")
-    public BaseResponse<SelectReportResponse> getReportById(@PathVariable("reportSeq") Long reportSeq) {
-        SelectReportResponse report = reportService.findReportById(reportSeq);
+    public BaseResponse<SelectReportDetailResponse> getReportById(@PathVariable("reportSeq") Long reportSeq) {
+        SelectReportDetailResponse report = reportService.findReportById(reportSeq);
         return new BaseResponse<>(report);
     }
 

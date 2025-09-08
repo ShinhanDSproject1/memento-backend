@@ -5,19 +5,20 @@ import com.shinhanDS5gi.memento.common.exception.MemberException;
 import com.shinhanDS5gi.memento.common.exception.MentosException;
 import com.shinhanDS5gi.memento.config.S3Uploader;
 import com.shinhanDS5gi.memento.domain.Category;
+import com.shinhanDS5gi.memento.domain.MentoProfile;
 import com.shinhanDS5gi.memento.domain.Mentos;
 import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.domain.member.Member;
 import com.shinhanDS5gi.memento.domain.member.MemberType;
+import com.shinhanDS5gi.memento.repository.MentoProfileRepository;
+import com.shinhanDS5gi.memento.repository.CategoryRepository;
+import com.shinhanDS5gi.memento.repository.review.ReviewRepository;
 import com.shinhanDS5gi.memento.dto.mentos.MyMentosResponse;
 import com.shinhanDS5gi.memento.dto.mentos.MyMentosSliceResponse;
 import com.shinhanDS5gi.memento.dto.mentos.UpdateMentosRequest;
 import com.shinhanDS5gi.memento.dto.mentos.CreateMentosRequest;
-import com.shinhanDS5gi.memento.dto.mentos.GetMentosDetailProjection;
 import com.shinhanDS5gi.memento.dto.mentos.GetMentosDetailResponse;
-import com.shinhanDS5gi.memento.repository.Review.ReviewRepository;
 import com.shinhanDS5gi.memento.dto.mentos.GetMentosListResponse;
-import com.shinhanDS5gi.memento.repository.CategoryRepository;
 import com.shinhanDS5gi.memento.repository.member.MemberRepository;
 import com.shinhanDS5gi.memento.repository.mentos.MentosRepository;
 import lombok.RequiredArgsConstructor;
@@ -43,8 +44,9 @@ public class MentosServiceImpl implements MentosService {
 
     private final MemberRepository memberRepository;
     private final MentosRepository mentosRepository;
-    private final ReviewRepository reviewRepository;
     private final CategoryRepository categoryRepository;
+    private final MentoProfileRepository mentoProfileRepository;
+    private final ReviewRepository reviewRepository;
 
     private final S3Uploader s3Uploader;
     private final IdempotencyService idempotencyService;
@@ -54,6 +56,11 @@ public class MentosServiceImpl implements MentosService {
     public MyMentosSliceResponse<MyMentosResponse> getMyMentosSlice(Long currentMemberId, Long cursor, int limit) {
         // 첫 페이지 요청 시 cursor 초기값 설정
         Long currentCursor = (cursor == null) ? Long.MAX_VALUE : cursor;
+
+        // 멘토의 프로필의 장소 정보 조회
+        MentoProfile mentoProfile = mentoProfileRepository.findByMember_MemberSeq(currentMemberId)
+                .orElseThrow(() -> new MentosException(CANNOT_FOUND_MENTO_PROFILE));
+        String region = mentoProfile.getMentoBname();
 
         // Repository 호출
         Slice<Mentos> mentosSlice = mentosRepository.findMyMentosSlice(
@@ -75,7 +82,7 @@ public class MentosServiceImpl implements MentosService {
                         .mentosTitle(mentos.getMentosTitle())
                         .mentosImage(mentos.getMentosImage())
                         .price(mentos.getPrice())
-                        .region(mentos.getMentosBname())
+                        .region(region)
                         .build())
                 .collect(Collectors.toList());
 
@@ -134,19 +141,53 @@ public class MentosServiceImpl implements MentosService {
     @Override
     public GetMentosDetailResponse getMentosDetail(Long mentosSeq) {
         log.info("[MentosServiceImpl.getMentosDetail]");
-        Mentos mentos = mentosRepository.findByMentosSeqAndStatus(mentosSeq, BaseStatus.ACTIVE).orElseThrow(() -> new MentosException(CANNOT_FOUND_MENTOS));
 
-        GetMentosDetailProjection projection = mentosRepository.findMentosDetailByMentosSeqAndStatus(mentosSeq, BaseStatus.ACTIVE);
-        List<GetMentosDetailResponse.Review> review = reviewRepository.findReviewByMentosSeqAndStatus(mentosSeq, BaseStatus.ACTIVE);
+        // Mentos 정보 조회
+        Mentos mentos = mentosRepository.findByMentosSeqAndStatus(mentosSeq, BaseStatus.ACTIVE)
+                .orElseThrow(() -> new MentosException(CANNOT_FOUND_MENTOS));
 
-        GetMentosDetailResponse resultResponse = GetMentosDetailResponse.builder().mentosImage(projection.getMentosImage())
-                .mentosTitle(projection.getMentosTitle()).mentosLocation(projection.getMentosLocation())
-                .reviewTotalCnt(projection.getReviewTotalCnt()).reviewRatingAvg(projection.getReviewRatingAvg())
-                .reviews(review).mento(GetMentosDetailResponse.MentoDetail.builder().mentoName(projection.getMentoName())
-                        .mentoImg(projection.getMentoImg()).mentoDescription(projection.getMentoDescription()).build())
-                .mentosDescription(projection.getMentosDescription()).mentosPrice(projection.getMentosPrice()).build();
+        // Mentos를 등록한 멘토의 MentoProfile 정보 조회
+        MentoProfile mentoProfile = mentoProfileRepository.findByMember_MemberSeq(mentos.getMember().getMemberSeq())
+                .orElseThrow(() -> new MentosException(CANNOT_FOUND_MENTO_PROFILE));
 
-        return resultResponse;
+        // 리뷰 정보 조회
+        List<GetMentosDetailResponse.Review> reviews = reviewRepository.findReviewByMentosSeqAndStatus(mentosSeq, BaseStatus.ACTIVE);
+
+        Integer reviewTotalCnt = reviews.size();
+
+        Double reviewRatingAvg = reviews.stream()
+                .mapToInt(GetMentosDetailResponse.Review::getReviewRating)
+                .average()
+                .orElse(0.0);
+        // 소수점 두 번째 자리에서 반올림
+        reviewRatingAvg = Math.round(reviewRatingAvg * 100) / 100.0;
+
+        // 최종 응답 DTO 조립
+        return GetMentosDetailResponse.builder()
+                // Mentos 정보
+                .mentosImage(mentos.getMentosImage())
+                .mentosTitle(mentos.getMentosTitle())
+                .mentosDescription(mentos.getMentosContent())
+                .mentosPrice(mentos.getPrice())
+                // MentoProfile 정보
+                .mentoPostcode(mentoProfile.getMentoPostcode())
+                .mentoRoadAddress(mentoProfile.getMentoRoadAddress())
+                .mentoBname(mentoProfile.getMentoBname())
+                .mentoDetailAddress(mentoProfile.getMentoDetail())
+                .startTime(mentoProfile.getStartTime())
+                .endTime(mentoProfile.getEndTime())
+                .availableDays(mentoProfile.getAvailableDays())
+                // Mento 정보
+                .mento(GetMentosDetailResponse.MentoDetail.builder()
+                        .mentoName(mentoProfile.getMember().getMemberName())
+                        .mentoImg(mentoProfile.getMentoProfileImage())
+                        .mentoDescription(mentoProfile.getMentoProfileContent())
+                        .build())
+                // Review 정보
+                .reviews(reviews)
+                .reviewTotalCnt(reviewTotalCnt)
+                .reviewRatingAvg(reviewRatingAvg)
+                .build();
     }
 
     /* 멘토스 전체조회(카테고리별) */
@@ -170,9 +211,9 @@ public class MentosServiceImpl implements MentosService {
     }
 
     /* 멘토스 생성하기 */
-    @Transactional
     @Override
-    public void createMentos(Long memberSeq, CreateMentosRequest createMentosRequest, String idemKey) {
+    @Transactional
+    public void createMentos(Long memberSeq, CreateMentosRequest createMentosRequest, MultipartFile imageFile, String idemKey) throws IOException {
         log.info("[MentosServiceImpl.createMentos]");
         try {
             Member member = memberRepository.findByMemberSeqAndStatusAndMemberType(memberSeq, BaseStatus.ACTIVE, MemberType.MENTO)
@@ -182,21 +223,45 @@ public class MentosServiceImpl implements MentosService {
             Category category = categoryRepository.findByCategorySeqAndStatus(createMentosRequest.getCategorySeq(), BaseStatus.ACTIVE)
                     .orElseThrow(() -> new CategoryException(CANNOT_FOUND_CATEGORY));
 
-            // s3 에 업로드된 url 로 db 에 저장하기
-            String uploadedMentosImage = s3Uploader.upload(createMentosRequest.getMentosImage());
-            Mentos mentos = new Mentos(createMentosRequest.getMentosTitle(), createMentosRequest.getMentosContent(), createMentosRequest.getPrice(), uploadedMentosImage, createMentosRequest.getMentosPostcode(),
-                    createMentosRequest.getMentosRoadaddress(), createMentosRequest.getMentosBname(), createMentosRequest.getMentosDetail(), category, member, BaseStatus.ACTIVE);
-
-            Mentos createdMentos = mentosRepository.save(mentos);
-            if(idempotencyService.isDuplicate(idemKey)){
+            if (idempotencyService.isDuplicate(idemKey)) {
                 log.info("[MentosServiceImpl.createMentos...멘토스 생성 이미 완료...동일한 요청]");
                 throw new MentosException(ALREADY_SUCCESS_REQUEST);
-            }else{
+            } else {
+                // s3 에 업로드된 url 로 db 에 저장하기
+                String uploadedMentosImage = s3Uploader.upload(createMentosRequest.getMentosImage());
+                Mentos mentos = new Mentos(createMentosRequest.getMentosTitle(), createMentosRequest.getMentosContent(), createMentosRequest.getPrice(), uploadedMentosImage, category, member, BaseStatus.ACTIVE);
+
+                Mentos createdMentos = mentosRepository.save(mentos);
                 log.info("[MentosServiceImpl.createMentos...멘토스 생성 완료]");
                 idempotencyService.saveKey(idemKey, String.valueOf(createdMentos.getMentosSeq()));
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+        Member member = memberRepository.findByMemberSeqAndStatusAndMemberType(memberSeq, BaseStatus.ACTIVE, MemberType.MENTO)
+                .orElseThrow(() -> new MemberException(NOT_A_MENTO));
+
+        Category category = categoryRepository.findByCategorySeqAndStatus(createMentosRequest.getCategorySeq(), BaseStatus.ACTIVE)
+                .orElseThrow(() -> new CategoryException(CANNOT_FOUND_CATEGORY));
+
+        String uploadedMentosImage = s3Uploader.upload(imageFile);
+
+        // 수정된 생성자 호출
+        Mentos mentos = new Mentos(
+                createMentosRequest.getMentosTitle(),
+                createMentosRequest.getMentosContent(),
+                createMentosRequest.getPrice(),
+                uploadedMentosImage,
+                category,
+                member,
+                BaseStatus.ACTIVE
+        );
+
+        Mentos createdMentos = mentosRepository.save(mentos);
+        log.info("[MentosServiceImpl.createMentos...멘토스 생성 완료]");
+
+        idempotencyService.saveKey(idemKey, String.valueOf(createdMentos.getMentosSeq()));
     }
+
 }

@@ -176,6 +176,7 @@ public class PaymentServiceImpl implements PaymentService {
 
         // 결제 완료 후 (성공 시) 채팅방 신규 생성
         ChattingRoom newChatRoom = ChattingRoom.create(payment);
+
         // 생성된 채팅방과 채팅 참여자 정보 DB에 저장
         chattingRoomRepository.save(newChatRoom);
 

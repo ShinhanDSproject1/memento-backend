@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Getter
 @Builder
@@ -23,12 +22,17 @@ public class MyMentosByMentiResponse {
         Mentos mentos = reservation.getMentos();
         String status = reservation.getMentosAt().isBefore(LocalDate.now()) ? "진행 완료" : "진행 전";
 
+        String region = null;
+        if (mentos.getMember() != null && mentos.getMember().getMentoProfile() != null) {
+            region = mentos.getMember().getMentoProfile().getMentoBname();
+        }
+
         return MyMentosByMentiResponse.builder()
                 .mentosSeq(mentos.getMentosSeq())
                 .mentosTitle(mentos.getMentosTitle())
                 .mentosImage(mentos.getMentosImage())
                 .price(mentos.getPrice())
-                .region(mentos.getMentosBname())
+                .region(region)
                 .progressStatus(status)
                 .build();
     }

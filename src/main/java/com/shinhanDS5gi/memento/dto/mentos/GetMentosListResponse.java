@@ -1,6 +1,5 @@
 package com.shinhanDS5gi.memento.dto.mentos;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
