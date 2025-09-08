@@ -48,6 +48,7 @@ public enum BaseExceptionResponseStatus implements ResponseStatus{
      * Category 관련 7000대
      */
     CANNOT_FOUND_CATEGORY(7000, HttpStatus.BAD_REQUEST.value(),"해당 카테고리를 찾을 수 없습니다."),
+
     /**
      * Report 관련 8000대
      */
@@ -60,7 +61,13 @@ public enum BaseExceptionResponseStatus implements ResponseStatus{
      * MentoProfile 관련 9000대
      */
     ALREADY_EXISTS_MENTO_PROFILE(9000, HttpStatus.BAD_REQUEST.value(), "이미 멘토 프로필이 존재합니다."),
-    CANNOT_FOUND_MENTO_PROFILE(9001,HttpStatus.NOT_FOUND.value(), "해당 SEQ의 멘토 프로필 내역을 찾을 수 없습니다.");
+    CANNOT_FOUND_MENTO_PROFILE(9001,HttpStatus.NOT_FOUND.value(), "해당 SEQ의 멘토 프로필 내역을 찾을 수 없습니다."),
+
+    /**
+     * 외부 API (Kakao Map) 관련 9500대
+     */
+    INVALID_ADDRESS_ERROR(9500, HttpStatus.BAD_REQUEST.value(), "유효하지 않은 주소입니다. 좌표를 찾을 수 없습니다."),
+    KAKAO_API_CONNECTION_ERROR(9501, HttpStatus.INTERNAL_SERVER_ERROR.value(), "외부 API(지도) 연동 중 오류가 발생했습니다.");
 
     private final int code;
     private final int status;

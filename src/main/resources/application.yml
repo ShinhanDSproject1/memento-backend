@@ -30,3 +30,8 @@ aws:
   s3:
     bucket: ${AWS_S3_BUCKET_NAME}
     upload-dir: ${AWS_S3_UPLOAD_DIR}
+
+kakao:
+  rest:
+    api:
+      key: 35a9ac7d1660a1d2363a6c554f248064

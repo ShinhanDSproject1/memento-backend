@@ -52,6 +52,12 @@ public class MentoProfile extends BaseTime {
     @Column(nullable = false)
     private String availableDays;
 
+    @Column(nullable = false)
+    private Double latitude; // 위도
+
+    @Column(nullable = false)
+    private Double longitude; // 경도
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private BaseStatus status;
@@ -69,7 +75,7 @@ public class MentoProfile extends BaseTime {
     }
 
     /* 멘토 프로필 수정하기 */
-    public void update(UpdateMentoProfileRequest dto, String newImageUrl) {
+    public void update(UpdateMentoProfileRequest dto, String newImageUrl, Double newLatitude, Double newLongitude) {
         this.mentoProfileContent = dto.getMentoProfileContent();
         this.startTime = dto.getStartTime();
         this.endTime = dto.getEndTime();
@@ -78,6 +84,8 @@ public class MentoProfile extends BaseTime {
         this.mentoRoadAddress = dto.getMentoRoadAddress();
         this.mentoBname = dto.getMentoBname();
         this.mentoDetail = dto.getMentoDetail();
+        this.latitude = newLatitude;
+        this.longitude = newLongitude;
 
         if (newImageUrl != null) {
             this.mentoProfileImage = newImageUrl;

@@ -29,6 +29,7 @@ public class MentoProfileServiceImpl implements MentoProfileService {
     private final MemberRepository memberRepository;
     private final S3Uploader s3Uploader;
     private final IdempotencyService idempotencyService;
+    private final KakaoMapService kakaoMapService;
 
     /* 멘토 프로필 생성 */
     @Override
@@ -53,9 +54,19 @@ public class MentoProfileServiceImpl implements MentoProfileService {
             throw new MentoProfileException(ALREADY_EXISTS_MENTO_PROFILE);
         }
 
+        /* 카카오 API를 호출하여 주소를 좌표로 변환 */
+        double[] coordinates = kakaoMapService.getCoordinates(requestDto.getMentoRoadAddress());
+        if (coordinates == null) {
+            // 좌표를 찾을 수 없다?
+            throw new IllegalArgumentException("유효하지 않은 주소입니다. 좌표를 찾을 수 없습니다.");
+        }
+        Double longitude = coordinates[0]; // 경도
+        Double latitude = coordinates[1];  // 위도
+
+        // S3에 이미지 업로드
         String imageUrl = s3Uploader.upload(imageFile);
 
-        MentoProfile mentoProfile = requestDto.toEntity(member, imageUrl);
+        MentoProfile mentoProfile = requestDto.toEntity(member, imageUrl, latitude, longitude);
         MentoProfile savedProfile = mentoProfileRepository.save(mentoProfile);
 
         // 멱등키 저장
@@ -83,6 +94,15 @@ public class MentoProfileServiceImpl implements MentoProfileService {
             newImageUrl = s3Uploader.upload(imageFile);
         }
 
-        mentoProfile.update(requestDto, newImageUrl);
+        /* 카카오 API를 호출하여 주소를 좌표로 변환 */
+        double[] coordinates = kakaoMapService.getCoordinates(requestDto.getMentoRoadAddress());
+        if (coordinates == null) {
+            // 좌표를 찾을 수 없다?
+            throw new IllegalArgumentException("유효하지 않은 주소입니다. 좌표를 찾을 수 없습니다.");
+        }
+        Double longitude = coordinates[0]; // 경도
+        Double latitude = coordinates[1];  // 위도
+
+        mentoProfile.update(requestDto, newImageUrl, latitude, longitude);
     }
 }
