@@ -3,14 +3,18 @@ package com.shinhanDS5gi.memento.service;
 import com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus;
 import com.shinhanDS5gi.memento.domain.Mentos;
 import com.shinhanDS5gi.memento.domain.chat.ChattingRoom;
+import com.shinhanDS5gi.memento.domain.member.Member;
+import com.shinhanDS5gi.memento.dto.mentos.ReservationConfirmedRequest;
 import com.shinhanDS5gi.memento.repository.chat.ChattingRoomRepository;
+import com.shinhanDS5gi.memento.repository.member.MemberRepository;
+import com.shinhanDS5gi.memento.repository.mentos.MentosRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import com.shinhanDS5gi.memento.domain.Reservation;
 import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.domain.payment.PayType;
 import com.shinhanDS5gi.memento.domain.payment.Payment;
-import com.shinhanDS5gi.memento.dto.mypage.PaymentRequest;
+import com.shinhanDS5gi.memento.dto.mentos.PaymentRequest;
 import com.shinhanDS5gi.memento.repository.PaymentRepository;
 import com.shinhanDS5gi.memento.repository.ReservationRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,9 +26,13 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
+import java.util.UUID;
+
 import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus.*;
 
 
@@ -36,11 +44,13 @@ import com.shinhanDS5gi.memento.common.exception.MentosException;
 @Transactional(readOnly = true)
 public class PaymentServiceImpl implements PaymentService {
 
-    private final WebClient tossWebClient;
-    private final PaymentRepository paymentRepository;
+    private final SeatHoldService seatHoldService;
+    private final MentosRepository mentosRepository;
     private final ReservationRepository reservationRepository;
+    private final PaymentRepository paymentRepository;
     private final ChattingRoomRepository chattingRoomRepository;
-
+    private final WebClient tossWebClient;
+    private final MemberRepository memberRepository;
 
 
     @Value("${app.url.success}")
@@ -49,68 +59,75 @@ public class PaymentServiceImpl implements PaymentService {
     @Value("${app.url.fail}")
     private String failUrl;
 
-    /** 결제창 띄우기용 값: 서버가 금액/이름 조회 후 응답 */
+
+
+    /** 1) 결제 전: Redis 홀더 검증 */
     @Override
-    public PaymentRequest init(Long reservationSeq) {
+    public void verifyReservationHolder(ReservationConfirmedRequest req, Long memberSeq) {
+        LocalDate date = LocalDate.parse(req.getMentosAt());
+        LocalTime time = LocalTime.parse(req.getMentosTime());
 
-        // 예약 조회
-        Reservation reservation = reservationRepository.findById(reservationSeq)
-                .orElseThrow(() -> new MentosException(RESERVATION_NOT_FOUND));
-
-        Mentos mentos = reservation.getMentos();
-
-        long amount = mentos.getPrice();
-        String orderName = mentos.getMentosTitle();
-        String orderId = makeOrderId(reservationSeq); // ★ 6자 이상 & 허용문자
-
-        return new PaymentRequest(
-                orderId,
-                amount,
-                orderName,
-                successUrl,
-                failUrl
-        );
+        Long holder = seatHoldService.findMemberSeqByKey(req.getMentosSeq(), date, time)
+                .orElseThrow(() -> new MentosException(PAYMENT_FAILED));
+        if (!holder.equals(memberSeq)) throw new MentosException(PAYMENT_FAILED);
     }
 
-    /** 성공 콜백: 토스 confirm -> 검증 -> Payment 저장 */
-    @Transactional
+    /** 2) 결제창 띄우기용 값 생성 */
     @Override
-    public void confirm(String paymentKey, String orderId, long amount) {
+    public PaymentRequest init(Long memberSeq, ReservationConfirmedRequest req) {
 
-        // 1) orderId에서 reservationSeq 복구 및 예약 조회
-        Long reservationSeq = extractReservationSeqFromOrderId(orderId);
-        Reservation reservation = reservationRepository.findById(reservationSeq)
-                .orElseThrow(() -> new MentosException(PAYMENT_FAILED));
+        LocalDate.parse(req.getMentosAt());
+        LocalTime.parse(req.getMentosTime());
 
-        Mentos mentos = reservation.getMentos();
+        Mentos mentos = mentosRepository.findById(req.getMentosSeq())
+                .orElseThrow(() -> new MentosException(MENTOS_NOT_FOUND));
 
-        // 2) 금액 검증-> 실패하면 결제 실패
-        if (mentos.getPrice() != amount) {
-            throw new MentosException(PAYMENT_FAILED);
-        }
+        long amount = Math.max(0, mentos.getPrice());
+        String orderName = (mentos.getMentosTitle() == null || mentos.getMentosTitle().isBlank())
+                ? "멘토링 결제" : mentos.getMentosTitle();
 
-        // 3) 토스 confirm 호출
+        String orderId = makeOrderIdWithoutReservationSeq(
+                req.getMentosSeq(), req.getMentosAt(), req.getMentosTime());
+
+        String success = (memberSeq != null && successUrl.contains("{memberSeq}"))
+                ? successUrl.replace("{memberSeq}", String.valueOf(memberSeq))
+                : successUrl;
+
+        return new PaymentRequest(orderId, amount, orderName, success, failUrl);
+    }
+
+    private String makeOrderIdWithoutReservationSeq(long mentosSeq, String mentosAt, String mentosTime) {
+        String ts = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"));
+        String dt = (mentosAt == null ? "" : mentosAt.replace("-", "")) + "_" +
+                (mentosTime == null ? "" : mentosTime.replace(":", ""));
+        String rand = UUID.randomUUID().toString().replace("-", "").substring(0, 12);
+        return "ORD_M_" + mentosSeq + "_" + dt + "_" + ts + "_" + rand;
+    }
+
+
+    /** 성공 콜백: 토스 confirm -> 검증 -> Payment 저장 */
+    @Override
+    @Transactional
+    public void confirm(Long memberSeq, String paymentKey, String orderId, long amount, ReservationConfirmedRequest req){
+
         try {
-
             // 토스 승인(confirm) API 호출
             tossWebClient.post()
                     .uri("/v1/payments/confirm")
                     .bodyValue(Map.of(
                             "paymentKey", paymentKey,
                             "orderId", orderId,
-                            "amount", amount
-                    ))
+                            "amount", amount))
                     .retrieve()
-                    // 토스가 결제실패 주면 오류 응답 매핑
                     .onStatus(HttpStatusCode::isError, res ->
                             res.bodyToMono(String.class).flatMap(body -> {
                                 log.error("Toss confirm error: status={}, body={}", res.statusCode(), body);
                                 return Mono.error(new MentosException(PAYMENT_FAILED));
                             })
                     )
-                    //정상 응답 → 결제 승인 성공으로 처리
                     .toBodilessEntity()
                     .block();
+
             //예외처리(네트워크 및, 모든 예외)
         } catch (WebClientResponseException e) {
             log.error("Toss confirm exception: status={}, body={}", e.getStatusCode(), e.getResponseBodyAsString());
@@ -120,6 +137,30 @@ public class PaymentServiceImpl implements PaymentService {
             throw new MentosException(PAYMENT_FAILED);
         }
 
+        //금액 검증 (멘토스 기준)
+        Mentos mentos = mentosRepository.findById(req.getMentosSeq())
+                .orElseThrow(() -> new MentosException(MENTOS_NOT_FOUND));
+        if (mentos.getPrice() != amount) {
+            throw new MentosException(PAYMENT_FAILED);
+        }
+
+        //연관 엔티티 로딩
+        Member member = memberRepository.findById(memberSeq)
+                .orElseThrow(() -> new MentosException(PAYMENT_FAILED));
+
+        LocalDate date = LocalDate.parse(req.getMentosAt());
+        LocalTime time = LocalTime.parse(req.getMentosTime());
+        // Reservation INSERT
+        Reservation reservation = Reservation.builder()
+                .mentos(mentos)
+                .member(member)
+                .mentosAt(date)
+                .status(BaseStatus.ACTIVE)
+                .build();
+        reservationRepository.save(reservation);
+
+        // Redis 해제 (예약 확정 후)
+        seatHoldService.releaseSlot(req.getMentosSeq(), date, time);
 
         // 4) 승인 성공 → 결제 저장
         Payment payment = Payment.builder()
@@ -128,23 +169,20 @@ public class PaymentServiceImpl implements PaymentService {
                 .price((int) amount)              // 금액
                 .payType(PayType.PAID)            // 결제 타입
                 .status(BaseStatus.ACTIVE)        // 상태
-                .member(reservation.getMember())  // 결제자
+                .member(member)                   // 결제자
                 .reservation(reservation)         // 예약
                 .build();
+        paymentRepository.save(payment);
 
         // 결제 완료 후 (성공 시) 채팅방 신규 생성
         ChattingRoom newChatRoom = ChattingRoom.create(payment);
-
-        //결제내역 저장
-        paymentRepository.save(payment);
-
         // 생성된 채팅방과 채팅 참여자 정보 DB에 저장
         chattingRoomRepository.save(newChatRoom);
 
 
     }
 
-    /** 실패 콜백: 동일 규격으로 6000 에러 처리 */
+    /** 실패 콜백*/
     @Override
     @Transactional
     public void fail(String code, String message, String orderId) {

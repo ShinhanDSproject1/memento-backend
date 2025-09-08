@@ -12,7 +12,9 @@ import org.springframework.data.repository.query.Param;
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
     @Modifying(clearAutomatically = true)
-    @Query("update Payment p set p.status = :afterStatus where p.member.memberSeq = :memberSeq and p.status = :beforeStatus")
+    @Query("update Payment p " +
+            "set p.status = :afterStatus " +
+            "where p.member.memberSeq = :memberSeq and p.status = :beforeStatus")
     int updatePaymentStatus(@Param("memberSeq") Long memberSeq,
                             @Param("afterStatus") BaseStatus afterStatus,
                             @Param("beforeStatus") BaseStatus beforeStatus);
