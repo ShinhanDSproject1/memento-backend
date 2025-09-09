@@ -6,6 +6,7 @@ import com.shinhanDS5gi.memento.domain.base.BaseTime;
 import com.shinhanDS5gi.memento.domain.member.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Payment extends BaseTime {
 
     @Id
@@ -27,6 +29,9 @@ public class Payment extends BaseTime {
 
     @Column(nullable = false)
     private int price;
+
+    @Column(nullable = false)
+    private String paymentKey;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

@@ -38,3 +38,12 @@ kakao:
   js:
     api:
       key: ${KAKAO_JS_KEY}
+
+toss:
+  secret-key: ${TOSS_SECRET_KEY}
+  api-host: https://api.tosspayments.com
+
+app:
+  url:
+    success: http://localhost:3000/payments/success
+    fail: http://localhost:9999/payments/fail

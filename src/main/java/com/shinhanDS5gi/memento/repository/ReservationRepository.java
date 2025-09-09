@@ -4,6 +4,9 @@ import com.shinhanDS5gi.memento.domain.Reservation;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import org.springframework.data.jpa.repository.Modifying;
@@ -42,4 +45,18 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     int updateReservationStatus(@Param("memberSeq") Long memberSeq,
                                 @Param("afterStatus") BaseStatus afterStatus,
                                 @Param("beforeStatus") BaseStatus beforeStatus);
+
+    @Query("""
+        select r.mentosTime
+        from Reservation r
+        where r.mentos.mentosSeq = :mentosSeq
+          and r.mentosAt = :mentosAt
+          and r.status = :status
+    """)
+    List<LocalTime> findBookedTimes(@Param("mentosSeq") Long mentosSeq,
+                                        @Param("mentosAt") LocalDate mentosAt,
+                                        @Param("status") BaseStatus status);
+
+    // 예약하기 : mentosSeq, mentosAt(날짜), mentosTime(시간), status 로 존재하는 Reservation 이 있는지 확인
+    boolean existsByMentos_MentosSeqAndMentosAtAndMentosTimeAndStatus(Long mentosSeq, LocalDate mentosAt, LocalTime mentosTime, BaseStatus status);
 }

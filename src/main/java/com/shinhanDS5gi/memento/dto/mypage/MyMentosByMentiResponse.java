@@ -5,7 +5,7 @@ import com.shinhanDS5gi.memento.domain.Reservation;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Getter
 @Builder
@@ -20,7 +20,7 @@ public class MyMentosByMentiResponse {
 
     public static MyMentosByMentiResponse from(Reservation reservation) {
         Mentos mentos = reservation.getMentos();
-        String status = reservation.getMentosAt().isBefore(LocalDateTime.now()) ? "진행 완료" : "진행 전";
+        String status = reservation.getMentosAt().isBefore(LocalDate.now()) ? "진행 완료" : "진행 전";
 
         String region = null;
         if (mentos.getMember() != null && mentos.getMember().getMentoProfile() != null) {

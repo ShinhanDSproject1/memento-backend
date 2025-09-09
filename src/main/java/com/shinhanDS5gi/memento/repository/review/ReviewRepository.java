@@ -1,4 +1,4 @@
-package com.shinhanDS5gi.memento.repository.Review;
+package com.shinhanDS5gi.memento.repository.review;
 
 import com.shinhanDS5gi.memento.domain.Review;
 

@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import com.shinhanDS5gi.memento.dto.reservation.MentoTimeWindowProjection;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,4 +34,16 @@ public interface MentosRepository extends JpaRepository<Mentos, Long>, MentosCus
 
     /* 복수 개의 memberSeq에 해당하는 모든 Mentos를 한 번에 한꺼번에 조회 */
     List<Mentos> findAllByMember_MemberSeqInAndStatus(List<Long> memberSeqs, BaseStatus status);
+
+    @Query("""
+        select mp.startTime as startTime,
+               mp.endTime   as endTime,
+               mp.availableDays as availableDays
+        from Mentos me
+          join me.member mb
+          join MentoProfile mp on mp.member = mb
+        where me.mentosSeq = :mentosSeq
+        and me.status = :status
+    """)
+    Optional<MentoTimeWindowProjection> findTimeWindowByMentosSeqAndStatus(@Param("mentosSeq") Long mentosSeq, @Param("status") BaseStatus status);
 }
