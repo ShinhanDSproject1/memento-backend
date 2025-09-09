@@ -51,7 +51,7 @@ public class Payment extends BaseTime {
 
     //환불시 inactive
     public void markRefunded() {
-        this.payType = PayType.FAILED;
+        this.payType = PayType.REFUND;
         this.status = BaseStatus.INACTIVE;
     }
 }
