@@ -35,6 +35,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
@@ -189,15 +191,14 @@ public class PaymentServiceImpl implements PaymentService {
         // 생성된 채팅방과 채팅 참여자 정보 DB에 저장
         chattingRoomRepository.save(newChatRoom);
 
-        MentoProfile profile = mentos.getMember().getMentoProfile();
-        String days = (profile != null) ? profile.getAvailableDays() : null;
+        String dowKo = date.getDayOfWeek().getDisplayName(TextStyle.NARROW, Locale.KOREAN);
 
         return PaymentResponse.builder()
                 .mentosTitle(mentos.getMentosTitle())
                 .mentosAt(date.toString())
                 .mentosTime(time.toString())
                 .price(payment.getPrice())
-                .availableDays(days)
+                .dayOfWeek(dowKo)
                 .build();
 
 
