@@ -160,6 +160,7 @@ public class PaymentServiceImpl implements PaymentService {
                 .mentos(mentos)
                 .member(member)
                 .mentosAt(date)
+                .mentosTime(time)
                 .status(BaseStatus.ACTIVE)
                 .build();
         reservationRepository.save(reservation);
