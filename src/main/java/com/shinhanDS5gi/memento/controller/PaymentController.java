@@ -2,8 +2,9 @@ package com.shinhanDS5gi.memento.controller;
 
 
 import com.shinhanDS5gi.memento.common.response.BaseResponse;
-import com.shinhanDS5gi.memento.dto.mentos.PaymentRequest;
+import com.shinhanDS5gi.memento.dto.payment.PaymentRequest;
 import com.shinhanDS5gi.memento.dto.mentos.ReservationConfirmedRequest;
+import com.shinhanDS5gi.memento.dto.payment.PaymentResponse;
 import com.shinhanDS5gi.memento.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus.SUCCESS;
@@ -22,6 +22,7 @@ import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionRespo
 public class PaymentController {
 
     private final PaymentService paymentService;
+
 
     /**
      * 결제 전 예약 확인 및 결제창 실행
@@ -44,15 +45,15 @@ public class PaymentController {
      * 결제 성공 콜백
      */
     @PostMapping("/payments/success/{memberSeq}/init")
-    public BaseResponse<Void> success(
+    public BaseResponse<PaymentResponse> success(
             @PathVariable Long memberSeq,
             @RequestParam String paymentKey,
             @RequestParam String orderId,
             @RequestParam long amount,
             @RequestBody ReservationConfirmedRequest req
     ) {
-        paymentService.confirm(memberSeq, paymentKey, orderId, amount, req);
-        return new BaseResponse<>(SUCCESS, null);
+        PaymentResponse result = paymentService.confirm(memberSeq, paymentKey, orderId, amount, req);
+        return new BaseResponse<>(SUCCESS, result);
     }
 
     /**
@@ -68,4 +69,15 @@ public class PaymentController {
         return new BaseResponse<>(SUCCESS, null);
 
     }
+
+    /**
+     * 환불하기
+     */
+    @PostMapping("/mentos/refund/{paymentSeq}")
+    public BaseResponse<Void> refund(@PathVariable Long paymentSeq) {
+        paymentService.refundFull(paymentSeq, "USER_REQUEST");
+        return new BaseResponse<>(SUCCESS, null);
+
+   }
+
 }

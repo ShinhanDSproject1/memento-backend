@@ -1,44 +1,49 @@
 package com.shinhanDS5gi.memento.service;
 
 import com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus;
+import com.shinhanDS5gi.memento.domain.MentoProfile;
 import com.shinhanDS5gi.memento.domain.Mentos;
+import com.shinhanDS5gi.memento.domain.QMentoProfile;
+import com.shinhanDS5gi.memento.domain.Reservation;
+import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.domain.chat.ChattingRoom;
 import com.shinhanDS5gi.memento.domain.member.Member;
+import com.shinhanDS5gi.memento.domain.payment.PayType;
+import com.shinhanDS5gi.memento.domain.payment.Payment;
+import com.shinhanDS5gi.memento.dto.payment.PaymentRequest;
 import com.shinhanDS5gi.memento.dto.mentos.ReservationConfirmedRequest;
+import com.shinhanDS5gi.memento.dto.payment.PaymentResponse;
+import com.shinhanDS5gi.memento.repository.PaymentRepository;
+import com.shinhanDS5gi.memento.repository.ReservationRepository;
 import com.shinhanDS5gi.memento.repository.chat.ChattingRoomRepository;
 import com.shinhanDS5gi.memento.repository.member.MemberRepository;
 import com.shinhanDS5gi.memento.repository.mentos.MentosRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import com.shinhanDS5gi.memento.domain.Reservation;
-import com.shinhanDS5gi.memento.domain.base.BaseStatus;
-import com.shinhanDS5gi.memento.domain.payment.PayType;
-import com.shinhanDS5gi.memento.domain.payment.Payment;
-import com.shinhanDS5gi.memento.dto.mentos.PaymentRequest;
-import com.shinhanDS5gi.memento.repository.PaymentRepository;
-import com.shinhanDS5gi.memento.repository.ReservationRepository;
-import lombok.RequiredArgsConstructor;
-
 import org.springframework.http.HttpStatusCode;
+
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
+import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
-
-import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus.*;
-
 
 import com.shinhanDS5gi.memento.common.exception.MentosException;
 
 @Slf4j
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -60,8 +65,9 @@ public class PaymentServiceImpl implements PaymentService {
     private String failUrl;
 
 
-
-    /** 1) 결제 전: Redis 홀더 검증 */
+    /**
+     * 1) 결제 전: Redis 홀더 검증
+     */
     @Override
     public void verifyReservationHolder(ReservationConfirmedRequest req, Long memberSeq) {
         LocalDate date = LocalDate.parse(req.getMentosAt());
@@ -72,7 +78,9 @@ public class PaymentServiceImpl implements PaymentService {
         if (!holder.equals(memberSeq)) throw new MentosException(PAYMENT_FAILED);
     }
 
-    /** 2) 결제창 띄우기용 값 생성 */
+    /**
+     * 2) 결제창 띄우기용 값 생성
+     */
     @Override
     public PaymentRequest init(Long memberSeq, ReservationConfirmedRequest req) {
 
@@ -105,10 +113,12 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
 
+
+
     /** 성공 콜백: 토스 confirm -> 검증 -> Payment 저장 */
     @Override
     @Transactional
-    public void confirm(Long memberSeq, String paymentKey, String orderId, long amount, ReservationConfirmedRequest req){
+    public PaymentResponse confirm(Long memberSeq, String paymentKey, String orderId, long amount, ReservationConfirmedRequest req) {
 
         try {
             // 토스 승인(confirm) API 호출
@@ -155,6 +165,7 @@ public class PaymentServiceImpl implements PaymentService {
                 .mentos(mentos)
                 .member(member)
                 .mentosAt(date)
+                .mentosTime(time)
                 .status(BaseStatus.ACTIVE)
                 .build();
         reservationRepository.save(reservation);
@@ -179,6 +190,16 @@ public class PaymentServiceImpl implements PaymentService {
 
         // 생성된 채팅방과 채팅 참여자 정보 DB에 저장
         chattingRoomRepository.save(newChatRoom);
+
+        String dowKo = date.getDayOfWeek().getDisplayName(TextStyle.NARROW, Locale.KOREAN);
+
+        return PaymentResponse.builder()
+                .mentosTitle(mentos.getMentosTitle())
+                .mentosAt(date.toString())
+                .mentosTime(time.toString())
+                .price(payment.getPrice())
+                .dayOfWeek(dowKo)
+                .build();
 
 
     }
@@ -213,4 +234,42 @@ public class PaymentServiceImpl implements PaymentService {
         }
         return Long.parseLong(orderId);
     }
+
+    /**
+     * 환불하기
+     */
+    @Override
+    @Transactional
+    public void refundFull(Long paymentSeq, String reason) {
+        Payment payment = paymentRepository.findById(paymentSeq)
+                .orElseThrow(() -> new MentosException(PAYMENT_NOT_FOUND));
+
+        // 1) 토스 환불 API 호출
+        String respJson = tossWebClient.post()
+                .uri("/v1/payments/{paymentKey}/cancel", payment.getPaymentKey())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .bodyValue(Map.of("cancelReason", reason))
+                .retrieve()
+                .onStatus(HttpStatusCode::isError, r ->
+                        r.bodyToMono(String.class).flatMap(msg ->
+                                Mono.error(new MentosException(REFUND_FAILED))
+                        )
+                )
+                .bodyToMono(String.class) // Toss에서 내려준 JSON 전체 받기
+                .block();
+
+        log.info("Toss refund response = {}", respJson);
+
+        // 2) DB 업데이트
+        payment.markRefunded();  // 결제 REFUND + INACTIVE
+
+        Reservation reservation = payment.getReservation();
+        if (reservation != null) {
+            reservation.deactivate(); // 예약 INACTIVE
+
+            chattingRoomRepository.findByPayment(payment)
+                    .ifPresent(ChattingRoom::deactivate);// 채팅방 INACTIVE
+            }
+        }
 }

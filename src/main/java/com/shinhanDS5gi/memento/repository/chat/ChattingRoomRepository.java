@@ -1,6 +1,7 @@
 package com.shinhanDS5gi.memento.repository.chat;
 
 import com.shinhanDS5gi.memento.domain.chat.ChattingRoom;
+import com.shinhanDS5gi.memento.domain.payment.Payment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -27,4 +28,7 @@ public interface ChattingRoomRepository extends JpaRepository<ChattingRoom, Long
             "JOIN FETCH p.member " +
             "WHERE cr.chattingRoomSeq = :chattingRoomSeq")
     Optional<ChattingRoom> findByIdWithParticipants(@Param("chattingRoomSeq") Long chattingRoomSeq);
+
+    //환불할때 inactive
+    Optional<ChattingRoom> findByPayment(Payment payment);
 }

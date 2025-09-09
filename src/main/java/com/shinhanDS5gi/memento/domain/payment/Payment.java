@@ -14,9 +14,9 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class Payment extends BaseTime {
 
     @Id
@@ -30,12 +30,12 @@ public class Payment extends BaseTime {
     @Column(nullable = false)
     private int price;
 
-    @Column(nullable = false)
-    private String paymentKey;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private PayType payType;
+
+    @Column(nullable = false)
+    private String paymentKey; //토스 환불 키
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -48,4 +48,10 @@ public class Payment extends BaseTime {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reservation_seq")
     private Reservation reservation;
+
+    //환불시 inactive
+    public void markRefunded() {
+        this.payType = PayType.REFUND;
+        this.status = BaseStatus.INACTIVE;
+    }
 }

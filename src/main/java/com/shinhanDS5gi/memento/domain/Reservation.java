@@ -50,6 +50,8 @@ public class Reservation extends BaseTime {
     @OneToMany(mappedBy = "reservation")
     private List<Payment> paymentList = new ArrayList<>();
 
-    //결제 시 예약 테이블 inactive
-    public void deactivate() { this.status = BaseStatus.INACTIVE; }
+    //환불시 inactive
+    public void deactivate() {
+        this.status = BaseStatus.INACTIVE;
+    }
 }
