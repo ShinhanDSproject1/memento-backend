@@ -75,7 +75,7 @@ public enum BaseExceptionResponseStatus implements ResponseStatus{
      * 외부 API (Kakao Map) 관련 9100대
      */
     INVALID_ADDRESS_ERROR(9100, HttpStatus.BAD_REQUEST.value(), "유효하지 않은 주소입니다. 좌표를 찾을 수 없습니다."),
-    KAKAO_API_CONNECTION_ERROR(9101, HttpStatus.INTERNAL_SERVER_ERROR.value(), "외부 API(지도) 연동 중 오류가 발생했습니다.");
+    KAKAO_API_CONNECTION_ERROR(9101, HttpStatus.INTERNAL_SERVER_ERROR.value(), "외부 API(지도) 연동 중 오류가 발생했습니다."),
     
     /*
      * Reservation 관련 9500대
