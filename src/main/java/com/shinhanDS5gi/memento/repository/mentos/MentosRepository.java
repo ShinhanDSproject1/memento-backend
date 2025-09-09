@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import com.shinhanDS5gi.memento.dto.reservation.MentoTimeWindowProjection;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface MentosRepository extends JpaRepository<Mentos, Long>, MentosCustomRepository {
@@ -30,6 +31,9 @@ public interface MentosRepository extends JpaRepository<Mentos, Long>, MentosCus
                            @Param("beforeStatus") BaseStatus beforeStatus);
 
     GetMentosDetailProjection findMentosDetailByMentosSeqAndStatus(Long mentosSeq, BaseStatus status);
+
+    /* 복수 개의 memberSeq에 해당하는 모든 Mentos를 한 번에 한꺼번에 조회 */
+    List<Mentos> findAllByMember_MemberSeqInAndStatus(List<Long> memberSeqs, BaseStatus status);
 
     @Query("""
         select mp.startTime as startTime,

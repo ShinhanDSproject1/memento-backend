@@ -11,7 +11,7 @@ import com.shinhanDS5gi.memento.dto.chat.ChattingMessageRequest;
 import com.shinhanDS5gi.memento.dto.chat.ChattingMessageResponse;
 import com.shinhanDS5gi.memento.dto.chat.ChattingRoomDetailResponse;
 import com.shinhanDS5gi.memento.dto.chat.ChattingRoomListByMentosResponse;
-import com.shinhanDS5gi.memento.repository.MentoProfileRepository;
+import com.shinhanDS5gi.memento.repository.mento.MentoProfileRepository;
 import com.shinhanDS5gi.memento.repository.chat.ChattingMessageRepository;
 import com.shinhanDS5gi.memento.repository.chat.ChattingParticipantRepository;
 import com.shinhanDS5gi.memento.repository.chat.ChattingRoomRepository;

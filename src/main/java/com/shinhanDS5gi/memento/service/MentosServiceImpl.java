@@ -18,9 +18,11 @@ import com.shinhanDS5gi.memento.dto.mentos.MyMentosSliceResponse;
 import com.shinhanDS5gi.memento.dto.mentos.UpdateMentosRequest;
 import com.shinhanDS5gi.memento.dto.mentos.CreateMentosRequest;
 import com.shinhanDS5gi.memento.dto.mentos.GetMentosDetailResponse;
+
 import com.shinhanDS5gi.memento.dto.mentos.GetMentosListResponse;
 import com.shinhanDS5gi.memento.repository.member.MemberRepository;
 import com.shinhanDS5gi.memento.repository.mentos.MentosRepository;
+import com.shinhanDS5gi.memento.repository.mento.MentoProfileRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;

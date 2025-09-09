@@ -31,6 +31,14 @@ aws:
     bucket: ${AWS_S3_BUCKET_NAME}
     upload-dir: ${AWS_S3_UPLOAD_DIR}
 
+kakao:
+  rest:
+    api:
+      key: ${KAKAO_REST_KEY}
+  js:
+    api:
+      key: ${KAKAO_JS_KEY}
+
 toss:
   secret-key: ${TOSS_SECRET_KEY}
   api-host: https://api.tosspayments.com

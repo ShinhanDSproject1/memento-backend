@@ -41,7 +41,7 @@ public class CreateMentoProfileRequest {
 
     private String mentoDetail;
 
-    public MentoProfile toEntity(Member member, String imageUrl) {
+    public MentoProfile toEntity(Member member, String imageUrl, Double latitude, Double longitude) {
         return new MentoProfile(
                 null,
                 this.mentoProfileContent,
@@ -52,7 +52,9 @@ public class CreateMentoProfileRequest {
                 this.mentoPostcode,
                 this.mentoRoadAddress,
                 this.mentoBname,
-                this.mentoDetail,
+                this.availableDays,
+                latitude,
+                longitude,
                 BaseStatus.ACTIVE,
                 member
         );
