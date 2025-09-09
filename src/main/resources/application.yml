@@ -34,7 +34,7 @@ aws:
 kakao:
   rest:
     api:
-      key: 35a9ac7d1660a1d2363a6c554f248064
+      key: ${KAKAO_REST_KEY}
   js:
     api:
-      key: 508d0978b8a40544a729f282b6187bd0
+      key: ${KAKAO_JS_KEY}
