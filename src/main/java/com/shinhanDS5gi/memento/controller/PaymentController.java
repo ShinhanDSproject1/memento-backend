@@ -2,8 +2,9 @@ package com.shinhanDS5gi.memento.controller;
 
 
 import com.shinhanDS5gi.memento.common.response.BaseResponse;
-import com.shinhanDS5gi.memento.dto.mentos.PaymentRequest;
+import com.shinhanDS5gi.memento.dto.payment.PaymentRequest;
 import com.shinhanDS5gi.memento.dto.mentos.ReservationConfirmedRequest;
+import com.shinhanDS5gi.memento.dto.payment.PaymentResponse;
 import com.shinhanDS5gi.memento.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,15 +45,15 @@ public class PaymentController {
      * 결제 성공 콜백
      */
     @PostMapping("/payments/success/{memberSeq}/init")
-    public BaseResponse<Void> success(
+    public BaseResponse<PaymentResponse> success(
             @PathVariable Long memberSeq,
             @RequestParam String paymentKey,
             @RequestParam String orderId,
             @RequestParam long amount,
             @RequestBody ReservationConfirmedRequest req
     ) {
-        paymentService.confirm(memberSeq, paymentKey, orderId, amount, req);
-        return new BaseResponse<>(SUCCESS, null);
+        PaymentResponse result = paymentService.confirm(memberSeq, paymentKey, orderId, amount, req);
+        return new BaseResponse<>(SUCCESS, result);
     }
 
     /**

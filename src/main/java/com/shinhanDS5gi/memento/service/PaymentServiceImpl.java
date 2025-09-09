@@ -1,15 +1,18 @@
 package com.shinhanDS5gi.memento.service;
 
 import com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus;
+import com.shinhanDS5gi.memento.domain.MentoProfile;
 import com.shinhanDS5gi.memento.domain.Mentos;
+import com.shinhanDS5gi.memento.domain.QMentoProfile;
 import com.shinhanDS5gi.memento.domain.Reservation;
 import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.domain.chat.ChattingRoom;
 import com.shinhanDS5gi.memento.domain.member.Member;
 import com.shinhanDS5gi.memento.domain.payment.PayType;
 import com.shinhanDS5gi.memento.domain.payment.Payment;
-import com.shinhanDS5gi.memento.dto.mentos.PaymentRequest;
+import com.shinhanDS5gi.memento.dto.payment.PaymentRequest;
 import com.shinhanDS5gi.memento.dto.mentos.ReservationConfirmedRequest;
+import com.shinhanDS5gi.memento.dto.payment.PaymentResponse;
 import com.shinhanDS5gi.memento.repository.PaymentRepository;
 import com.shinhanDS5gi.memento.repository.ReservationRepository;
 import com.shinhanDS5gi.memento.repository.chat.ChattingRoomRepository;
@@ -113,7 +116,7 @@ public class PaymentServiceImpl implements PaymentService {
     /** 성공 콜백: 토스 confirm -> 검증 -> Payment 저장 */
     @Override
     @Transactional
-    public void confirm(Long memberSeq, String paymentKey, String orderId, long amount, ReservationConfirmedRequest req){
+    public PaymentResponse confirm(Long memberSeq, String paymentKey, String orderId, long amount, ReservationConfirmedRequest req) {
 
         try {
             // 토스 승인(confirm) API 호출
@@ -185,6 +188,17 @@ public class PaymentServiceImpl implements PaymentService {
 
         // 생성된 채팅방과 채팅 참여자 정보 DB에 저장
         chattingRoomRepository.save(newChatRoom);
+
+        MentoProfile profile = mentos.getMember().getMentoProfile();
+        String days = (profile != null) ? profile.getAvailableDays() : null;
+
+        return PaymentResponse.builder()
+                .mentosTitle(mentos.getMentosTitle())
+                .mentosAt(date.toString())
+                .mentosTime(time.toString())
+                .price(payment.getPrice())
+                .availableDays(days)
+                .build();
 
 
     }

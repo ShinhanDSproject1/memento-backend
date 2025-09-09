@@ -1,8 +1,9 @@
 package com.shinhanDS5gi.memento.service;
 
 
-import com.shinhanDS5gi.memento.dto.mentos.PaymentRequest;
+import com.shinhanDS5gi.memento.dto.payment.PaymentRequest;
 import com.shinhanDS5gi.memento.dto.mentos.ReservationConfirmedRequest;
+import com.shinhanDS5gi.memento.dto.payment.PaymentResponse;
 
 public interface PaymentService {
 
@@ -13,7 +14,7 @@ public interface PaymentService {
     PaymentRequest init(Long memberSeq, ReservationConfirmedRequest req);
 
     //토스 성공 리다이렉트 처리 (confirm 호출 + DB 저장)
-    void confirm(Long memberSeq, String paymentKey, String orderId, long amount, ReservationConfirmedRequest req);
+    PaymentResponse confirm(Long memberSeq, String paymentKey, String orderId, long amount, ReservationConfirmedRequest req);
 
     //결제 실패 리다이렉트 처리
     void fail(String code, String message, String orderId);
