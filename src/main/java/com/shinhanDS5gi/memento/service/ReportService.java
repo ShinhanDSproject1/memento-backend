@@ -3,10 +3,10 @@ package com.shinhanDS5gi.memento.service;
 import com.shinhanDS5gi.memento.dto.admin.CreateReportRequest;
 import com.shinhanDS5gi.memento.dto.admin.SelectReportDetailResponse;
 import com.shinhanDS5gi.memento.dto.admin.SelectReportResponse;
+import com.shinhanDS5gi.memento.dto.admin.SelectReportSliceResponse;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
 
 public interface ReportService {
 
@@ -20,7 +20,7 @@ public interface ReportService {
     void createReport(Long memberSeq, CreateReportRequest requestDto, MultipartFile imageFile, String IdemKey) throws IOException;
 
     /* 모든 신고 내역 조회 */
-    List<SelectReportResponse> findAllReports();
+    SelectReportSliceResponse<SelectReportResponse> findAllReports(Long cursor, int limit);
 
     /* 특정 신고 상세 내역 조회 */
     SelectReportDetailResponse findReportById(Long reportSeq);

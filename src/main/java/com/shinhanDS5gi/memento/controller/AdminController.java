@@ -1,11 +1,8 @@
 package com.shinhanDS5gi.memento.controller;
 
 import com.shinhanDS5gi.memento.common.response.BaseResponse;
-import com.shinhanDS5gi.memento.dto.admin.CreateReportRequest;
-import com.shinhanDS5gi.memento.dto.admin.SelectReportDetailResponse;
-import com.shinhanDS5gi.memento.dto.admin.SelectReportResponse;
+import com.shinhanDS5gi.memento.dto.admin.*;
 import com.shinhanDS5gi.memento.service.MemberService;
-import com.shinhanDS5gi.memento.dto.admin.GetMemberListResponse;
 import com.shinhanDS5gi.memento.service.ReportService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
 
 import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus.SUCCESS;
 
@@ -65,8 +61,11 @@ public class AdminController {
 
     /* 모든 신고 내역 조회 */
     @GetMapping("/reports")
-    public BaseResponse<List<SelectReportResponse>> getAllReports() {
-        List<SelectReportResponse> reportAll = reportService.findAllReports();
+    public BaseResponse<SelectReportSliceResponse<SelectReportResponse>> getAllReports(
+            @RequestParam(defaultValue = "5") int limit,
+            @RequestParam(required = false) Long cursor
+    ) {
+        SelectReportSliceResponse<SelectReportResponse> reportAll = reportService.findAllReports(cursor, limit);
         return new BaseResponse<>(reportAll);
     }
 
