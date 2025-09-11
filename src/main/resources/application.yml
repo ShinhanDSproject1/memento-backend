@@ -49,6 +49,7 @@ app:
     fail: http://localhost:9999/payments/fail
 
 jwt:
+  same-site: None
   secret: ${JWT_SECRET}
   accessTokenExpiration: 7200000 # 2시간 (ms)
   refreshTokenExpiration: 1209600000  # 14일 (ms)

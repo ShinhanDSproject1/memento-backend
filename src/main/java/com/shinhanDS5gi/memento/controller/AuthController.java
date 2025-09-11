@@ -5,8 +5,11 @@ import com.shinhanDS5gi.memento.common.response.BaseResponse;
 import com.shinhanDS5gi.memento.domain.member.Member;
 import com.shinhanDS5gi.memento.domain.member.MemberType;
 import com.shinhanDS5gi.memento.dto.auth.*;
+import com.shinhanDS5gi.memento.service.AuthService;
 import com.shinhanDS5gi.memento.service.MemberService;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,47 +28,31 @@ import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionRespo
 public class AuthController {
 
     private final MemberService memberService;
-
-    /* 회원 탈퇴 */
-    @PatchMapping("/member/{memberSeq}")
-    public BaseResponse<Void> withdraw(@PathVariable Long memberSeq) {
-        memberService.withdraw(memberSeq);
-        return new BaseResponse<>(SUCCESS, null);
-    }
+    private final AuthService  authService;
 
     /* 로그아웃 */
+    //AT 블랙리스트 등록 + RT 삭제 + 쿠키 제거
     @PostMapping("/logout")
-    public BaseResponse<Void> logout(@RequestBody LogoutRequest request) {
-        memberService.logout(request.getMemberSeq());
+    public BaseResponse<Void> logout(HttpServletRequest req, HttpServletResponse res) {
+        boolean secureCookie = req.isSecure();
+        authService.logout(req, res, secureCookie);
         return new BaseResponse<>(SUCCESS, null);
     }
+
 
     /* 로그인 */
+    //비번검증 → AT/RT 발급 → Redis RT 저장 → Set-Cookie(AT/RT) 처리
     @PostMapping("/login/{user-type}")
-    // 페이지 넘기는 값(URL의 {user-type} 값)이 enum의 정확한 이름과 동일하면  MemberType으로 바인딩
-    public BaseResponse<LoginResponse> login(@PathVariable("user-type") MemberType type,
-                                             @RequestBody LoginRequest request) {
-        Member member = memberService.login(type, request);
-        return new BaseResponse<>(SUCCESS, new LoginResponse(member.getMemberName(),member.getMemberType().name()));
+    public BaseResponse<LoginResponse> login(
+            @PathVariable("user-type") MemberType type,
+            @RequestBody LoginRequest request,
+            HttpServletRequest req,
+            HttpServletResponse res) {
+        boolean secure = req.isSecure();
+
+        Member m = authService.issueTokens(type, request, res, secure);
+        return new BaseResponse<>(SUCCESS,
+                new LoginResponse(m.getMemberName(), m.getMemberType().name()));
     }
 
-    /* 회원가입 (멘토) */
-    @PostMapping(value = "/signup/mento", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public BaseResponse<Void> signupMento(
-            @RequestPart("requestDto") @Valid MentoSignupRequest requestDto,
-            @RequestPart(value = "imageFile", required = false) MultipartFile certImage,
-            @RequestHeader("Idem-Key") String IdemKey
-    ) throws IOException {
-        memberService.signupMento(requestDto, certImage, IdemKey);
-        return new BaseResponse<>(SUCCESS, null);
-    }
-
-
-    /* 회원가입 (멘티) */
-    @PostMapping("/signup/menti")
-    public BaseResponse<Void> signupMenti(@RequestBody MentiSignupRequest requestDto,
-                                          @RequestHeader("Idem-Key") String idemKey) {
-        memberService.signupMenti(requestDto, idemKey);
-        return new BaseResponse<>(SUCCESS, null);
-    }
-}
+  }
