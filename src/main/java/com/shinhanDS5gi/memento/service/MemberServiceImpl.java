@@ -15,15 +15,22 @@ import com.shinhanDS5gi.memento.repository.review.ReviewRepository;
 import com.shinhanDS5gi.memento.repository.member.MemberRepository;
 import com.shinhanDS5gi.memento.repository.mento.MentoProfileRepository;
 import com.shinhanDS5gi.memento.repository.mentos.MentosRepository;
+import com.shinhanDS5gi.memento.security.JwtTokenUtil;
 import jakarta.annotation.Nullable;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -48,6 +55,14 @@ public class MemberServiceImpl implements MemberService {
     private final MentoCertificationService mentoCertificationService;
     private final IdempotencyService idempotencyService;
 
+    private final AuthService authService;
+    private final JwtTokenUtil jwtTokenUtil;
+    private final StringRedisTemplate RedisTemplate;
+
+    private static final String AT = "AT";
+    private static final String RT = "RT";
+
+
     /* 관리자 페이지 전체 회원 조회하기 */
     @Override
     public GetMemberListResponse getMemberList(Integer limit, Long cursor) {
@@ -71,7 +86,7 @@ public class MemberServiceImpl implements MemberService {
     /* 회원탈퇴 */
     @Override
     @Transactional
-    public void withdraw(Long memberSeq) {
+    public void withdraw(Long memberSeq, HttpServletRequest req, HttpServletResponse res, boolean secureCookie) {
         //ACTIVE인 회원만 찾음 → 없거나 이미 INACTIVE면 바로 오류메세지
         log.info("[MemberServiceImpl.expelMemberByAdmin]");
         Member member = memberRepository.findByMemberSeqAndStatus(memberSeq, BaseStatus.ACTIVE)
@@ -85,6 +100,8 @@ public class MemberServiceImpl implements MemberService {
         } else if (member.getMemberType().equals(MemberType.MENTI)) {
             expelForMenti(member.getMemberSeq());
         }
+        //AT블랙리스트 + RT제거 + cookie 제거
+        authService.cleanupTokensAndCookies(req, res, secureCookie);
     }
 
     /* 멘토 회원가입 */
