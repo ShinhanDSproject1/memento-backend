@@ -1,12 +1,11 @@
 package com.shinhanDS5gi.memento.service;
 
-import com.shinhanDS5gi.memento.common.exception.AuthException;
+
 import com.shinhanDS5gi.memento.common.exception.MemberException;
 import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.domain.member.Member;
 import com.shinhanDS5gi.memento.domain.member.MemberType;
 import com.shinhanDS5gi.memento.dto.mento.CreateMentoCertificationRequest;
-import com.shinhanDS5gi.memento.dto.auth.LoginRequest;
 import com.shinhanDS5gi.memento.dto.auth.MentoSignupRequest;
 import com.shinhanDS5gi.memento.dto.auth.MentiSignupRequest;
 import com.shinhanDS5gi.memento.dto.admin.GetMemberListResponse;
@@ -27,7 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
+
 
 import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus.*;
 
@@ -37,9 +36,9 @@ import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionRespo
 @Transactional(readOnly = true)
 public class MemberServiceImpl implements MemberService {
 
-    private final MemberRepository memberRepo;
+    private final MemberRepository memberRepository;
     private final PasswordEncoder pwEncoder;
-    private final MentoCertificationRepository certRepo;
+    private final MentoCertificationRepository certRepository;
     private final MentosRepository mentosRepository;
     private final MentoProfileRepository mentoProfileRepository;
     private final ReviewRepository reviewRepository;
@@ -54,7 +53,7 @@ public class MemberServiceImpl implements MemberService {
     public GetMemberListResponse getMemberList(Integer limit, Long cursor) {
         log.info("[MemberServiceImpl.getMemberList]");
 
-        List<Member> memberList = memberRepo.findAllByIdAndLimitAndCursor(limit, cursor, BaseStatus.ACTIVE);
+        List<Member> memberList = memberRepository.findAllByIdAndLimitAndCursor(limit, cursor, BaseStatus.ACTIVE);
 
         List<GetMemberListResponse.MemberInfo> memberInfoList = memberList.stream().map(member -> new GetMemberListResponse.MemberInfo(
                 member.getMemberSeq(), member.getMemberName(), member.getMemberType().toString(), member.getCreatedAt().toLocalDate()
@@ -75,7 +74,7 @@ public class MemberServiceImpl implements MemberService {
     public void withdraw(Long memberSeq) {
         //ACTIVE인 회원만 찾음 → 없거나 이미 INACTIVE면 바로 오류메세지
         log.info("[MemberServiceImpl.expelMemberByAdmin]");
-        Member member = memberRepo.findByMemberSeqAndStatus(memberSeq, BaseStatus.ACTIVE)
+        Member member = memberRepository.findByMemberSeqAndStatus(memberSeq, BaseStatus.ACTIVE)
                 .orElseThrow(() -> new MemberException(CANNOT_FOUND_MEMBER));
 
         // member 테이블 무효화 (영속성 컨텍스트 / 1차 캐시를 이용하려고 따로 save 메소드 호출하지 않음)
@@ -88,55 +87,6 @@ public class MemberServiceImpl implements MemberService {
         }
     }
 
-    /* 로그아웃 */
-    @Override
-    public void logout(Long memberSeq) {
-        memberRepo.findById(memberSeq)
-                .orElseThrow(() -> new MemberException(CANNOT_FOUND_MEMBER));
-    }
-
-
-
-    /* 로그인 */
-    @Override
-    public Member login(MemberType pathType, LoginRequest req) {
-        final String id = req.getMemberId();
-        final String rawPwd = req.getMemberPwd();
-
-        // 1) ADMIN 로그인 처리
-        Optional<Member> adminOpt = memberRepo.findByMemberIdAndMemberType(id, MemberType.ADMIN);
-        if (adminOpt.isPresent()) {
-            Member admin = adminOpt.get();
-            if (!pwEncoder.matches(rawPwd, admin.getMemberPwd())) {
-                log.warn("로그인 실패: 비밀번호 틀림 (id={}, type=ADMIN)", id);
-                throw new AuthException(INVALID_PASSWORD);
-            }
-            return admin;
-        }
-        // 2) 선택한 타입(MENTO/MENTI) 로그인 처리
-        Optional<Member> userOpt = memberRepo.findByMemberIdAndMemberType(id, pathType);
-        if (!userOpt.isPresent()) {
-            // 다른 타입 여부 확인
-            MemberType otherType = (pathType == MemberType.MENTI) ? MemberType.MENTO : MemberType.MENTI;
-            Optional<Member> otherOpt = memberRepo.findByMemberIdAndMemberType(id, otherType);
-
-            if (otherOpt.isPresent()) {
-                log.warn("로그인 실패: 타입 불일치 (id={}, 선택한 타입={})", id, pathType);
-                throw new AuthException(CANNOT_LOGIN);
-            } else {
-                log.warn("로그인 실패: 아이디 불일치 (id={})", id);
-                throw new AuthException(INVALID_MEMBER_ID);
-            }
-        }
-        // 3) 비밀번호 검증
-        Member user = userOpt.get();
-        if (!pwEncoder.matches(rawPwd, user.getMemberPwd())) {
-            log.warn("로그인 실패: 비밀번호 틀림 (id={}, type={})", id, user.getMemberType());
-            throw new AuthException(INVALID_PASSWORD);
-        }
-        return user;
-    }
-
     /* 멘토 회원가입 */
     @Override
     @Transactional
@@ -147,7 +97,7 @@ public class MemberServiceImpl implements MemberService {
         }
 
         // 1) 중복 아이디 체크
-        if (memberRepo.existsByMemberId(req.getMemberId())) {
+        if (memberRepository.existsByMemberId(req.getMemberId())) {
             log.warn("[signupMento] 중복 아이디: {}", req.getMemberId());
             throw new MemberException(CANNOT_SIGNUP);
         }
@@ -163,7 +113,7 @@ public class MemberServiceImpl implements MemberService {
                 .memberType(MemberType.MENTO)
                 .status(BaseStatus.ACTIVE)
                 .build();
-        Member savedMember = memberRepo.save(member);
+        Member savedMember = memberRepository.save(member);
 
         // 4) 자격증 저장
         if (req.getCertificationName() != null && !req.getCertificationName().isBlank()) {
@@ -190,7 +140,7 @@ public class MemberServiceImpl implements MemberService {
         }
 
         // 1) 중복 아이디 체크
-        if (memberRepo.existsByMemberId(req.getMemberId())) {
+        if (memberRepository.existsByMemberId(req.getMemberId())) {
             log.warn("[signupMenti] 중복 아이디: {}", req.getMemberId());
             throw new MemberException(CANNOT_SIGNUP);
         }
@@ -207,7 +157,7 @@ public class MemberServiceImpl implements MemberService {
                 .status(BaseStatus.ACTIVE)
                 .build();
 
-        Member savedMember = memberRepo.save(m);
+        Member savedMember = memberRepository.save(m);
 
         // 멱등키 Redis 저장
         idempotencyService.saveKey(idemKey, String.valueOf(savedMember.getMemberSeq()));
@@ -218,7 +168,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public void expelMemberByAdmin(Long memberSeq) {
         log.info("[MemberServiceImpl.expelMemberByAdmin]");
-        Member member = memberRepo.findByMemberSeqAndStatus(memberSeq, BaseStatus.ACTIVE).orElseThrow(() -> new MemberException(CANNOT_FOUND_MEMBER));
+        Member member = memberRepository.findByMemberSeqAndStatus(memberSeq, BaseStatus.ACTIVE).orElseThrow(() -> new MemberException(CANNOT_FOUND_MEMBER));
         // member 테이블 무효화 (영속성 컨텍스트 / 1차 캐시를 이용하려고 따로 save 메소드 호출하지 않음)
         member.updateMemberStatus(BaseStatus.INACTIVE);
 
@@ -234,7 +184,7 @@ public class MemberServiceImpl implements MemberService {
         // mento 인 경우 -> 자격증 검증 테이블, 멘토스, 멘토 프로필 무효 처리
         log.info("[MemberServiceImpl.expelForMento]");
 
-        int certificationChangeCnt = certRepo.updateMentoCertificationStatus(memberSeq, BaseStatus.INACTIVE, BaseStatus.ACTIVE);
+        int certificationChangeCnt = certRepository.updateMentoCertificationStatus(memberSeq, BaseStatus.INACTIVE, BaseStatus.ACTIVE);
         log.info("[MemberServiceImpl.expelForMento...updateMentoCertificationStatus..." + certificationChangeCnt + "]");
 
         int mentosChangeCnt = mentosRepository.updateMentosStatus(memberSeq, BaseStatus.INACTIVE, BaseStatus.ACTIVE);
