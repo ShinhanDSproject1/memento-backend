@@ -2,7 +2,6 @@ package com.shinhanDS5gi.memento.service;
 
 import com.shinhanDS5gi.memento.common.exception.AuthException;
 import com.shinhanDS5gi.memento.common.exception.MemberException;
-import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.security.JwtTokenUtil;
 import com.shinhanDS5gi.memento.domain.member.Member;
 import com.shinhanDS5gi.memento.domain.member.MemberType;
@@ -18,8 +17,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus.*;
+import static com.shinhanDS5gi.memento.domain.base.BaseStatus.ACTIVE;
+
 import java.time.Duration;
-import java.util.Optional;
 
 
 @Slf4j
@@ -33,8 +33,10 @@ public class AuthServiceImpl implements AuthService {
     private final AuthRepository authRepository;
     private final PasswordEncoder passwordEncoder;
 
-    @Value("${jwt.accessTokenExpiration}")  private long accessExpMs;
-    @Value("${jwt.refreshTokenExpiration}") private long refreshExpMs;
+    @Value("${jwt.accessTokenExpiration}")
+    private long accessExpMs;
+    @Value("${jwt.refreshTokenExpiration}")
+    private long refreshExpMs;
 
     private static final String AT = "AT";
     private static final String RT = "RT";
@@ -46,39 +48,48 @@ public class AuthServiceImpl implements AuthService {
         final String id = req.getMemberId();
         final String rawPwd = req.getMemberPwd();
 
-        // ADMIN인지 확인
-        Optional<Member> adminOpt = authRepository.findByMemberIdAndMemberType(id, MemberType.ADMIN);
-        if (adminOpt.isPresent()) {
-            Member admin = adminOpt.get();
+        // 1) ADMIN 로그인은 ADMIN + ACTIVE
+        if (pathType == MemberType.ADMIN) {
+            Member admin = authRepository
+                    .findByMemberIdAndMemberTypeAndStatus(id, MemberType.ADMIN, ACTIVE)
+                    .orElseThrow(() -> {
+                        // 아이디 자체가 없으면 INVALID_MEMBER_ID, 있으면 타입/상태 문제
+                        return authRepository.findByMemberId(id).isEmpty()
+                                ? new AuthException(INVALID_MEMBER_ID)
+                                : new AuthException(CANNOT_LOGIN);
+                    });
             if (!passwordEncoder.matches(rawPwd, admin.getMemberPwd())) {
-                log.warn("로그인 실패: 비밀번호 틀림 (id={}, type=ADMIN)", id);
+                log.info("로그인 실패: 비밀번호 틀림 (id={}, type=ADMIN)", id);
                 throw new AuthException(INVALID_PASSWORD);
             }
             return admin;
         }
 
-        // 멘토/멘티 ACTIVE만 허용
-        Optional<Member> userOpt =
-                authRepository.findByMemberIdAndMemberTypeAndStatus(id, pathType, BaseStatus.ACTIVE);
-        if (userOpt.isEmpty()) {
-            // 다른 타입인지 확인
-            MemberType otherType = (pathType == MemberType.MENTI) ? MemberType.MENTO : MemberType.MENTI;
-            if (authRepository.findByMemberIdAndMemberType(id, otherType).isPresent()) {
-                log.warn("로그인 실패: 타입 불일치 (id={}, selected={})", id, pathType);
-                throw new AuthException(CANNOT_LOGIN);
-            } else {
-                log.warn("로그인 실패: 아이디 없음 (id={})", id);
-                throw new AuthException(INVALID_MEMBER_ID);
-            }
-        }
+        // 2) 멘토/멘티 로그인: 해당 타입 + ACTIVE
+        Member user = authRepository
+                .findByMemberIdAndMemberTypeAndStatus(id, pathType, ACTIVE)
+                .orElseThrow(() -> {
+                    MemberType other = (pathType == MemberType.MENTI) ? MemberType.MENTO : MemberType.MENTI;
 
-        Member user = userOpt.get();
+                    if (authRepository.findByMemberIdAndMemberTypeAndStatus(id, other, ACTIVE).isPresent()) {
+                        //타입 불일치
+                        return new AuthException(CANNOT_LOGIN);
+                    }
+                    if (authRepository.findByMemberId(id).isEmpty()) {
+                        log.info("로그인 실패: 아이디 없음 (id={})", id);
+                        return new AuthException(INVALID_MEMBER_ID);
+                    }
+                    // inactive
+                    return new AuthException(CANNOT_LOGIN);
+                });
+
         if (!passwordEncoder.matches(rawPwd, user.getMemberPwd())) {
-            log.warn("로그인 실패: 비밀번호 틀림 (id={}, type={})", id, user.getMemberType());
+            log.info("로그인 실패: 비밀번호 틀림 (id={}, type={})", id, user.getMemberType());
             throw new AuthException(INVALID_PASSWORD);
         }
         return user;
     }
+
 
 
     /** 토큰 발급 cookie에 저장*/
@@ -104,6 +115,7 @@ public class AuthServiceImpl implements AuthService {
     /** 재발급 (AT 토큰이 만료 됨 ->AT 재발급해줌) */
     @Override
     @Transactional
+
     public void refresh(HttpServletRequest req, HttpServletResponse res, boolean secureCookie) {
         //cookie값 RT 검증
         String rt = jwtTokenUtil.readCookie(req, RT);
@@ -117,11 +129,10 @@ public class AuthServiceImpl implements AuthService {
             throw new AuthException(INVALID_REFRESH_TOKEN);
         }
         //기존 AT 블랙리스트 등록
-        String oldAt = jwtTokenUtil.readCookie(req, AT);
-        if (oldAt != null && jwtTokenUtil.validate(oldAt)) {
-            long ttl = jwtTokenUtil.remainingMs(oldAt);
+        if (jwtTokenUtil.validate(rt)) {
+            long ttl = jwtTokenUtil.remainingMs(rt);
             if (ttl > 0) {
-                RedisTemplate.opsForValue().set(jwtTokenUtil.atblkKey(jwtTokenUtil.getJti(oldAt)), "1", Duration.ofMillis(ttl));
+                RedisTemplate.opsForValue().set(jwtTokenUtil.atblkKey(jwtTokenUtil.getJti(rt)), "1", Duration.ofMillis(ttl));
             }
         }
         // DB에서 멤버 타입 조회
@@ -136,6 +147,7 @@ public class AuthServiceImpl implements AuthService {
         jwtTokenUtil.setCookie(res, AT, at, Duration.ofMillis(accessExpMs),  secureCookie);
         jwtTokenUtil.setCookie(res, RT, rt, Duration.ofMillis(refreshExpMs), secureCookie);
     }
+
 
     /** RT제거 AT블랙리스트 */
     @Override
@@ -158,6 +170,7 @@ public class AuthServiceImpl implements AuthService {
         jwtTokenUtil.clearCookie(res, AT, secureCookie);
         jwtTokenUtil.clearCookie(res, RT, secureCookie);
     }
+
 
     /** 로그아웃*/
     @Override

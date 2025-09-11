@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public interface  AuthRepository extends JpaRepository<Member, Long>{
 
-    // 멘토/멘티 ACTIVE 상태만 찾기
+    // 아이디 타입 상태 ACTIVE 상태만 찾기
     Optional<Member> findByMemberIdAndMemberTypeAndStatus(String memberId, MemberType type, BaseStatus status);
 
     //jwt

@@ -15,14 +15,12 @@ import com.shinhanDS5gi.memento.repository.review.ReviewRepository;
 import com.shinhanDS5gi.memento.repository.member.MemberRepository;
 import com.shinhanDS5gi.memento.repository.mento.MentoProfileRepository;
 import com.shinhanDS5gi.memento.repository.mentos.MentosRepository;
-import com.shinhanDS5gi.memento.security.JwtTokenUtil;
 import jakarta.annotation.Nullable;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,11 +52,6 @@ public class MemberServiceImpl implements MemberService {
     private final IdempotencyService idempotencyService;
 
     private final AuthService authService;
-    private final JwtTokenUtil jwtTokenUtil;
-    private final StringRedisTemplate RedisTemplate;
-
-    private static final String AT = "AT";
-    private static final String RT = "RT";
 
 
     /* 관리자 페이지 전체 회원 조회하기 */
