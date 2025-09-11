@@ -138,14 +138,11 @@ public class AuthServiceImpl implements AuthService {
         // DB에서 멤버 타입 조회
         Member m = authRepository.findByMemberId(sub)
                 .orElseThrow(() -> new MemberException(CANNOT_FOUND_MEMBER));
-        //새 토큰 발급 + 저장/세팅
+        //새 AT 토큰 발급 + 저장/세팅
         String at = jwtTokenUtil.createAccessToken(sub, 0, m.getMemberType().name());
-        rt = jwtTokenUtil.createRefreshToken(sub, 0);
-
-        RedisTemplate.opsForValue().set(jwtTokenUtil.rtKey(sub), rt, Duration.ofMillis(refreshExpMs));
 
         jwtTokenUtil.setCookie(res, AT, at, Duration.ofMillis(accessExpMs),  secureCookie);
-        jwtTokenUtil.setCookie(res, RT, rt, Duration.ofMillis(refreshExpMs), secureCookie);
+
     }
 
 

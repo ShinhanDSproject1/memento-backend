@@ -49,7 +49,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String token = readAccessToken(req);
             if (token != null && jwtTokenUtil.validate(token)) {
 
-                // 블랙리스트 검사
+                // AT 블랙리스트
+                //AT를 검증 → AT의 남은 수명으로 TTL 계산 → AT의 jti로 atblk 키 저장
                 String jti = jwtTokenUtil.getJti(token);
                 String black = RedisTemplate.opsForValue().get(jwtTokenUtil.atblkKey(jti)); // 유틸 사용
                 if (black == null) {
