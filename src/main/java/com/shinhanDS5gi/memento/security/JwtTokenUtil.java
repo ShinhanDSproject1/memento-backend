@@ -126,7 +126,7 @@ public class JwtTokenUtil {
     public String getJti(String token)            { return claims(token).getId(); }
     public String getSubject(String token)        { return claims(token).getSubject(); }
     public Date   getExpiration(String token)     { return claims(token).getExpiration(); }
-    public Integer getVersion(String token)       { return claims(token).get(C_VER, Integer.class); }
+
 
 
     //토큰이 만료되기까지 남은 시간 계산
