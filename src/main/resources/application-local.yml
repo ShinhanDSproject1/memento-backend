@@ -1,0 +1,16 @@
+# 로컬 개발 환경에서 사용될 설정
+server:
+  port: 9999
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/memento?characterEncoding=UTF-8&serverTimezone=Asia/Seoul
+    username: memento # 로컬 DB
+    password:
+  data:
+    redis:
+      host: localhost
+      port: 6379
+    mongodb:
+      uri: mongodb://localhost:27017/memento-chat

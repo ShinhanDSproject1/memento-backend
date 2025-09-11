@@ -4,7 +4,6 @@ import com.shinhanDS5gi.memento.common.response.BaseResponse;
 import com.shinhanDS5gi.memento.dto.reservation.CreateReservationRequest;
 import com.shinhanDS5gi.memento.dto.reservation.GetAvailableDateResponse;
 import com.shinhanDS5gi.memento.service.ReservationService;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;

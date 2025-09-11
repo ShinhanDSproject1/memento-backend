@@ -1,0 +1,49 @@
+# src/test/resources/application.yml
+
+spring:
+  # 1. 실제 MySQL 대신 테스트용 H2 데이터베이스 설정으로 변경
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=MYSQL # 인메모리 H2 DB를 MySQL 모드로 실행
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  # 2. MongoDB도 테스트용 DB 주소로 지정
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/memento-test
+
+  # 3. JPA 설정: 테스트가 시작될 때 테이블을 생성하고 끝나면 삭제하도록 변경
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        format_sql: true
+
+# 4. ${...} 플레이스홀더가 있는 모든 값에 임시 값(dummy value)을 채워넣음
+#    - 이 값들이 없으면 PlaceholderResolutionException 발생의 주 원인이 됨
+aws:
+  access-key: "test-access-key"
+  secret-key: "test-secret-key"
+  region: "ap-northeast-2"
+  s3:
+    bucket: "test-bucket"
+    upload-dir: "test-dir"
+
+kakao:
+  rest:
+    api:
+      key: "test-kakao-rest-key"
+  js:
+    api:
+      key: "test-kakao-js-key"
+
+toss:
+  secret-key: "test-toss-secret-key"
+  api-host: https://api.tosspayments.com
+
+app:
+  url:
+    success: http://localhost:3000/payments/success
+    fail: http://localhost:9999/payments/fail

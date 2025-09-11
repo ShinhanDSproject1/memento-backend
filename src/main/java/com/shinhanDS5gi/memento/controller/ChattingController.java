@@ -35,7 +35,7 @@ public class ChattingController {
     }
 
     /* 채팅방 상세 정보와 이전 대화 내역 조회 */
-    @GetMapping("/api/chat/rooms/{chattingRoomSeq}/messages")
+    @GetMapping("/chat/rooms/{chattingRoomSeq}/messages")
     @ResponseBody
     public BaseResponse<ChattingRoomDetailResponse> getChattingRoomDetails(@PathVariable Long chattingRoomSeq) {
         Long currentMemberSeq = 1L; // 임시 사용자 ID (실제로는 SecurityContext에서 가져와야 함)
@@ -44,7 +44,7 @@ public class ChattingController {
     }
 
     /* 특정 채팅방 메시지 모두 읽음 처리 (채팅방 입장 시점) */
-    @PatchMapping("/api/chat/rooms/{chattingRoomSeq}/read")
+    @PatchMapping("/chat/rooms/{chattingRoomSeq}/read")
     @ResponseBody
     public BaseResponse<Void> markAsRead(@PathVariable Long chattingRoomSeq) {
         Long currentMemberSeq = 1L;
