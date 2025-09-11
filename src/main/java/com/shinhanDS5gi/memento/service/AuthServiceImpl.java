@@ -2,6 +2,7 @@ package com.shinhanDS5gi.memento.service;
 
 import com.shinhanDS5gi.memento.common.exception.AuthException;
 import com.shinhanDS5gi.memento.common.exception.MemberException;
+import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.security.JwtTokenUtil;
 import com.shinhanDS5gi.memento.domain.member.Member;
 import com.shinhanDS5gi.memento.domain.member.MemberType;
@@ -56,8 +57,9 @@ public class AuthServiceImpl implements AuthService {
             return admin;
         }
 
-        // 선택 타입으로 로그인
-        Optional<Member> userOpt = authRepository.findByMemberIdAndMemberType(id, pathType);
+        // 멘토/멘티 ACTIVE만 허용
+        Optional<Member> userOpt =
+                authRepository.findByMemberIdAndMemberTypeAndStatus(id, pathType, BaseStatus.ACTIVE);
         if (userOpt.isEmpty()) {
             // 다른 타입인지 확인
             MemberType otherType = (pathType == MemberType.MENTI) ? MemberType.MENTO : MemberType.MENTI;
