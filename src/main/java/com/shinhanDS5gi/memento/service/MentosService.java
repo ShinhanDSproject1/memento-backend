@@ -28,6 +28,6 @@ public interface MentosService {
     GetMentosListResponse getMentosList(Long mentosCategorySeq, Integer limit, Long cursor);
 
     /* 멘토스 생성하기 */
-    void createMentos(Long memberSeq, CreateMentosRequest dto, MultipartFile file, String idemKey) throws IOException;
+    void createMentos(Long memberSeq, CreateMentosRequest createMentosRequest, String idemKey);
 
 }

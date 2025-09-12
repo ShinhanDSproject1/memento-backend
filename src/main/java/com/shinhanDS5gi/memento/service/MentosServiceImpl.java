@@ -212,9 +212,9 @@ public class MentosServiceImpl implements MentosService {
     }
 
     /* 멘토스 생성하기 */
-    @Override
     @Transactional
-    public void createMentos(Long memberSeq, CreateMentosRequest createMentosRequest, MultipartFile imageFile, String idemKey) throws IOException {
+    @Override
+    public void createMentos(Long memberSeq, CreateMentosRequest createMentosRequest, String idemKey) {
         log.info("[MentosServiceImpl.createMentos]");
         try {
             Member member = memberRepository.findByMemberSeqAndStatusAndMemberType(memberSeq, BaseStatus.ACTIVE, MemberType.MENTO)
@@ -224,45 +224,22 @@ public class MentosServiceImpl implements MentosService {
             Category category = categoryRepository.findByCategorySeqAndStatus(createMentosRequest.getCategorySeq(), BaseStatus.ACTIVE)
                     .orElseThrow(() -> new CategoryException(CANNOT_FOUND_CATEGORY));
 
-            if (idempotencyService.isDuplicate(idemKey)) {
+            // s3 에 업로드된 url 로 db 에 저장하기
+            String uploadedMentosImage = s3Uploader.upload(createMentosRequest.getMentosImage());
+            Mentos mentos = new Mentos(createMentosRequest.getMentosTitle(), createMentosRequest.getMentosContent(), createMentosRequest.getPrice(), uploadedMentosImage,
+                   category, member, BaseStatus.ACTIVE);
+
+            Mentos createdMentos = mentosRepository.save(mentos);
+            if(idempotencyService.isDuplicate(idemKey)){
                 log.info("[MentosServiceImpl.createMentos...멘토스 생성 이미 완료...동일한 요청]");
                 throw new MentosException(ALREADY_SUCCESS_REQUEST);
-            } else {
-                // s3 에 업로드된 url 로 db 에 저장하기
-                String uploadedMentosImage = s3Uploader.upload(createMentosRequest.getMentosImage());
-                Mentos mentos = new Mentos(createMentosRequest.getMentosTitle(), createMentosRequest.getMentosContent(), createMentosRequest.getPrice(), uploadedMentosImage, category, member, BaseStatus.ACTIVE);
-
-                Mentos createdMentos = mentosRepository.save(mentos);
+            }else{
                 log.info("[MentosServiceImpl.createMentos...멘토스 생성 완료]");
                 idempotencyService.saveKey(idemKey, String.valueOf(createdMentos.getMentosSeq()));
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-        Member member = memberRepository.findByMemberSeqAndStatusAndMemberType(memberSeq, BaseStatus.ACTIVE, MemberType.MENTO)
-                .orElseThrow(() -> new MemberException(NOT_A_MENTO));
-
-        Category category = categoryRepository.findByCategorySeqAndStatus(createMentosRequest.getCategorySeq(), BaseStatus.ACTIVE)
-                .orElseThrow(() -> new CategoryException(CANNOT_FOUND_CATEGORY));
-
-        String uploadedMentosImage = s3Uploader.upload(imageFile);
-
-        // 수정된 생성자 호출
-        Mentos mentos = new Mentos(
-                createMentosRequest.getMentosTitle(),
-                createMentosRequest.getMentosContent(),
-                createMentosRequest.getPrice(),
-                uploadedMentosImage,
-                category,
-                member,
-                BaseStatus.ACTIVE
-        );
-
-        Mentos createdMentos = mentosRepository.save(mentos);
-        log.info("[MentosServiceImpl.createMentos...멘토스 생성 완료]");
-
-        idempotencyService.saveKey(idemKey, String.valueOf(createdMentos.getMentosSeq()));
     }
 
 }

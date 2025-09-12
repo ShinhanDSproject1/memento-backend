@@ -84,11 +84,10 @@ public class MentosController {
     }
 
     /* 멘토스 생성하기 */
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping("")
     public BaseResponse<Void> createMentos(
             @CurrentUser Member member,
-            @RequestPart("requestDto") CreateMentosRequest createMentosRequest,
-            @RequestPart("imageFile") MultipartFile imageFile,
+            @ModelAttribute CreateMentosRequest createMentosRequest,
             @RequestHeader(value = "Idem-Key") String idemKey) throws IOException {
 
         log.info("[MentosController.createMentos]");
@@ -99,8 +98,8 @@ public class MentosController {
         }
 
         Long currentMemberSeq = member.getMemberSeq();
-        mentosService.createMentos(currentMemberSeq, createMentosRequest, imageFile, idemKey);
+        mentosService.createMentos(currentMemberSeq, createMentosRequest, idemKey);
 
-        return new BaseResponse<>(SUCCESS, null);
+        return new BaseResponse<>(null);
     }
 }
