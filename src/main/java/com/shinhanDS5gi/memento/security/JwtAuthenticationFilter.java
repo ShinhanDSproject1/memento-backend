@@ -1,6 +1,5 @@
 package com.shinhanDS5gi.memento.security;
 
-import com.shinhanDS5gi.memento.service.UserDetailsServiceImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
