@@ -43,6 +43,12 @@ toss:
   secret-key: "test-toss-secret-key"
   api-host: https://api.tosspayments.com
 
+jwt:
+  same-site: "None"
+  secret: "this-is-a-very-long-and-secure-secret-key-for-test-purpose-only-12345"
+  accessTokenExpiration: 3600000
+  refreshTokenExpiration: 604800000
+
 app:
   url:
     success: http://localhost:3000/payments/success
