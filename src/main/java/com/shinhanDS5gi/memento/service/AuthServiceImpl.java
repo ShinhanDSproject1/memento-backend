@@ -70,7 +70,6 @@ public class AuthServiceImpl implements AuthService {
                 .findByMemberIdAndMemberTypeAndStatus(id, pathType, ACTIVE)
                 .orElseThrow(() -> {
                     MemberType other = (pathType == MemberType.MENTI) ? MemberType.MENTO : MemberType.MENTI;
-
                     if (authRepository.findByMemberIdAndMemberTypeAndStatus(id, other, ACTIVE).isPresent()) {
                         //타입 불일치
                         return new AuthException(CANNOT_LOGIN);
@@ -82,7 +81,6 @@ public class AuthServiceImpl implements AuthService {
                     // inactive
                     return new AuthException(CANNOT_LOGIN);
                 });
-
         if (!passwordEncoder.matches(rawPwd, user.getMemberPwd())) {
             log.info("로그인 실패: 비밀번호 틀림 (id={}, type={})", id, user.getMemberType());
             throw new AuthException(INVALID_PASSWORD);
@@ -91,21 +89,18 @@ public class AuthServiceImpl implements AuthService {
     }
 
 
-
     /** 토큰 발급 cookie에 저장*/
     @Override
     @Transactional
     public Member issueTokens(MemberType type, LoginRequest req,
                               HttpServletResponse res, boolean secureCookie) {
-        Member m = login(type, req);  // 비번 검증 포함
+        Member m = login(type, req);
         String sub = m.getMemberId();
         //AT,RT 발급
         String at = jwtTokenUtil.createAccessToken(sub, 0, m.getMemberType().name());
         String rt = jwtTokenUtil.createRefreshToken(sub, 0);
 
-
         RedisTemplate.opsForValue().set(jwtTokenUtil.rtKey(sub), rt, Duration.ofMillis(refreshExpMs));
-
         jwtTokenUtil.setCookie(res, AT, at, Duration.ofMillis(accessExpMs),  secureCookie);
         jwtTokenUtil.setCookie(res, RT, rt, Duration.ofMillis(refreshExpMs), secureCookie);
 
@@ -128,13 +123,6 @@ public class AuthServiceImpl implements AuthService {
         if (saved == null || !saved.equals(rt)) {
             throw new AuthException(INVALID_REFRESH_TOKEN);
         }
-        //기존 AT 블랙리스트 등록
-        if (jwtTokenUtil.validate(rt)) {
-            long ttl = jwtTokenUtil.remainingMs(rt);
-            if (ttl > 0) {
-                RedisTemplate.opsForValue().set(jwtTokenUtil.atblkKey(jwtTokenUtil.getJti(rt)), "1", Duration.ofMillis(ttl));
-            }
-        }
         // DB에서 멤버 타입 조회
         Member m = authRepository.findByMemberId(sub)
                 .orElseThrow(() -> new MemberException(CANNOT_FOUND_MEMBER));
@@ -145,6 +133,11 @@ public class AuthServiceImpl implements AuthService {
 
     }
 
+    /** 로그아웃*/
+    @Override
+    public void logout(HttpServletRequest req, HttpServletResponse res, boolean secureCookie) {
+        cleanupTokensAndCookies(req, res, secureCookie);
+    }
 
     /** RT제거 AT블랙리스트 */
     @Override
@@ -169,9 +162,4 @@ public class AuthServiceImpl implements AuthService {
     }
 
 
-    /** 로그아웃*/
-    @Override
-    public void logout(HttpServletRequest req, HttpServletResponse res, boolean secureCookie) {
-        cleanupTokensAndCookies(req, res, secureCookie);
-    }
 }
