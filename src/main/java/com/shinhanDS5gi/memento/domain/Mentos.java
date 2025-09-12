@@ -28,7 +28,8 @@ public class Mentos extends BaseTime {
     @Column(nullable = false)
     private String mentosTitle;
 
-    @Column(nullable = false)
+    @Lob
+    @Column(name = "mentos_content", columnDefinition = "MEDIUMTEXT", nullable = false)
     private String mentosContent;
 
     @Column(nullable = false)
