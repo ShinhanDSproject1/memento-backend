@@ -20,6 +20,7 @@ import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionRespo
 import static com.shinhanDS5gi.memento.domain.base.BaseStatus.ACTIVE;
 
 import java.time.Duration;
+import java.util.Map;
 
 
 @Slf4j
@@ -92,19 +93,18 @@ public class AuthServiceImpl implements AuthService {
     /** 토큰 발급 cookie에 저장*/
     @Override
     @Transactional
-    public Member issueTokens(MemberType type, LoginRequest req,
-                              HttpServletResponse res, boolean secureCookie) {
+    public Map<String, Object> issueTokens(MemberType type, LoginRequest req) {
         Member m = login(type, req);
         String sub = m.getMemberId();
         //AT,RT 발급
         String at = jwtTokenUtil.createAccessToken(sub, 0, m.getMemberType().name());
         String rt = jwtTokenUtil.createRefreshToken(sub, 0);
-
-        RedisTemplate.opsForValue().set(jwtTokenUtil.rtKey(sub), rt, Duration.ofMillis(refreshExpMs));
-        jwtTokenUtil.setCookie(res, AT, at, Duration.ofMillis(accessExpMs),  secureCookie);
-        jwtTokenUtil.setCookie(res, RT, rt, Duration.ofMillis(refreshExpMs), secureCookie);
-
-        return m;
+        RedisTemplate.opsForValue().set(jwtTokenUtil.rtKey(sub), RT, Duration.ofMillis(refreshExpMs));
+        return Map.of(
+                "member", m,
+                "accessToken", at,
+                "refreshToken", rt
+        );
     }
 
     /** 재발급 (AT 토큰이 만료 됨 ->AT 재발급해줌) */

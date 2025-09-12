@@ -36,8 +36,8 @@ public class ReservationServiceImpl implements ReservationService {
 
     // 예약 가능한 시간 조회하기
     @Override
-    public GetAvailableDateResponse getAvailableTime(Long mentosSeq, Long memberSeq, String selectedDate) {
-        log.info("[ReservationServiceImpl.getAvailableTime]");
+    public GetAvailableDateResponse getAvailableTime(Long mentosSeq, String selectedDate) {
+        log.info("[ReservationService.getAvailableTime] mentosSeq: {}, selectedDate: {}", mentosSeq, selectedDate);
 
         // 입력 파싱
         final LocalDate date = LocalDate.parse(selectedDate, ISO_DATE);
@@ -97,8 +97,8 @@ public class ReservationServiceImpl implements ReservationService {
     /* 예약 하기 */
     @Transactional
     @Override
-    public void makeReservation(Long memberSeq, CreateReservationRequest createReservationRequest) {
-        log.info("[ReservationServiceImpl.makeReservation]");
+    public void makeReservation(Long currentMemberSeq, CreateReservationRequest createReservationRequest) {
+        log.info("[ReservationService.makeReservation] memberSeq: {}", currentMemberSeq);
         Long mentosSeq = createReservationRequest.getMentosSeq();
         LocalDate mentosAt = LocalDate.parse(createReservationRequest.getMentosAt());
         LocalTime mentosTime = LocalTime.parse(createReservationRequest.getMentosTime());
@@ -113,7 +113,7 @@ public class ReservationServiceImpl implements ReservationService {
         }
 
         // redis 에 hold 하기 (예약 하기)
-        if(!seatHoldService.holdSlot(mentosSeq, mentosAt, mentosTime, String.valueOf(memberSeq))){
+        if(!seatHoldService.holdSlot(mentosSeq, mentosAt, mentosTime, String.valueOf(currentMemberSeq))){
             throw new ReservationException(FAILURE_CREATE_RESERVATION);
         }
     }

@@ -1,9 +1,11 @@
 package com.shinhanDS5gi.memento.config;
 
 import com.shinhanDS5gi.memento.security.JwtAuthenticationFilter;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -36,19 +38,31 @@ public class SecurityConfig {
 
                 // 요청 경로별 접근 권한 설정
                 .authorizeHttpRequests(auth -> auth
-                        // 로그인, 토큰 갱신, 로그아웃 허용
-                        .requestMatchers("/auth/login/**", "/auth/refresh", "/auth/logout").permitAll()
-
-                        // 기존 develop 쪽 설정(헬스 체크 등)
-                        .requestMatchers("/", "/actuator/health").permitAll()
-                        .requestMatchers("/api/**").permitAll() // 필요 시 수정 가능
-
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers("/api/auth/login/**", "/api/auth/refresh", "/api/auth/logout").permitAll()
                         // 나머지는 인증 필요
                         .anyRequest().authenticated()
                 )
 
+                // 인증 실패/인가 실패 응답 정리(401/403 바디)
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((req, res, e) -> { // 401
+                            res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            res.setContentType("application/json;charset=UTF-8");
+                            res.getWriter().write(
+                                    "{\"code\":2001,\"status\":401,\"message\":\"인증 필요 또는 토큰 만료\",\"result\":null}"
+                            );
+                        })
+                        .accessDeniedHandler((req, res, e) -> { // 403
+                            res.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                            res.setContentType("application/json;charset=UTF-8");
+                            res.getWriter().write(
+                                    "{\"code\":2003,\"status\":403,\"message\":\"접근 권한이 없습니다\",\"result\":null}"
+                            );
+                        })
+                );
                 // JWT 필터를 UsernamePasswordAuthenticationFilter 앞에 추가
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
