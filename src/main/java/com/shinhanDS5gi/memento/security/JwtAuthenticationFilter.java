@@ -1,5 +1,6 @@
 package com.shinhanDS5gi.memento.security;
 
+import com.shinhanDS5gi.memento.service.UserDetailsServiceImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -11,12 +12,12 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.List;
 
 @Slf4j
 @Component
@@ -24,53 +25,59 @@ import java.util.List;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenUtil jwtTokenUtil;
-    private final StringRedisTemplate RedisTemplate;
+    private final StringRedisTemplate redisTemplate; // 변수명 컨벤션 수정 (RedisTemplate -> redisTemplate)
+    private final UserDetailsServiceImpl userDetailsService;
 
-    //AT 토큰 찾아서 읽기
+    // AT 토큰 찾아서 읽기 (Bearer 토큰 우선)
     private String readAccessToken(HttpServletRequest req) {
+        // Postman 등 외부 도구를 위해 HTTP 헤더의 Authorization을 먼저 확인
+        String h = req.getHeader(HttpHeaders.AUTHORIZATION);
+        if (h != null && h.startsWith("Bearer ")) {
+            return h.substring(7);
+        }
+
+        // 헤더에 토큰이 없으면, 웹 브라우저를 위해 쿠키를 확인
         if (req.getCookies() != null) {
             for (Cookie c : req.getCookies()) {
-                if ("AT".equals(c.getName())) return c.getValue();
+                if ("AT".equals(c.getName())) {
+                    return c.getValue();
+                }
             }
         }
-        //쿠키가 없으면 HTTP 헤더 Authorization 확인
-        String h = req.getHeader(HttpHeaders.AUTHORIZATION);
-        if (h != null && h.startsWith("Bearer ")) return h.substring(7);
         return null;
     }
 
-    //매 요청마다 JWT 인증을 수행하고, 유효하면 SecurityContext에 인증 객체 넣음-> 로그인 후 사용가능하게 함
     @Override
-    protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
+    protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain fc)
             throws ServletException, IOException {
-        String uri = req.getServletPath();
-        if (uri.startsWith("/auth/login") || uri.startsWith("/auth/refresh") || uri.startsWith("/auth/logout")) {
-            chain.doFilter(req, res);
-            return;
-        }
-        //토큰 검증 + 인증 세팅
         try {
-            String h = req.getHeader(HttpHeaders.AUTHORIZATION);
-            if (h != null && h.startsWith("Bearer ")) {
-                String at = h.substring(7);
-                if (jwtTokenUtil.validate(at)) {
-                    // 블랙리스트 체크
-                    String jti = jwtTokenUtil.getJti(at);
-                    String blocked = RedisTemplate.opsForValue().get(jwtTokenUtil.atblkKey(jti));
-                    if (blocked == null) {
-                        var auth = new UsernamePasswordAuthenticationToken(
-                                jwtTokenUtil.getSubject(at), null, List.of()
-                        );
-                        auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
-                        SecurityContextHolder.getContext().setAuthentication(auth);
-                    }
+            // 1. Bearer 토큰 또는 쿠키에서 Access Token을 읽어옴
+            String token = readAccessToken(req);
+
+            // 2. 토큰이 유효한지 검증
+            if (token != null && jwtTokenUtil.validate(token)) {
+                // 3. 로그아웃(블랙리스트)된 토큰인지 확인
+                String jti = jwtTokenUtil.getJti(token);
+                String black = redisTemplate.opsForValue().get(jwtTokenUtil.atblkKey(jti));
+
+                if (black == null) {
+                    // 4. UserDetailsServiceImpl을 통해 Member 정보가 담긴 UserDetails 객체를 가져옴
+                    String username = jwtTokenUtil.getSubject(token);
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
+                    // 5. 인증 객체를 생성하여 SecurityContext에 저장 (@CurrentUser가 작동하도록 함)
+                    UsernamePasswordAuthenticationToken auth =
+                            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                    auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
+                    SecurityContextHolder.getContext().setAuthentication(auth);
                 }
             }
-        } catch (Exception e) {
-            // at 확인 불가 SecurityContext 초기화
+        } catch (Exception ex) {
+            log.warn("JWT filter error: {}", ex.toString());
             SecurityContextHolder.clearContext();
-            log.debug("JWT filter error", e);
         }
-        chain.doFilter(req, res);
+
+        // 다음 필터로 요청을 전달
+        fc.doFilter(req, res);
     }
 }
