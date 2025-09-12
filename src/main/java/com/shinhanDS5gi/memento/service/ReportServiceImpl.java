@@ -13,11 +13,13 @@ import com.shinhanDS5gi.memento.domain.report.ReportHandleStatus;
 import com.shinhanDS5gi.memento.dto.admin.CreateReportRequest;
 import com.shinhanDS5gi.memento.dto.admin.SelectReportDetailResponse;
 import com.shinhanDS5gi.memento.dto.admin.SelectReportResponse;
+import com.shinhanDS5gi.memento.dto.admin.SelectReportSliceResponse;
 import com.shinhanDS5gi.memento.repository.member.MemberRepository;
 import com.shinhanDS5gi.memento.repository.ReportRepository;
 import com.shinhanDS5gi.memento.repository.mentos.MentosRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -114,12 +116,35 @@ public class ReportServiceImpl implements ReportService {
 
     /* 모든 신고 내역 조회 */
     @Override
-    public List<SelectReportResponse> findAllReports() {
-        List<Report> reports = reportRepository.findAllWithMemberAndMentos(ReportHandleStatus.PENDING);
+    public SelectReportSliceResponse<SelectReportResponse> findAllReports(Long cursor, int limit) {
+        // 첫 페이지 요청 시 cursor 초기화
+        Long currentCursor = (cursor == null) ? Long.MAX_VALUE : cursor;
 
-        return reports.stream()
+        // 다음 페이지 존재 여부 확인을 위해 limit + 1개 조회
+        PageRequest pageable = PageRequest.of(0, limit + 1);
+        List<Report> reports = reportRepository.findReportsAfterCursor(currentCursor, ReportHandleStatus.PENDING, pageable);
+
+        // 다음 페이지 존재하는가?
+        boolean hasNext = reports.size() > limit;
+
+        // hasNext가 true이면 마지막 데이터(limit+1) 제거
+        if (hasNext) {
+            reports.remove(limit);
+        }
+
+        // DTO 변환
+        List<SelectReportResponse> content = reports.stream()
                 .map(SelectReportResponse::from)
                 .collect(Collectors.toList());
+
+        // 마지막 조회 데이터의 reportSeq를 다음 커서로 설정
+        Long nextCursor = content.isEmpty() ? null : content.get(content.size() - 1).getReportSeq();
+
+        return SelectReportSliceResponse.<SelectReportResponse>builder()
+                .content(content)
+                .nextCursor(nextCursor)
+                .hasNext(hasNext)
+                .build();
     }
 
     /* 특정 신고 내역 상세 조회 */

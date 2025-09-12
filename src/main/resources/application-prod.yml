@@ -1,0 +1,17 @@
+# 배포 환경에서 사용될 설정 (SPRING_PROFILES_ACTIVE=prod)
+server:
+  port: 8080
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://mysql:3306/memento?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+  data:
+    redis:
+      host: redis
+      port: 6379
+    mongodb:
+      host: mongodb
+      # database 이름 등은 docker-compose.yml에서 환경변수로 주입

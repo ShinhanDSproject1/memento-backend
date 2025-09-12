@@ -24,8 +24,6 @@ public class Category extends BaseTime {
 
     @Column(nullable = false)
     private String categoryName;
-    @Column(nullable = false)
-    private String categoryDescription;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
