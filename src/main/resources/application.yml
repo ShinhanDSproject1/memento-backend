@@ -50,6 +50,6 @@ app:
 
 jwt:
   same-site: None
-  secret: ${JWT_SECRET}
+  secret: ${JWT_SECRET_KEY}
   accessTokenExpiration: 7200000 # 2시간 (ms)
   refreshTokenExpiration: 1209600000  # 14일 (ms)
