@@ -66,6 +66,11 @@ dependencies {
         exclude group: 'org.springframework.boot', module: 'spring-boot-starter-reactor-netty'
     }
 
+    // JWT 생성 및 검증
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.5'
+
     // 배포용
     // H2 드라이버 사용
     runtimeOnly 'com.h2database:h2'
