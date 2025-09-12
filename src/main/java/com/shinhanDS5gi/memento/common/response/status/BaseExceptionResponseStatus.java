@@ -12,6 +12,7 @@ public enum BaseExceptionResponseStatus implements ResponseStatus{
     SUCCESS(1000,HttpStatus.OK.value(), "요청에 성공하였습니다."),
     FAILURE(2000, HttpStatus.BAD_REQUEST.value(), "요청에 실패하였습니다."),
     ALREADY_SUCCESS_REQUEST(1100, HttpStatus.OK.value(), "동일한 요청이 이미 처리되었습니다."),
+    FORBIDDEN_ACCESS(1200, HttpStatus.FORBIDDEN.value(), "권한이 없습니다."),
 
     /**
      * Mentos 관련 2500대
@@ -51,6 +52,7 @@ public enum BaseExceptionResponseStatus implements ResponseStatus{
     PAYMENT_FAILED(6000, HttpStatus.BAD_REQUEST.value(), "결제에 실패했습니다."),
     REFUND_FAILED(6001, HttpStatus.BAD_REQUEST.value(), "환불에 실패했습니다."),
     PAYMENT_NOT_FOUND(6002, HttpStatus.BAD_REQUEST.value(), "결제내역을 찾을 수 없습니다."),
+
     /**
      * Category 관련 7000대
      */

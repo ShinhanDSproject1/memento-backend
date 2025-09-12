@@ -14,12 +14,12 @@ public interface PaymentService {
     PaymentRequest init(Long memberSeq, ReservationConfirmedRequest req);
 
     //토스 성공 리다이렉트 처리 (confirm 호출 + DB 저장)
-    PaymentResponse confirm(Long memberSeq, String paymentKey, String orderId, long amount, ReservationConfirmedRequest req);
+    PaymentResponse confirm(String paymentKey, String orderId, long amount);
 
     //결제 실패 리다이렉트 처리
     void fail(String code, String message, String orderId);
 
     /* 환불하기 */
-    void refundFull(Long paymentSeq, String reason);
+    void refundFull(Long currentMemberSeq, Long paymentSeq, String reason);
 }
 

@@ -2,12 +2,14 @@ package com.shinhanDS5gi.memento.controller;
 
 import com.shinhanDS5gi.memento.common.exception.MentosException;
 import com.shinhanDS5gi.memento.common.response.BaseResponse;
+import com.shinhanDS5gi.memento.domain.member.Member;
 import com.shinhanDS5gi.memento.dto.mentos.MyMentosResponse;
 import com.shinhanDS5gi.memento.dto.mentos.MyMentosSliceResponse;
 import com.shinhanDS5gi.memento.dto.mentos.UpdateMentosRequest;
 import com.shinhanDS5gi.memento.dto.mentos.CreateMentosRequest;
 import com.shinhanDS5gi.memento.dto.mentos.GetMentosDetailResponse;
 import com.shinhanDS5gi.memento.dto.mentos.GetMentosListResponse;
+import com.shinhanDS5gi.memento.security.CurrentUser;
 import com.shinhanDS5gi.memento.service.MentosService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,10 +33,11 @@ public class MentosController {
     /* 나의 멘토스 목록 조회 (멘토) */
     @GetMapping("/my-list")
     public BaseResponse<MyMentosSliceResponse<MyMentosResponse>> getMyMentos(
+            @CurrentUser Member member,
             @RequestParam(defaultValue = "5") int limit,
             @RequestParam(required = false) Long cursor
     ) {
-        Long currentMemberSeq = 1L; // 임시 사용자 ID
+        Long currentMemberSeq = member.getMemberSeq();
         MyMentosSliceResponse<MyMentosResponse> myMentos = mentosService.getMyMentosSlice(currentMemberSeq, cursor, limit);
         return new BaseResponse<>(SUCCESS, myMentos);
     }
@@ -42,19 +45,22 @@ public class MentosController {
     /* 멘토스 게시글 수정 */
     @PutMapping(value = "/{mentosSeq}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public BaseResponse<Void> updateMentos(
+            @CurrentUser Member member,
             @PathVariable("mentosSeq") Long mentosSeq,
             @RequestPart("requestDto") UpdateMentosRequest requestDto,
             @RequestPart(value = "imageFile", required = false) MultipartFile imageFile) throws IOException {
 
-        Long currentMemberSeq = 1L;
+        Long currentMemberSeq = member.getMemberSeq();
         mentosService.updateMentos(mentosSeq, currentMemberSeq, requestDto, imageFile);
         return new BaseResponse<>(SUCCESS, null);
     }
 
     /* 멘토스 게시글 삭제 (비활성화) */
     @PatchMapping("/{mentosSeq}")
-    public BaseResponse<Void> inactiveMentos(@PathVariable("mentosSeq") Long mentosSeq) {
-        Long currentMemberSeq = 1L;
+    public BaseResponse<Void> inactiveMentos(
+            @CurrentUser Member member,
+            @PathVariable("mentosSeq") Long mentosSeq) {
+        Long currentMemberSeq = member.getMemberSeq();
         mentosService.inactiveMentos(mentosSeq, currentMemberSeq);
 
         return new BaseResponse<>(SUCCESS, null);
@@ -80,6 +86,7 @@ public class MentosController {
     /* 멘토스 생성하기 */
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public BaseResponse<Void> createMentos(
+            @CurrentUser Member member,
             @RequestPart("requestDto") CreateMentosRequest createMentosRequest,
             @RequestPart("imageFile") MultipartFile imageFile,
             @RequestHeader(value = "Idem-Key") String idemKey) throws IOException {
@@ -91,7 +98,7 @@ public class MentosController {
             throw new MentosException(CANNOT_CREATE_MENTOS);
         }
 
-        Long currentMemberSeq = 1L; // 임시 사용자 ID
+        Long currentMemberSeq = member.getMemberSeq();
         mentosService.createMentos(currentMemberSeq, createMentosRequest, imageFile, idemKey);
 
         return new BaseResponse<>(SUCCESS, null);

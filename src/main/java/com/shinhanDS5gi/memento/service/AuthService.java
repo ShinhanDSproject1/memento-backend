@@ -6,11 +6,12 @@ import com.shinhanDS5gi.memento.dto.auth.LoginRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import java.util.Map;
+
 public interface AuthService {
 
     // 로그인 & 토큰 쿠키에(AT,RT) 발급
-    Member issueTokens(MemberType type, LoginRequest req,
-                       HttpServletResponse res, boolean secureCookie);
+    Map<String, Object> issueTokens(MemberType type, LoginRequest request);
 
     // RT으로 AT 토큰 재발급
     void refresh(HttpServletRequest req, HttpServletResponse res, boolean secureCookie);

@@ -37,7 +37,7 @@ public class JwtTokenUtil {
                 .secure(secure)
                 .sameSite(sameSite)
                 .path("/")
-                .maxAge(maxAge)
+                .maxAge(maxAge.getSeconds())
                 .build();
         res.addHeader(HttpHeaders.SET_COOKIE, c.toString());
     }

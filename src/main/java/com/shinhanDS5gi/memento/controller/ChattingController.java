@@ -1,22 +1,20 @@
 package com.shinhanDS5gi.memento.controller;
 
 import com.shinhanDS5gi.memento.common.response.BaseResponse;
+import com.shinhanDS5gi.memento.domain.member.Member;
 import com.shinhanDS5gi.memento.dto.chat.ChattingMessageRequest;
 import com.shinhanDS5gi.memento.dto.chat.ChattingMessageResponse;
 import com.shinhanDS5gi.memento.dto.chat.ChattingRoomDetailResponse;
+import com.shinhanDS5gi.memento.security.CurrentUser;
 import com.shinhanDS5gi.memento.service.ChattingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus.SUCCESS;
 
-@Controller
+@RestController
 @RequiredArgsConstructor
 public class ChattingController {
 
@@ -37,8 +35,9 @@ public class ChattingController {
     /* 채팅방 상세 정보와 이전 대화 내역 조회 */
     @GetMapping("/chat/rooms/{chattingRoomSeq}/messages")
     @ResponseBody
-    public BaseResponse<ChattingRoomDetailResponse> getChattingRoomDetails(@PathVariable Long chattingRoomSeq) {
-        Long currentMemberSeq = 1L; // 임시 사용자 ID (실제로는 SecurityContext에서 가져와야 함)
+    public BaseResponse<ChattingRoomDetailResponse> getChattingRoomDetails( @CurrentUser Member member,
+                                                                            @PathVariable Long chattingRoomSeq) {
+        Long currentMemberSeq = member.getMemberSeq();
         ChattingRoomDetailResponse details = chattingService.getChattingRoomDetails(chattingRoomSeq, currentMemberSeq);
         return new BaseResponse<>(SUCCESS, details);
     }
@@ -46,8 +45,8 @@ public class ChattingController {
     /* 특정 채팅방 메시지 모두 읽음 처리 (채팅방 입장 시점) */
     @PatchMapping("/chat/rooms/{chattingRoomSeq}/read")
     @ResponseBody
-    public BaseResponse<Void> markAsRead(@PathVariable Long chattingRoomSeq) {
-        Long currentMemberSeq = 1L;
+    public BaseResponse<Void> markAsRead(@CurrentUser Member member, @PathVariable Long chattingRoomSeq) {
+        Long currentMemberSeq = member.getMemberSeq();
         chattingService.markAsRead(chattingRoomSeq, currentMemberSeq);
         return new BaseResponse<>(SUCCESS, null);
     }
