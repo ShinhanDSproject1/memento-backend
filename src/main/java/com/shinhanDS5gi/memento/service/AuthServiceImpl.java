@@ -46,19 +46,16 @@ public class AuthServiceImpl implements AuthService {
     /** 로그인 */
     @Override
     public Member login(MemberType pathType, LoginRequest req) {
+
         final String id = req.getMemberId();
         final String rawPwd = req.getMemberPwd();
 
-        // 1) ADMIN 로그인은 ADMIN + ACTIVE
-        if (pathType == MemberType.ADMIN) {
-            Member admin = authRepository
-                    .findByMemberIdAndMemberTypeAndStatus(id, MemberType.ADMIN, ACTIVE)
-                    .orElseThrow(() -> {
-                        // 아이디 자체가 없으면 INVALID_MEMBER_ID, 있으면 타입/상태 문제
-                        return authRepository.findByMemberId(id).isEmpty()
-                                ? new AuthException(INVALID_MEMBER_ID)
-                                : new AuthException(CANNOT_LOGIN);
-                    });
+        // 1) 아이디로 먼저 조회 → ADMIN이면 pathType 무시
+        Member admin = authRepository.findByMemberId(id)
+                .orElseThrow(() -> new AuthException(INVALID_MEMBER_ID));
+
+        if (admin.getMemberType() == MemberType.ADMIN) {
+            if (admin.getStatus() != ACTIVE) throw new AuthException(CANNOT_LOGIN);
             if (!passwordEncoder.matches(rawPwd, admin.getMemberPwd())) {
                 log.info("로그인 실패: 비밀번호 틀림 (id={}, type=ADMIN)", id);
                 throw new AuthException(INVALID_PASSWORD);
