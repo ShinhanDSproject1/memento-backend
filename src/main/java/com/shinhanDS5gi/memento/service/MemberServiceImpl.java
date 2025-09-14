@@ -124,13 +124,16 @@ public class MemberServiceImpl implements MemberService {
         Member savedMember = memberRepository.save(member);
 
         // 4) 자격증 저장
-        if (req.getCertificationName() != null && !req.getCertificationName().isBlank()) {
+        boolean hasName = req.getCertificationName() != null && !req.getCertificationName().isBlank();
+        boolean hasFile = certImage != null && !certImage.isEmpty();
+
+        if (hasName && hasFile) {
             CreateMentoCertificationRequest certReq = CreateMentoCertificationRequest.builder()
                     .name(req.getCertificationName())
                     .build();
             mentoCertificationService.createMentoCertification(member.getMemberSeq(), certReq, certImage, idemKey);
             log.info("[signupMento] 자격증 등록 완료: {}", req.getCertificationName());
-        } else {
+        } else if (!hasName && !hasFile) {
             log.info("[signupMento] 자격증 없이 가입 완료");
         }
 

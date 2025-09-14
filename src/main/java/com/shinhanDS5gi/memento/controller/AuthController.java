@@ -68,6 +68,10 @@ public class AuthController {
             @RequestPart(value = "imageFile", required = false) MultipartFile certImage,
             @RequestHeader("Idem-Key") String IdemKey
     ) throws IOException {
+
+        boolean hasName = requestDto.getCertificationName() != null
+                && !requestDto.getCertificationName().isBlank();
+        boolean hasFile = (certImage != null && !certImage.isEmpty());
         memberService.signupMento(requestDto, certImage, IdemKey);
         return new BaseResponse<>(SUCCESS, null);
     }
