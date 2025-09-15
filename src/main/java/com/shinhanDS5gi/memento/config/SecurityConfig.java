@@ -38,6 +38,9 @@ public class SecurityConfig {
                         // 로그인, 회원가입, 토큰 갱신 등 인증 API 허용
                         .requestMatchers("/api/auth/**").permitAll()
 
+                        //결제하기 api 허용
+                        .requestMatchers("/test-pay.html", "/api/payments/success","/api/payments/fail").permitAll()
+
                         // 누구나 볼 수 있는 공개 API들 허용
                         .requestMatchers(HttpMethod.GET,
                                 "/api/mentos/category/**",   // 카테고리별 멘토스 목록 조회

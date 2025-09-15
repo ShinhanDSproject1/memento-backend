@@ -32,7 +32,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private String readAccessToken(HttpServletRequest req) {
         // Postman 등 외부 도구를 위해 HTTP 헤더의 Authorization을 먼저 확인
         String h = req.getHeader(HttpHeaders.AUTHORIZATION);
-        if (h != null && h.startsWith("Bearer ")) {
+        if (h != null && h.startsWith("Bearer")) {
             return h.substring(7);
         }
 
