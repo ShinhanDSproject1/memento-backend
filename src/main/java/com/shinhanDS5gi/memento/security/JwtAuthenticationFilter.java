@@ -1,18 +1,23 @@
 package com.shinhanDS5gi.memento.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.shinhanDS5gi.memento.common.response.BaseResponse;
+import com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus;
 import com.shinhanDS5gi.memento.service.UserDetailsServiceImpl;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -25,59 +30,72 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenUtil jwtTokenUtil;
-    private final StringRedisTemplate redisTemplate; // 변수명 컨벤션 수정 (RedisTemplate -> redisTemplate)
+    private final StringRedisTemplate redisTemplate;
     private final UserDetailsServiceImpl userDetailsService;
-
-    // AT 토큰 찾아서 읽기 (Bearer 토큰 우선)
-    private String readAccessToken(HttpServletRequest req) {
-        // Postman 등 외부 도구를 위해 HTTP 헤더의 Authorization을 먼저 확인
-        String h = req.getHeader(HttpHeaders.AUTHORIZATION);
-        if (h != null && h.startsWith("Bearer")) {
-            return h.substring(7);
-        }
-
-        // 헤더에 토큰이 없으면, 웹 브라우저를 위해 쿠키를 확인
-        if (req.getCookies() != null) {
-            for (Cookie c : req.getCookies()) {
-                if ("AT".equals(c.getName())) {
-                    return c.getValue();
-                }
-            }
-        }
-        return null;
-    }
+    private final ObjectMapper objectMapper;
 
     @Override
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain fc)
             throws ServletException, IOException {
-        try {
-            // 1. Bearer 토큰 또는 쿠키에서 Access Token을 읽어옴
-            String token = readAccessToken(req);
 
-            // 2. 토큰이 유효한지 검증
-            if (token != null && jwtTokenUtil.validate(token)) {
-                // 3. 로그아웃(블랙리스트)된 토큰인지 확인
-                String jti = jwtTokenUtil.getJti(token);
-                String black = redisTemplate.opsForValue().get(jwtTokenUtil.atblkKey(jti));
+        log.info("Authorization Header from request: {}", req.getHeader("Authorization"));
 
-                if (black == null) {
-                    // 4. UserDetailsServiceImpl을 통해 Member 정보가 담긴 UserDetails 객체를 가져옴
-                    String username = jwtTokenUtil.getSubject(token);
-                    UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        String token = readAccessToken(req);
 
-                    // 5. 인증 객체를 생성하여 SecurityContext에 저장 (@CurrentUser가 작동하도록 함)
-                    UsernamePasswordAuthenticationToken auth =
-                            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                    auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
-                    SecurityContextHolder.getContext().setAuthentication(auth);
-                }
-            }
-        } catch (Exception ex) {
-            log.warn("JWT filter error: {}", ex.toString());
-            SecurityContextHolder.clearContext();
+        if (token == null) {
+            fc.doFilter(req, res);
+            return;
         }
 
-        // 다음 필터로 요청을 전달
-        fc.doFilter(req, res);
+        try {
+            // claims()를 한 번만 호출
+            Claims claims = jwtTokenUtil.claims(token);
+
+            // 반환된 claims 객체에서 직접 값을 꺼내 사용
+            String jti = claims.getId();
+            String username = claims.getSubject();
+
+            String black = redisTemplate.opsForValue().get(jwtTokenUtil.atblkKey(jti));
+            if (black != null) {
+                throw new JwtException("로그아웃된 토큰입니다.");
+            }
+
+            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
+            UsernamePasswordAuthenticationToken auth =
+                    new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+            auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
+            SecurityContextHolder.getContext().setAuthentication(auth);
+
+            fc.doFilter(req, res);
+
+        } catch (UsernameNotFoundException e) {
+            // 토큰은 유효하나 DB에 유저 정보가 없는 경우
+            log.warn("User not found from token: {}", e.getMessage());
+            setErrorResponse(res, BaseExceptionResponseStatus.CANNOT_FOUND_MEMBER);
+        } catch (JwtException | IllegalArgumentException e) {
+            // 토큰이 유효하지 않은 모든 경우 (만료, 형식 오류, 로그아웃된 토큰 등)
+            log.warn("Invalid JWT: {}", e.getMessage());
+            setErrorResponse(res, BaseExceptionResponseStatus.INVALID_TOKEN);
+        }
+    }
+
+    private String readAccessToken(HttpServletRequest request) {
+        String header = request.getHeader("Authorization");
+        if (header != null && header.startsWith("Bearer ")) {
+            return header.substring(7);
+        }
+        return null;
+    }
+
+    /* BaseExceptionResponseStatus를 사용하여 일관된 에러 응답 생성 */
+    private void setErrorResponse(HttpServletResponse response, BaseExceptionResponseStatus status) throws IOException {
+        response.setStatus(status.getStatus());
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setCharacterEncoding("UTF-8");
+
+        // BaseResponse 또는 직접 Map을 생성하여 JSON 응답 포맷을 맞춤
+        BaseResponse<Void> baseResponse = new BaseResponse<>(status, null);
+        response.getWriter().write(objectMapper.writeValueAsString(baseResponse));
     }
 }

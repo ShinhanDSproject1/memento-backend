@@ -2,12 +2,13 @@ package com.shinhanDS5gi.memento.service;
 
 import com.shinhanDS5gi.memento.common.exception.AuthException;
 import com.shinhanDS5gi.memento.common.exception.MemberException;
-import com.shinhanDS5gi.memento.dto.auth.AccessTokenResponse;
 import com.shinhanDS5gi.memento.security.JwtTokenUtil;
 import com.shinhanDS5gi.memento.domain.member.Member;
 import com.shinhanDS5gi.memento.domain.member.MemberType;
 import com.shinhanDS5gi.memento.dto.auth.LoginRequest;
 import com.shinhanDS5gi.memento.repository.AuthRepository;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionRespo
 import static com.shinhanDS5gi.memento.domain.base.BaseStatus.ACTIVE;
 
 import java.time.Duration;
+import java.util.Date;
 import java.util.Map;
 
 
@@ -47,16 +49,19 @@ public class AuthServiceImpl implements AuthService {
     /** 로그인 */
     @Override
     public Member login(MemberType pathType, LoginRequest req) {
-
         final String id = req.getMemberId();
         final String rawPwd = req.getMemberPwd();
 
-        // 1) 아이디로 먼저 조회 → ADMIN이면 pathType 무시
-        Member admin = authRepository.findByMemberId(id)
-                .orElseThrow(() -> new AuthException(INVALID_MEMBER_ID));
-
-        if (admin.getMemberType() == MemberType.ADMIN) {
-            if (admin.getStatus() != ACTIVE) throw new AuthException(CANNOT_LOGIN);
+        // 1) ADMIN 로그인은 ADMIN + ACTIVE
+        if (pathType == MemberType.ADMIN) {
+            Member admin = authRepository
+                    .findByMemberIdAndMemberTypeAndStatus(id, MemberType.ADMIN, ACTIVE)
+                    .orElseThrow(() -> {
+                        // 아이디 자체가 없으면 INVALID_MEMBER_ID, 있으면 타입/상태 문제
+                        return authRepository.findByMemberId(id).isEmpty()
+                                ? new AuthException(INVALID_MEMBER_ID)
+                                : new AuthException(CANNOT_LOGIN);
+                    });
             if (!passwordEncoder.matches(rawPwd, admin.getMemberPwd())) {
                 log.info("로그인 실패: 비밀번호 틀림 (id={}, type=ADMIN)", id);
                 throw new AuthException(INVALID_PASSWORD);
@@ -97,7 +102,7 @@ public class AuthServiceImpl implements AuthService {
         //AT,RT 발급
         String at = jwtTokenUtil.createAccessToken(sub, 0, m.getMemberType().name());
         String rt = jwtTokenUtil.createRefreshToken(sub, 0);
-        RedisTemplate.opsForValue().set(jwtTokenUtil.rtKey(sub), rt, Duration.ofMillis(refreshExpMs));
+        RedisTemplate.opsForValue().set(jwtTokenUtil.rtKey(sub), RT, Duration.ofMillis(refreshExpMs));
         return Map.of(
                 "member", m,
                 "accessToken", at,
@@ -109,26 +114,34 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
 
-    public AccessTokenResponse refresh(HttpServletRequest req, HttpServletResponse res, boolean secureCookie) {
+    public void refresh(HttpServletRequest req, HttpServletResponse res, boolean secureCookie) {
         //cookie값 RT 검증
         String rt = jwtTokenUtil.readCookie(req, RT);
-        if (rt == null || !jwtTokenUtil.validate(rt)) {
+        if (rt == null) {
             throw new AuthException(INVALID_REFRESH_TOKEN);
         }
-        //Redis에서 RT 검증
-        String sub = jwtTokenUtil.getSubject(rt);
-        String saved = RedisTemplate.opsForValue().get(jwtTokenUtil.rtKey(sub));
-        if (saved == null || !saved.equals(rt)) {
+        try {
+            // getSubject() 호출 시 토큰 유효성 검증(파싱)이 자동으로 이루어집니다.
+            String sub = jwtTokenUtil.getSubject(rt);
+
+            // Redis에서 RT 검증
+            String saved = RedisTemplate.opsForValue().get(jwtTokenUtil.rtKey(sub));
+            if (saved == null || !saved.equals(rt)) {
+                throw new AuthException(INVALID_REFRESH_TOKEN);
+            }
+
+            // DB에서 멤버 타입 조회 및 새 AT 발급
+            Member m = authRepository.findByMemberId(sub)
+                    .orElseThrow(() -> new MemberException(CANNOT_FOUND_MEMBER));
+            String at = jwtTokenUtil.createAccessToken(sub, 0, m.getMemberType().name());
+
+            jwtTokenUtil.setCookie(res, AT, at, Duration.ofMillis(accessExpMs), secureCookie);
+
+        } catch (JwtException | IllegalArgumentException e) {
+            // 토큰 파싱/검증 실패 시 (만료, 형식 오류 등) 예외 처리
+            log.warn("Invalid Refresh Token: {}", e.getMessage());
             throw new AuthException(INVALID_REFRESH_TOKEN);
         }
-        // DB에서 멤버 타입 조회
-        Member m = authRepository.findByMemberId(sub)
-                .orElseThrow(() -> new MemberException(CANNOT_FOUND_MEMBER));
-        //새 AT 토큰 발급 + 저장/세팅
-        String at = jwtTokenUtil.createAccessToken(sub, 0, m.getMemberType().name());
-
-        return new AccessTokenResponse(at);
-
     }
 
     /** 로그아웃*/
@@ -140,24 +153,41 @@ public class AuthServiceImpl implements AuthService {
     /** RT제거 AT블랙리스트 */
     @Override
     public void cleanupTokensAndCookies(HttpServletRequest req, HttpServletResponse res, boolean secureCookie) {
-        //AT 쿠키가 있고 유효하면 남은 시간만큼 블랙리스트 키등록
+        // AT 쿠키 처리
         String at = jwtTokenUtil.readCookie(req, AT);
-        if (at != null && jwtTokenUtil.validate(at)) {
-            long ttl = jwtTokenUtil.remainingMs(at);
-            if (ttl > 0) {
-                RedisTemplate.opsForValue().set(jwtTokenUtil.atblkKey(jwtTokenUtil.getJti(at)), "1", Duration.ofMillis(ttl));
+        if (at != null) {
+            try {
+                // claims()를 한 번만 호출
+                Claims claims = jwtTokenUtil.claims(at);
+                Date expiration = claims.getExpiration();
+                long ttl = expiration.getTime() - System.currentTimeMillis();
+
+                if (ttl > 0) {
+                    // claims 객체에서 jti(id)를 직접 가져옴
+                    String jti = claims.getId();
+                    RedisTemplate.opsForValue().set(jwtTokenUtil.atblkKey(jti), "1", Duration.ofMillis(ttl));
+                }
+            } catch (JwtException | IllegalArgumentException e) {
+                log.warn("Invalid Access Token during logout: {}", e.getMessage());
             }
         }
-        //RT 쿠키가 있고 유효하면 Redis의 RT 저장값 삭제
+
+        // RT 쿠키 처리
         String rt = jwtTokenUtil.readCookie(req, RT);
-        if (rt != null && jwtTokenUtil.validate(rt)) {
-            String sub = jwtTokenUtil.getSubject(rt);
-            RedisTemplate.delete(jwtTokenUtil.rtKey(sub)); // 재발급 차단
+        if (rt != null) {
+            try {
+                // 토큰이 유효한 경우에만 Redis에서 RT 삭제
+                String sub = jwtTokenUtil.getSubject(rt);
+                RedisTemplate.delete(jwtTokenUtil.rtKey(sub));
+            } catch (JwtException | IllegalArgumentException e) {
+                // 유효하지 않은 RT는 무시하고 다음 로직으로 넘어감
+                log.warn("Invalid Refresh Token during logout: {}", e.getMessage());
+            }
         }
-        //브라우저에서 AT/RT 쿠키 제거
+
+        // 브라우저에서 AT/RT 쿠키 제거 (토큰 유효성과 상관없이 항상 실행)
         jwtTokenUtil.clearCookie(res, AT, secureCookie);
         jwtTokenUtil.clearCookie(res, RT, secureCookie);
     }
-
 
 }
