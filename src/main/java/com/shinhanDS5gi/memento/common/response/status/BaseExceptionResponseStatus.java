@@ -15,6 +15,12 @@ public enum BaseExceptionResponseStatus implements ResponseStatus{
     FORBIDDEN_ACCESS(1200, HttpStatus.FORBIDDEN.value(), "권한이 없습니다."),
 
     /**
+     * Security / Filter 관련
+     */
+    AUTHENTICATION_REQUIRED(2001, HttpStatus.UNAUTHORIZED.value(), "인증이 필요한 요청입니다."),
+    ACCESS_DENIED(2003, HttpStatus.FORBIDDEN.value(), "접근 권한이 없습니다."),
+
+    /**
      * Mentos 관련 2500대
      */
     CANNOT_FOUND_MENTOS(2500, HttpStatus.BAD_REQUEST.value(), "해당 멘토스 게시글을 찾을 수 없습니다."),
@@ -28,7 +34,7 @@ public enum BaseExceptionResponseStatus implements ResponseStatus{
     /**
      * Token 관련 3000대
      */
-    INVALID_TOKEN(3000, HttpStatus.OK.value(), "유효하지 않은 토큰입니다."),
+    INVALID_TOKEN(3000, HttpStatus.UNAUTHORIZED.value(), "유효하지 않은 토큰입니다."),
 
     /**
      * Member 관련 4000대

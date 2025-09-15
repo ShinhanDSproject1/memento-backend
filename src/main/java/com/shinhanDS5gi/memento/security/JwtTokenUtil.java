@@ -107,16 +107,6 @@ public class JwtTokenUtil {
                 .getPayload();
     }
 
-    //유효한 토큰 인지 확인
-    public boolean validate(String token) {
-        try {
-            claims(token);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
     //토큰이 만료 되었는지 확인
     public boolean isExpired(String token){
         return claims(token).getExpiration().before(new Date());

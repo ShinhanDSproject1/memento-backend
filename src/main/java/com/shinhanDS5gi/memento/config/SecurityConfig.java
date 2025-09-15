@@ -1,5 +1,8 @@
 package com.shinhanDS5gi.memento.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.shinhanDS5gi.memento.common.response.BaseResponse;
+import com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus;
 import com.shinhanDS5gi.memento.security.JwtAuthenticationFilter;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +22,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final ObjectMapper objectMapper;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -57,16 +61,14 @@ public class SecurityConfig {
                         .authenticationEntryPoint((req, res, e) -> { // 401
                             res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                             res.setContentType("application/json;charset=UTF-8");
-                            res.getWriter().write(
-                                    "{\"code\":2001,\"status\":401,\"message\":\"인증 필요 또는 토큰 만료\",\"result\":null}"
-                            );
+                            BaseResponse<Void> response = new BaseResponse<>(BaseExceptionResponseStatus.AUTHENTICATION_REQUIRED, null);
+                            res.getWriter().write(objectMapper.writeValueAsString(response));
                         })
                         .accessDeniedHandler((req, res, e) -> { // 403
                             res.setStatus(HttpServletResponse.SC_FORBIDDEN);
                             res.setContentType("application/json;charset=UTF-8");
-                            res.getWriter().write(
-                                    "{\"code\":2003,\"status\":403,\"message\":\"접근 권한이 없습니다\",\"result\":null}"
-                            );
+                            BaseResponse<Void> response = new BaseResponse<>(BaseExceptionResponseStatus.ACCESS_DENIED, null);
+                            res.getWriter().write(objectMapper.writeValueAsString(response));
                         })
                 );
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
