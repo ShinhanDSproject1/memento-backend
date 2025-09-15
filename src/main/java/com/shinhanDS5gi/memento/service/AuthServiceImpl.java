@@ -2,6 +2,7 @@ package com.shinhanDS5gi.memento.service;
 
 import com.shinhanDS5gi.memento.common.exception.AuthException;
 import com.shinhanDS5gi.memento.common.exception.MemberException;
+import com.shinhanDS5gi.memento.dto.auth.AccessTokenResponse;
 import com.shinhanDS5gi.memento.security.JwtTokenUtil;
 import com.shinhanDS5gi.memento.domain.member.Member;
 import com.shinhanDS5gi.memento.domain.member.MemberType;
@@ -96,7 +97,7 @@ public class AuthServiceImpl implements AuthService {
         //AT,RT 발급
         String at = jwtTokenUtil.createAccessToken(sub, 0, m.getMemberType().name());
         String rt = jwtTokenUtil.createRefreshToken(sub, 0);
-        RedisTemplate.opsForValue().set(jwtTokenUtil.rtKey(sub), RT, Duration.ofMillis(refreshExpMs));
+        RedisTemplate.opsForValue().set(jwtTokenUtil.rtKey(sub), rt, Duration.ofMillis(refreshExpMs));
         return Map.of(
                 "member", m,
                 "accessToken", at,
@@ -108,7 +109,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
 
-    public void refresh(HttpServletRequest req, HttpServletResponse res, boolean secureCookie) {
+    public AccessTokenResponse refresh(HttpServletRequest req, HttpServletResponse res, boolean secureCookie) {
         //cookie값 RT 검증
         String rt = jwtTokenUtil.readCookie(req, RT);
         if (rt == null || !jwtTokenUtil.validate(rt)) {
@@ -126,7 +127,7 @@ public class AuthServiceImpl implements AuthService {
         //새 AT 토큰 발급 + 저장/세팅
         String at = jwtTokenUtil.createAccessToken(sub, 0, m.getMemberType().name());
 
-        jwtTokenUtil.setCookie(res, AT, at, Duration.ofMillis(accessExpMs),  secureCookie);
+        return new AccessTokenResponse(at);
 
     }
 
