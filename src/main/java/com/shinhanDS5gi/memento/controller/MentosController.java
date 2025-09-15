@@ -84,7 +84,7 @@ public class MentosController {
     }
 
     /* 멘토스 생성하기 */
-    @PostMapping("")
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public BaseResponse<Void> createMentos(
             @CurrentUser Member member,
             @ModelAttribute CreateMentosRequest createMentosRequest,

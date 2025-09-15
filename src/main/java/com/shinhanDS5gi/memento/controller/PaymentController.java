@@ -28,7 +28,7 @@ public class PaymentController {
     /**
      * 결제 전 예약 확인 및 결제창 실행
      */
-    @PostMapping(value = "/mentos/payments/{memberSeq}/init", consumes = "application/json")
+    @PostMapping(value = "/mentos/payments/init", consumes = "application/json")
     public BaseResponse<PaymentRequest> initAndVerify(
             @CurrentUser Member member,
             @RequestBody ReservationConfirmedRequest req

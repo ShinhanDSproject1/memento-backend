@@ -34,6 +34,16 @@ public class AuthController {
     private final AuthService  authService;
     private final JwtTokenUtil jwtTokenUtil;
 
+    //at 재발급을 위해 RT 보내는 엔드포인트
+    @PostMapping("/reissue")
+    public BaseResponse<AccessTokenResponse> reissue(HttpServletRequest req, HttpServletResponse res) {
+        boolean secureCookie = req.isSecure()
+                || "https".equalsIgnoreCase(req.getHeader("X-Forwarded-Proto"));
+
+        AccessTokenResponse response = authService.refresh(req, res, secureCookie);
+        return new BaseResponse<>(SUCCESS, response);
+    }
+
     /* 로그아웃 */
     //AT 블랙리스트 등록 + RT 삭제 + 쿠키 제거
     @PostMapping("/logout")
@@ -68,6 +78,10 @@ public class AuthController {
             @RequestPart(value = "imageFile", required = false) MultipartFile certImage,
             @RequestHeader("Idem-Key") String IdemKey
     ) throws IOException {
+
+        boolean hasName = requestDto.getCertificationName() != null
+                && !requestDto.getCertificationName().isBlank();
+        boolean hasFile = (certImage != null && !certImage.isEmpty());
         memberService.signupMento(requestDto, certImage, IdemKey);
         return new BaseResponse<>(SUCCESS, null);
     }

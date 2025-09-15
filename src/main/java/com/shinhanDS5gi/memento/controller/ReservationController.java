@@ -28,7 +28,7 @@ public class ReservationController {
         return new BaseResponse<>(reservationService.getAvailableTime(mentosSeq, selectedDate));
     }
 
-    @PostMapping("/")
+    @PostMapping
     public BaseResponse<Void> makeReservation(@CurrentUser Member member,
                                               @RequestBody CreateReservationRequest createReservationRequest){
         Long currentMemberSeq = member.getMemberSeq();

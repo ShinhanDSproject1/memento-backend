@@ -1,62 +1,48 @@
 <!doctype html>
 <html lang="ko">
-<head>
-    <meta charset="UTF-8" />
-    <title>테스트 결제</title>
-</head>
+<head><meta charset="UTF-8"><title>테스트 결제</title></head>
 <body>
+<input id="at" placeholder="Bearer 없이 AT만 붙여넣기" style="width:520px">
 <button id="pay">테스트 결제</button>
-<pre id="log" style="white-space:pre-wrap; font-family:monospace;"></pre>
+<pre id="log" style="white-space:pre-wrap;font-family:monospace;"></pre>
 
 <script src="https://js.tosspayments.com/v1"></script>
 <script>
-    const LOG = (...a) => {
-      console.log(...a);
-      document.getElementById('log').textContent += a.join(' ') + '\n';
-    };
+    const LOG=(...a)=>{console.log(...a);document.getElementById('log').textContent+=a.join(' ')+'\n';};
+    const clientKey="test_ck_QbgMGZzorzqR7g7KxwMPVl5E1em4";
+    const mentosSeq=1, mentosAt="2025-09-08", mentosTime="15:00";
 
-    const clientKey = "test_ck_QbgMGZzorzqR7g7KxwMPVl5E1em4";
-
-    // ★ 서버가 Redis에 홀드해둔 슬롯 정보(예시)
-    const memberSeq  = 2;                // path 변수
-    const mentosSeq  = 1;
-    const mentosAt   = "2025-09-08";     // yyyy-MM-dd
-    const mentosTime = "12:00";          // HH:mm
-
-    document.getElementById("pay").addEventListener("click", onPay);
-
-    async function onPay() {
-      try {
+    document.getElementById("pay").onclick = async () => {
+      try{
         LOG("click!");
+        const token = document.getElementById("at").value.trim(); // ✅ 토큰 입력
+        if(!token) return alert("AT 토큰을 입력하세요");
 
-        // 1) init + verify (백엔드)
-        const initRes = await fetch(`/mentos/payments/${memberSeq}/init`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+        const r = await fetch("/api/mentos/payments/init", {
+          method:"POST",
+          headers:{
+            "Content-Type":"application/json",
+            "Authorization":"Bearer "+token         // ✅ 헤더에 넣기
+          },
           body: JSON.stringify({ mentosSeq, mentosAt, mentosTime })
         });
-        LOG("init status:", initRes.status);
-        const initBody = await initRes.json();
-        const data = initBody.data || initBody.result || initBody;
-        LOG("init data:", JSON.stringify(data));
 
-        if (!data?.orderId) return alert("orderId 없음");
-        // successUrl/failUrl은 서버가 내려준 값을 그대로 사용
-        const { amount, orderId, orderName, successUrl, failUrl } = data;
+        const raw = await r.text(); LOG("init status:", r.status); LOG("init raw:", raw);
+        if(r.status===401) return alert("401: 토큰 없음/만료/불일치");
 
-        // 2) Toss 결제창 호출
-        const tossPayments = TossPayments(clientKey);
-        await tossPayments.requestPayment("카드", {
-          amount, orderId, orderName,
-          successUrl,   // 프론트 성공 페이지 URL이어야 함
-          failUrl       // 프론트 실패 페이지 URL
+        const j = JSON.parse(raw);
+        const d = j.result ?? j;
+        if(!d?.orderId) return alert("orderId 없음");
+
+        await TossPayments(clientKey).requestPayment("CARD", { // ✅ "CARD"
+          orderId: d.orderId, amount: d.amount, orderName: d.orderName,
+          successUrl: d.successUrl, failUrl: d.failUrl
         });
-
-      } catch (e) {
-        LOG("requestPayment error:", e?.code || "", e?.message || e);
-        alert("결제창 에러: " + (e?.message || e));
+      }catch(e){
+        LOG("requestPayment error:", e?.code||"", e?.message||e);
+        alert("결제창 에러: "+(e?.message||e));
       }
-    }
+    };
 </script>
 </body>
 </html>
