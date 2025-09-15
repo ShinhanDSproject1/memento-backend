@@ -2,6 +2,7 @@ package com.shinhanDS5gi.memento.service;
 
 import com.shinhanDS5gi.memento.common.exception.AuthException;
 import com.shinhanDS5gi.memento.common.exception.MemberException;
+import com.shinhanDS5gi.memento.dto.auth.AccessTokenResponse;
 import com.shinhanDS5gi.memento.security.JwtTokenUtil;
 import com.shinhanDS5gi.memento.domain.member.Member;
 import com.shinhanDS5gi.memento.domain.member.MemberType;
@@ -113,29 +114,24 @@ public class AuthServiceImpl implements AuthService {
     /** 재발급 (AT 토큰이 만료 됨 ->AT 재발급해줌) */
     @Override
     @Transactional
-
-    public void refresh(HttpServletRequest req, HttpServletResponse res, boolean secureCookie) {
-        //cookie값 RT 검증
+    public AccessTokenResponse refresh(HttpServletRequest req, HttpServletResponse res, boolean secureCookie) {
         String rt = jwtTokenUtil.readCookie(req, RT);
         if (rt == null) {
             throw new AuthException(INVALID_REFRESH_TOKEN);
         }
         try {
-            // getSubject() 호출 시 토큰 유효성 검증(파싱)이 자동으로 이루어집니다.
             String sub = jwtTokenUtil.getSubject(rt);
-
             // Redis에서 RT 검증
             String saved = RedisTemplate.opsForValue().get(jwtTokenUtil.rtKey(sub));
-            if (saved == null || !saved.equals(rt)) {
+            if (saved == null || !RT.equals(saved)) {
                 throw new AuthException(INVALID_REFRESH_TOKEN);
             }
-
             // DB에서 멤버 타입 조회 및 새 AT 발급
             Member m = authRepository.findByMemberId(sub)
                     .orElseThrow(() -> new MemberException(CANNOT_FOUND_MEMBER));
-            String at = jwtTokenUtil.createAccessToken(sub, 0, m.getMemberType().name());
 
-            jwtTokenUtil.setCookie(res, AT, at, Duration.ofMillis(accessExpMs), secureCookie);
+            return new AccessTokenResponse(
+                    jwtTokenUtil.createAccessToken(sub, 0, m.getMemberType().name()));
 
         } catch (JwtException | IllegalArgumentException e) {
             // 토큰 파싱/검증 실패 시 (만료, 형식 오류 등) 예외 처리
