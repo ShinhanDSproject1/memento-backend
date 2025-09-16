@@ -1,19 +1,14 @@
 package com.shinhanDS5gi.memento.common.exception;
 
 import com.shinhanDS5gi.memento.common.response.status.ResponseStatus;
-import lombok.Getter;
 
-@Getter
-public class ReservationException extends RuntimeException{
-    final ResponseStatus exceptionStatus;
+public class ReservationException extends BaseException {
 
     public ReservationException(ResponseStatus exceptionStatus) {
-        super(exceptionStatus.getMessage());
-        this.exceptionStatus = exceptionStatus;
+        super(exceptionStatus);
     }
 
     public ReservationException(ResponseStatus exceptionStatus, String message) {
-        super(message);
-        this.exceptionStatus = exceptionStatus;
+        super(exceptionStatus, message);
     }
 }

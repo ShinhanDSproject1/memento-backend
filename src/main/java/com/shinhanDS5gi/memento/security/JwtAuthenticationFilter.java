@@ -77,6 +77,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // 토큰이 유효하지 않은 모든 경우 (만료, 형식 오류, 로그아웃된 토큰 등)
             log.warn("Invalid JWT: {}", e.getMessage());
             setErrorResponse(res, BaseExceptionResponseStatus.INVALID_TOKEN);
+        } catch (Exception e) {
+            // 위에서 잡지 못한 모든 서버 내부 오류 처리
+            log.error("Could not set user authentication in security context", e);
+            setErrorResponse(res, BaseExceptionResponseStatus.FAILURE);
         }
     }
 
