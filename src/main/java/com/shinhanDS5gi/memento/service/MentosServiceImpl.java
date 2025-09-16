@@ -10,16 +10,11 @@ import com.shinhanDS5gi.memento.domain.Mentos;
 import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.domain.member.Member;
 import com.shinhanDS5gi.memento.domain.member.MemberType;
+import com.shinhanDS5gi.memento.dto.mentos.*;
 import com.shinhanDS5gi.memento.repository.mento.MentoProfileRepository;
 import com.shinhanDS5gi.memento.repository.CategoryRepository;
 import com.shinhanDS5gi.memento.repository.review.ReviewRepository;
-import com.shinhanDS5gi.memento.dto.mentos.MyMentosResponse;
-import com.shinhanDS5gi.memento.dto.mentos.MyMentosSliceResponse;
-import com.shinhanDS5gi.memento.dto.mentos.UpdateMentosRequest;
-import com.shinhanDS5gi.memento.dto.mentos.CreateMentosRequest;
-import com.shinhanDS5gi.memento.dto.mentos.GetMentosDetailResponse;
 
-import com.shinhanDS5gi.memento.dto.mentos.GetMentosListResponse;
 import com.shinhanDS5gi.memento.repository.member.MemberRepository;
 import com.shinhanDS5gi.memento.repository.mentos.MentosRepository;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +31,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus.*;
+import static com.shinhanDS5gi.memento.domain.QReview.review;
 
 @Slf4j
 @Service
@@ -147,48 +143,15 @@ public class MentosServiceImpl implements MentosService {
         Mentos mentos = mentosRepository.findByMentosSeqAndStatus(mentosSeq, BaseStatus.ACTIVE)
                 .orElseThrow(() -> new MentosException(CANNOT_FOUND_MENTOS));
 
-        // Mentos를 등록한 멘토의 MentoProfile 정보 조회
-        MentoProfile mentoProfile = mentoProfileRepository.findByMember_MemberSeq(mentos.getMember().getMemberSeq())
-                .orElseThrow(() -> new MentosException(CANNOT_FOUND_MENTO_PROFILE));
+        GetMentosDetailProjection projection = mentosRepository.findMentosDetailByMentosSeqAndStatus(mentos.getMentosSeq(), BaseStatus.ACTIVE);
 
-        // 리뷰 정보 조회
-        List<GetMentosDetailResponse.Review> reviews = reviewRepository.findReviewByMentosSeqAndStatus(mentosSeq, BaseStatus.ACTIVE);
-
-        Integer reviewTotalCnt = reviews.size();
-
-        Double reviewRatingAvg = reviews.stream()
-                .mapToInt(GetMentosDetailResponse.Review::getReviewRating)
-                .average()
-                .orElse(0.0);
-        // 소수점 두 번째 자리에서 반올림
-        reviewRatingAvg = Math.round(reviewRatingAvg * 100) / 100.0;
-
-        // 최종 응답 DTO 조립
-        return GetMentosDetailResponse.builder()
-                // Mentos 정보
-                .mentosImage(mentos.getMentosImage())
-                .mentosTitle(mentos.getMentosTitle())
-                .mentosDescription(mentos.getMentosContent())
-                .mentosPrice(mentos.getPrice())
-                // MentoProfile 정보
-                .mentoPostcode(mentoProfile.getMentoPostcode())
-                .mentoRoadAddress(mentoProfile.getMentoRoadAddress())
-                .mentoBname(mentoProfile.getMentoBname())
-                .mentoDetailAddress(mentoProfile.getMentoDetail())
-                .startTime(mentoProfile.getStartTime())
-                .endTime(mentoProfile.getEndTime())
-                .availableDays(mentoProfile.getAvailableDays())
-                // Mento 정보
-                .mento(GetMentosDetailResponse.MentoDetail.builder()
-                        .mentoName(mentoProfile.getMember().getMemberName())
-                        .mentoImg(mentoProfile.getMentoProfileImage())
-                        .mentoDescription(mentoProfile.getMentoProfileContent())
-                        .build())
-                // Review 정보
-                .reviews(reviews)
-                .reviewTotalCnt(reviewTotalCnt)
-                .reviewRatingAvg(reviewRatingAvg)
-                .build();
+        List<GetMentosDetailResponse.Review> review = reviewRepository.findReviewByMentosSeqAndStatus(mentosSeq, BaseStatus.ACTIVE);
+        return GetMentosDetailResponse.builder().mentosImage(projection.getMentosImage())
+                .mentosTitle(projection.getMentosTitle()).mentosLocation(projection.getMentosLocation())
+                .reviewTotalCnt(projection.getReviewTotalCnt()).reviewRatingAvg(projection.getReviewRatingAvg())
+                .reviews(review).mento(GetMentosDetailResponse.MentoDetail.builder().mentoName(projection.getMentoName())
+                        .mentoImg(projection.getMentoImg()).mentoDescription(projection.getMentoDescription()).build())
+                .mentosDescription(projection.getMentosDescription()).mentosPrice(projection.getMentosPrice()).build();
     }
 
     /* 멘토스 전체조회(카테고리별) */

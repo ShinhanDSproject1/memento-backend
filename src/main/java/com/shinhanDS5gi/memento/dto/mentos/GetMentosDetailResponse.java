@@ -15,40 +15,12 @@ public class GetMentosDetailResponse {
     /**
      * 멘토스 상세조회 dto
      */
-
-    // Mentos 정보
     private final String mentosImage;
     private final String mentosTitle;
-    private final String mentosDescription;
-    private final int mentosPrice;
-
-    // MentoProfile 정보 (장소 및 시간)
-    private final String mentoPostcode;
-    private final String mentoRoadAddress;
-    private final String mentoBname;
-    private final String mentoDetailAddress;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm", timezone = "Asia/Seoul")
-    private final LocalTime startTime;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm", timezone = "Asia/Seoul")
-    private final LocalTime endTime;
-    private final String availableDays;
-
-    // Mento 정보
-    private final MentoDetail mento;
-
-    // Review 정보
+    private final String mentosLocation;
     private final Integer reviewTotalCnt;
     private final Double reviewRatingAvg;
     private final List<Review> reviews;
-
-    @Getter
-    @Builder
-    @AllArgsConstructor
-    public static class MentoDetail {
-        private final String mentoName;
-        private final String mentoImg;
-        private final String mentoDescription;
-    }
 
     @Getter
     @Builder
@@ -59,4 +31,18 @@ public class GetMentosDetailResponse {
         private final String reviewDate;
         private final String reviewContent;
     }
+
+    private final MentoDetail mento;
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    public static class MentoDetail{
+        private final String mentoName;
+        private final String mentoImg;
+        private final String mentoDescription;
+    }
+
+    private final String mentosDescription;
+    private final int mentosPrice;
 }
