@@ -1,24 +1,14 @@
 package com.shinhanDS5gi.memento.common.exception;
 
 import com.shinhanDS5gi.memento.common.response.status.ResponseStatus;
-import lombok.Getter;
 
-@Getter
-public class MentosException extends RuntimeException {
-
-    private final ResponseStatus exceptionStatus;
-    private final String detailMessage;
+public class MentosException extends BaseException {
 
     public MentosException(ResponseStatus exceptionStatus) {
-        super(exceptionStatus.getMessage());
-        this.exceptionStatus = exceptionStatus;
-        this.detailMessage = exceptionStatus.getMessage();
+        super(exceptionStatus);
     }
 
-    // 상세 메시지를 함께 받는 새로운 생성자 추가
-    public MentosException(ResponseStatus exceptionStatus, String detailMessage) {
-        super(detailMessage);
-        this.exceptionStatus = exceptionStatus;
-        this.detailMessage = detailMessage;
+    public MentosException(ResponseStatus exceptionStatus, String message) {
+        super(exceptionStatus, message);
     }
 }
