@@ -3,12 +3,7 @@ package com.shinhanDS5gi.memento.controller;
 import com.shinhanDS5gi.memento.common.exception.MentosException;
 import com.shinhanDS5gi.memento.common.response.BaseResponse;
 import com.shinhanDS5gi.memento.domain.member.Member;
-import com.shinhanDS5gi.memento.dto.mentos.MyMentosResponse;
-import com.shinhanDS5gi.memento.dto.mentos.MyMentosSliceResponse;
-import com.shinhanDS5gi.memento.dto.mentos.UpdateMentosRequest;
-import com.shinhanDS5gi.memento.dto.mentos.CreateMentosRequest;
-import com.shinhanDS5gi.memento.dto.mentos.GetMentosDetailResponse;
-import com.shinhanDS5gi.memento.dto.mentos.GetMentosListResponse;
+import com.shinhanDS5gi.memento.dto.mentos.*;
 import com.shinhanDS5gi.memento.security.CurrentUser;
 import com.shinhanDS5gi.memento.service.MentosService;
 import lombok.RequiredArgsConstructor;
@@ -101,5 +96,13 @@ public class MentosController {
         mentosService.createMentos(currentMemberSeq, createMentosRequest, idemKey);
 
         return new BaseResponse<>(null);
+    }
+
+    /* 멘토스 수정할 때 수정 전 정보를 불러와서 보여주는 api */
+    @GetMapping("/{mentosSeq}")
+    public BaseResponse<ShowMentosDetailForUpdateResponse> showMentosDetailForUpdate(@CurrentUser Member member,
+                                                                                     @PathVariable("mentosSeq") Long mentosSeq){
+        log.info("[MentosController.showMentosDetailForUpdate]");
+        return new BaseResponse<>(mentosService.showMentosDetailForUpdate(member, mentosSeq));
     }
 }
