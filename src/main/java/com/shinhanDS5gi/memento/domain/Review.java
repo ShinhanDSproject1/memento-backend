@@ -30,11 +30,7 @@ public class Review extends BaseTime {
     private BaseStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_seq")
-    private Member member;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="mentos_seq")
-    private Mentos mentos;
+    @JoinColumn(name = "reservation_seq")
+    private Reservation reservation;
 
 }
