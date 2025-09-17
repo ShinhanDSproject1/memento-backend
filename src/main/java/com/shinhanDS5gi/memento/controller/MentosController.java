@@ -43,7 +43,7 @@ public class MentosController {
     }
 
     /* 멘토스 게시글 수정 */
-    @PutMapping(value = "/{mentosSeq}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping("/{mentosSeq}")
     public BaseResponse<Void> updateMentos(
             @CurrentUser Member member,
             @PathVariable("mentosSeq") Long mentosSeq,

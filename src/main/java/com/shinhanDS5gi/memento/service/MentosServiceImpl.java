@@ -115,8 +115,10 @@ public class MentosServiceImpl implements MentosService {
             s3Uploader.delete(mentos.getMentosImage());
             newImageUrl = s3Uploader.upload(imageFile);
         }
+        Category category = categoryRepository.findByCategorySeqAndStatus(requestDto.getCategorySeq(), BaseStatus.ACTIVE)
+                .orElseThrow(()->new CategoryException(CANNOT_FOUND_CATEGORY));
 
-        mentos.update(requestDto, newImageUrl);
+        mentos.update(requestDto, newImageUrl, category);
     }
 
     /* 멘토스 삭제하기 */
