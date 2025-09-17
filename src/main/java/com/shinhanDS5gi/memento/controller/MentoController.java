@@ -91,6 +91,14 @@ public class MentoController {
         return new BaseResponse<>(SUCCESS, null);
     }
 
+    /* 멘토 프로필 조회 */
+    @GetMapping("/mento-profiles")
+    public BaseResponse<MentoProfileResponse> getMentoProfile(@CurrentUser Member member) {
+        Long currentMemberSeq = member.getMemberSeq();
+        MentoProfileResponse profile = mentoProfileService.getMentoProfile(currentMemberSeq);
+        return new BaseResponse<>(SUCCESS, profile);
+    }
+
     /* 멘티 조회 (멘토스별 조회) */
     @GetMapping("/menti-list")
     public BaseResponse<List<MyMentiResponse>> getMyMentiList(@CurrentUser Member member) {

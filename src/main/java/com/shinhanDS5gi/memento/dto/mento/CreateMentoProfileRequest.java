@@ -52,7 +52,7 @@ public class CreateMentoProfileRequest {
                 this.mentoPostcode,
                 this.mentoRoadAddress,
                 this.mentoBname,
-                this.availableDays,
+                this.mentoDetail,
                 latitude,
                 longitude,
                 BaseStatus.ACTIVE,
