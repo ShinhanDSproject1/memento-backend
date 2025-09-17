@@ -22,7 +22,7 @@ import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionRespo
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/admin")
+@RequestMapping("/manager")
 public class AdminController {
 
     private final ReportService reportService;
