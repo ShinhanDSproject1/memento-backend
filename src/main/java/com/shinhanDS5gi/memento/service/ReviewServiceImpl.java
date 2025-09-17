@@ -37,15 +37,18 @@ public class ReviewServiceImpl implements ReviewService {
 
     /* 멘토 리뷰 조회하기 */
     @Override
-    public MentoReviewsSliceResponse<MentoReviewsListResponse> getMentoReviews(Long mentorSeq, int limit, Long cursor) {
+    public MentoReviewsSliceResponse<MentoReviewsListResponse> getMentoReviews( Long currentMemberId,int limit, Long cursor) {
+
         // 1) 커서 조건 + limit+1로 리뷰 조회
-        var rows = reviewRepository.findMentoReviewsByCursor(mentorSeq, cursor, limit, BaseStatus.ACTIVE);
+        var rows = reviewRepository.findMentoReviewsByCursor(currentMemberId,cursor, limit, BaseStatus.ACTIVE);
         log.debug("조회된 리뷰 개수={}, 리뷰 목록={}", rows.size(), rows);
         //리뷰 없을 경우
         if (cursor == null && rows.isEmpty()) {
-            log.warn("멘토 {}의 리뷰 없음", mentorSeq);
+
             throw new ReviewException(NO_REVIEWS_FOUND_FOR_MENTO);
         }
+
+
         // 2) 다음 페이지 여부 판단 (limit보다 많으면 hasNext = true)
         boolean hasNext = rows.size() > limit;
         if (hasNext) rows = rows.subList(0, limit);
