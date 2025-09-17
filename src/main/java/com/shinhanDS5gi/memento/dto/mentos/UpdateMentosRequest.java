@@ -17,6 +17,8 @@ public class UpdateMentosRequest {
     @NotBlank(message = "내용은 필수입니다.")
     private String mentosContent;
 
+    private Long categorySeq;
+
     @NotNull(message = "가격은 필수입니다.")
     @PositiveOrZero(message = "가격은 0 이상이어야 합니다.")
     private Integer price;
