@@ -207,4 +207,21 @@ public class MentosServiceImpl implements MentosService {
         }
     }
 
+    @Override
+    public ShowMentosDetailForUpdateResponse showMentosDetailForUpdate(Member member, Long mentosSeq) {
+        log.info("[MentosServiceImpl.showMentosDetailForUpdate]");
+        Mentos mentos = mentosRepository.findByMentosSeqAndMember_MemberSeqAndStatus(mentosSeq,member.getMemberSeq(),BaseStatus.ACTIVE)
+                .orElseThrow(()-> new MentosException(CANNOT_FOUND_MENTOS));
+
+        ShowMentosDetailForUpdateResponse response = ShowMentosDetailForUpdateResponse.builder()
+                .mentosContent(mentos.getMentosContent())
+                .categorySeq(mentos.getCategory().getCategorySeq())
+                .mentosImage(mentos.getMentosImage())
+                .mentosSeq(mentosSeq)
+                .mentosTitle(mentos.getMentosTitle())
+                .price(mentos.getPrice()).build();
+
+        return response;
+    }
+
 }

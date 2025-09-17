@@ -1,11 +1,7 @@
 package com.shinhanDS5gi.memento.service;
 
-import com.shinhanDS5gi.memento.dto.mentos.MyMentosResponse;
-import com.shinhanDS5gi.memento.dto.mentos.MyMentosSliceResponse;
-import com.shinhanDS5gi.memento.dto.mentos.UpdateMentosRequest;
-import com.shinhanDS5gi.memento.dto.mentos.CreateMentosRequest;
-import com.shinhanDS5gi.memento.dto.mentos.GetMentosDetailResponse;
-import com.shinhanDS5gi.memento.dto.mentos.GetMentosListResponse;
+import com.shinhanDS5gi.memento.domain.member.Member;
+import com.shinhanDS5gi.memento.dto.mentos.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -30,4 +26,5 @@ public interface MentosService {
     /* 멘토스 생성하기 */
     void createMentos(Long memberSeq, CreateMentosRequest createMentosRequest, String idemKey);
 
+    ShowMentosDetailForUpdateResponse showMentosDetailForUpdate(Member member, Long mentosSeq);
 }
