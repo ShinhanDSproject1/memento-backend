@@ -45,12 +45,11 @@ public class AdminController {
 
     /* 신고 승인하기 */
     @PatchMapping("/reports/approval/{reportSeq}")
-    public BaseResponse<Void>approveReport(@CurrentUser Member admin, @PathVariable("reportSeq")Long memberSeq){
+    public BaseResponse<Void>approveReport(@CurrentUser Member admin, @PathVariable("reportSeq") Long reportSeq){
         checkAdminPermission(admin);
-        reportService.approveReport(memberSeq);
+        reportService.approveReport(reportSeq); // 변수명이 reportSeq로 일치하여 명확해짐
         return new BaseResponse<>(null);
     }
-
 
     /* 관리자 페이지 전체 회원 조회하기 */
     @GetMapping("/member")

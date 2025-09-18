@@ -76,7 +76,7 @@ public class ReportServiceImpl implements ReportService {
         //승인으로 상태 변경
         report.updateHandleStatus(ReportHandleStatus.APPROVED);
         //멤버 제명
-        Long reportedMemberSeq = report.getMember().getMemberSeq();
+        Long reportedMemberSeq = report.getMentos().getMember().getMemberSeq();
         log.debug("[approveReport] 제명 대상 memberSeq={}", reportedMemberSeq);
         Member target = memberRepository.findByMemberSeqAndStatus(reportedMemberSeq, BaseStatus.ACTIVE)
                 .orElseThrow(() -> new MemberException(CANNOT_FOUND_MEMBER));
