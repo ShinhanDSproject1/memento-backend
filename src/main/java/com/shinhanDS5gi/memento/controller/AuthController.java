@@ -5,6 +5,7 @@ import com.shinhanDS5gi.memento.common.response.BaseResponse;
 import com.shinhanDS5gi.memento.domain.member.Member;
 import com.shinhanDS5gi.memento.domain.member.MemberType;
 import com.shinhanDS5gi.memento.dto.auth.*;
+import com.shinhanDS5gi.memento.dto.mentos.CreateMentosRequest;
 import com.shinhanDS5gi.memento.security.JwtTokenUtil;
 import com.shinhanDS5gi.memento.service.AuthService;
 import com.shinhanDS5gi.memento.service.MemberService;
@@ -72,18 +73,15 @@ public class AuthController {
     }
 
     /* 회원가입 (멘토) */
-    @PostMapping(value = "/signup/mento", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/signup/mento")
     public BaseResponse<Void> signupMento(
-            @RequestPart("requestDto") @Valid MentoSignupRequest requestDto,
-            @RequestPart(value = "imageFile", required = false) MultipartFile certImage,
+            @ModelAttribute MentoSignupRequest mentoSignupRequest,
             @RequestHeader("Idem-Key") String IdemKey
     ) throws IOException {
+        log.info("[AuthController.signupMento]");
 
-        boolean hasName = requestDto.getCertificationName() != null
-                && !requestDto.getCertificationName().isBlank();
-        boolean hasFile = (certImage != null && !certImage.isEmpty());
-        memberService.signupMento(requestDto, certImage, IdemKey);
-        return new BaseResponse<>(SUCCESS, null);
+        memberService.signupMento(mentoSignupRequest, IdemKey);
+        return new BaseResponse<>(null);
     }
 
 

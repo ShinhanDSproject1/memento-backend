@@ -13,6 +13,7 @@ import com.shinhanDS5gi.memento.dto.mento.UpdateMentoProfileRequest;
 import com.shinhanDS5gi.memento.repository.member.MemberRepository;
 import com.shinhanDS5gi.memento.repository.mento.MentoProfileRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,6 +22,7 @@ import java.io.IOException;
 
 import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -29,17 +31,13 @@ public class MentoProfileServiceImpl implements MentoProfileService {
     private final MentoProfileRepository mentoProfileRepository;
     private final MemberRepository memberRepository;
     private final S3Uploader s3Uploader;
-    private final IdempotencyService idempotencyService;
     private final KakaoMapService kakaoMapService;
 
     /* 멘토 프로필 생성 */
     @Override
     @Transactional
-    public void createMentoProfile(Long memberSeq, CreateMentoProfileRequest requestDto, MultipartFile imageFile, String idemKey) throws IOException {
-
-        if (idempotencyService.isDuplicate(idemKey)) {
-            throw new MentoProfileException(ALREADY_SUCCESS_REQUEST);
-        }
+    public void createMentoProfile(Long memberSeq, CreateMentoProfileRequest requestDto) throws IOException {
+        log.info("[MentoProfileServiceImpl.createMentoProfile]");
 
         /* 회원 가입한 사용자인가? */
         Member member = memberRepository.findByMemberSeqAndStatus(memberSeq, BaseStatus.ACTIVE)
@@ -61,17 +59,15 @@ public class MentoProfileServiceImpl implements MentoProfileService {
             // 좌표를 찾을 수 없다?
             throw new IllegalArgumentException("유효하지 않은 주소입니다. 좌표를 찾을 수 없습니다.");
         }
-        Double longitude = coordinates[0]; // 경도
-        Double latitude = coordinates[1];  // 위도
+        Double latitude = coordinates[0]; // 경도
+        Double longitude = coordinates[1];  // 위도
 
         // S3에 이미지 업로드
-        String imageUrl = s3Uploader.upload(imageFile);
+        String imageUrl = s3Uploader.upload(requestDto.getMentoProfileImg());
 
         MentoProfile mentoProfile = requestDto.toEntity(member, imageUrl, latitude, longitude);
-        MentoProfile savedProfile = mentoProfileRepository.save(mentoProfile);
+        mentoProfileRepository.save(mentoProfile);
 
-        // 멱등키 저장
-        idempotencyService.saveKey(idemKey, String.valueOf(savedProfile.getMentoProfileSeq()));
     }
 
     /* 멘토 프로필 수정 */

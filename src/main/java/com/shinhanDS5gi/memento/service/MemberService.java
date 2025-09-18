@@ -19,7 +19,7 @@ public interface MemberService {
     void withdraw(Long memberSeq,HttpServletRequest req, HttpServletResponse res, boolean secureCookie);
   
     //회원가입 멘토
-    void signupMento (MentoSignupRequest req, MultipartFile certImage, String idemKey) throws IOException;
+    void signupMento (MentoSignupRequest req, String idemKey) throws IOException;
 
     //회원가입 멘티
     void signupMenti (MentiSignupRequest req, String idemKey);
