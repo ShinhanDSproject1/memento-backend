@@ -40,6 +40,7 @@ public class MentoController {
         log.info("[MentoController.getMentoReviews]");
         Long currentMemberSeq = member.getMemberSeq(); // 멘토
         return new BaseResponse<>(reviewService.getMentoReviews(currentMemberSeq, limit, cursor));
+
     }
 
     /* 멘토 자격증 추가 */
@@ -89,6 +90,14 @@ public class MentoController {
         mentoProfileService.updateMentoProfile(currentMemberSeq, requestDto, imageFile);
 
         return new BaseResponse<>(SUCCESS, null);
+    }
+
+    /* 멘토 프로필 조회 */
+    @GetMapping("/mento-profiles")
+    public BaseResponse<MentoProfileResponse> getMentoProfile(@CurrentUser Member member) {
+        Long currentMemberSeq = member.getMemberSeq();
+        MentoProfileResponse profile = mentoProfileService.getMentoProfile(currentMemberSeq);
+        return new BaseResponse<>(SUCCESS, profile);
     }
 
     /* 멘티 조회 (멘토스별 조회) */

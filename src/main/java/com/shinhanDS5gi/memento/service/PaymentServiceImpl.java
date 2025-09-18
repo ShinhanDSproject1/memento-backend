@@ -177,10 +177,14 @@ public class PaymentServiceImpl implements PaymentService {
         throw new PaymentException(PAYMENT_FAILED, "결제에 실패했습니다: " + message);
     }
 
+    //환불하기
     @Override
     @Transactional
-    public void refundFull(Long currentMemberSeq, Long paymentSeq, String reason) {
-        Payment payment = paymentRepository.findById(paymentSeq)
+    public void refundFull(Long currentMemberSeq, Long reservationSeq, String reason) {
+        Payment payment = paymentRepository
+                .findByReservation_ReservationSeqAndMember_MemberSeqAndStatus(
+                        reservationSeq, currentMemberSeq, BaseStatus.ACTIVE
+                )
                 .orElseThrow(() -> new PaymentException(PAYMENT_NOT_FOUND, "환불할 결제 정보를 찾을 수 없습니다."));
 
         // (핵심 보안 검증) 해당 결제의 소유주가 환불을 요청한 사용자가 맞는지 반드시 확인

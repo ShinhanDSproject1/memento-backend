@@ -46,4 +46,6 @@ public interface MentosRepository extends JpaRepository<Mentos, Long>, MentosCus
         and me.status = :status
     """)
     Optional<MentoTimeWindowProjection> findTimeWindowByMentosSeqAndStatus(@Param("mentosSeq") Long mentosSeq, @Param("status") BaseStatus status);
+
+    Optional<Mentos> findByMentosSeqAndMember_MemberSeqAndStatus(Long mentosSeq, Long memberSeq, BaseStatus baseStatus);
 }

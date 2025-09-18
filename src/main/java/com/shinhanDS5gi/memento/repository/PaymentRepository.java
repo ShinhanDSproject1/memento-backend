@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Optional;
+
 
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
@@ -18,4 +20,8 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     int updatePaymentStatus(@Param("memberSeq") Long memberSeq,
                             @Param("afterStatus") BaseStatus afterStatus,
                             @Param("beforeStatus") BaseStatus beforeStatus);
+
+    Optional<Payment> findByReservation_ReservationSeqAndMember_MemberSeqAndStatus(
+            Long reservationSeq, Long memberSeq, BaseStatus status);
+
 }

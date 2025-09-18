@@ -115,8 +115,10 @@ public class MentosServiceImpl implements MentosService {
             s3Uploader.delete(mentos.getMentosImage());
             newImageUrl = s3Uploader.upload(imageFile);
         }
+        Category category = categoryRepository.findByCategorySeqAndStatus(requestDto.getCategorySeq(), BaseStatus.ACTIVE)
+                .orElseThrow(()->new CategoryException(CANNOT_FOUND_CATEGORY));
 
-        mentos.update(requestDto, newImageUrl);
+        mentos.update(requestDto, newImageUrl, category);
     }
 
     /* 멘토스 삭제하기 */
@@ -202,6 +204,23 @@ public class MentosServiceImpl implements MentosService {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public ShowMentosDetailForUpdateResponse showMentosDetailForUpdate(Member member, Long mentosSeq) {
+        log.info("[MentosServiceImpl.showMentosDetailForUpdate]");
+        Mentos mentos = mentosRepository.findByMentosSeqAndMember_MemberSeqAndStatus(mentosSeq,member.getMemberSeq(),BaseStatus.ACTIVE)
+                .orElseThrow(()-> new MentosException(CANNOT_FOUND_MENTOS));
+
+        ShowMentosDetailForUpdateResponse response = ShowMentosDetailForUpdateResponse.builder()
+                .mentosContent(mentos.getMentosContent())
+                .categorySeq(mentos.getCategory().getCategorySeq())
+                .mentosImage(mentos.getMentosImage())
+                .mentosSeq(mentosSeq)
+                .mentosTitle(mentos.getMentosTitle())
+                .price(mentos.getPrice()).build();
+
+        return response;
     }
 
 }

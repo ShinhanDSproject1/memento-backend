@@ -63,13 +63,14 @@ public class Mentos extends BaseTime {
 //    private List<Review> reviewList = new ArrayList<>();
 
     /* 멘토스 정보 수정*/
-    public void update(UpdateMentosRequest requestDto, String newImageUrl) {
+    public void update(UpdateMentosRequest requestDto, String newImageUrl, Category category) {
         this.mentosTitle = requestDto.getMentosTitle();
         this.mentosContent = requestDto.getMentosContent();
         this.price = requestDto.getPrice();
         if (newImageUrl != null) {
             this.mentosImage = newImageUrl;
         }
+        this.category = category;
     }
 
     /* 멘토스 상태 비활성화 */

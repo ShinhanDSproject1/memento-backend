@@ -8,6 +8,7 @@ import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.domain.member.Member;
 import com.shinhanDS5gi.memento.domain.member.MemberType;
 import com.shinhanDS5gi.memento.dto.mento.CreateMentoProfileRequest;
+import com.shinhanDS5gi.memento.dto.mento.MentoProfileResponse;
 import com.shinhanDS5gi.memento.dto.mento.UpdateMentoProfileRequest;
 import com.shinhanDS5gi.memento.repository.member.MemberRepository;
 import com.shinhanDS5gi.memento.repository.mento.MentoProfileRepository;
@@ -104,5 +105,14 @@ public class MentoProfileServiceImpl implements MentoProfileService {
         Double latitude = coordinates[1];  // 위도
 
         mentoProfile.update(requestDto, newImageUrl, latitude, longitude);
+    }
+
+    /* 멘토 프로필 조회 */
+    @Override
+    public MentoProfileResponse getMentoProfile(Long memberSeq) {
+        MentoProfile mentoProfile = mentoProfileRepository.findByMember_MemberSeq(memberSeq)
+                .orElseThrow(() -> new MentoProfileException(CANNOT_FOUND_MENTO_PROFILE));
+
+        return new MentoProfileResponse(mentoProfile);
     }
 }
