@@ -1,5 +1,7 @@
 package com.shinhanDS5gi.memento.dto.chat;
 
+import com.shinhanDS5gi.memento.common.exception.BaseException;
+import com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus;
 import com.shinhanDS5gi.memento.domain.chat.ChattingParticipant;
 import com.shinhanDS5gi.memento.domain.chat.ChattingRoom;
 
@@ -7,6 +9,7 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /* 멘토의 채팅방 목록을 멘토스별로 그룹화하여 반환하기 위한 응답 DTO */
@@ -40,17 +43,19 @@ public class ChattingRoomListByMentosResponse {
             ChattingParticipant mentiParticipant = room.getParticipants().stream()
                     .filter(p -> !p.getMember().getMemberSeq().equals(mentorId))
                     .findFirst()
-                    .orElseThrow();
+                    .orElseThrow(() -> new BaseException(BaseExceptionResponseStatus.CANNOT_FOUND_MEMBER));
 
             this.mentiName = mentiParticipant.getMember().getMemberName();
             this.lastMessage = room.getLastMessage();
-            this.lastMessageAt = room.getLastMessageAt();
+            this.lastMessageAt = Optional.ofNullable(room.getLastMessageAt()).orElse(LocalDateTime.MIN);
 
             ChattingParticipant mentorParticipant = room.getParticipants().stream()
                     .filter(p -> p.getMember().getMemberSeq().equals(mentorId))
                     .findFirst()
-                    .orElseThrow();
-            this.hasUnreadMessage = mentorParticipant.isHasUnreadMessage();
+                    .orElseThrow(() -> new BaseException(BaseExceptionResponseStatus.CANNOT_FOUND_MEMBER));
+
+            this.hasUnreadMessage = Boolean.TRUE.equals(mentorParticipant.isHasUnreadMessage());
+
         }
     }
 }
