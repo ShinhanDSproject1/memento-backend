@@ -30,6 +30,5 @@ public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewCus
             @Param("afterStatus") BaseStatus afterStatus,
             @Param("beforeStatus") BaseStatus beforeStatus);
 
-
-
+    boolean existsByReservation_ReservationSeqAndStatus(Long reservationSeq, BaseStatus status);
 }

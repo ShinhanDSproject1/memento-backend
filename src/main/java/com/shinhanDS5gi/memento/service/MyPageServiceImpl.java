@@ -13,6 +13,7 @@ import com.shinhanDS5gi.memento.dto.mypage.UpdateMyPasswordRequest;
 import com.shinhanDS5gi.memento.dto.mypage.UpdateMyProfileRequest;
 import com.shinhanDS5gi.memento.repository.ReservationRepository;
 import com.shinhanDS5gi.memento.repository.member.MemberRepository;
+import com.shinhanDS5gi.memento.repository.review.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -38,6 +39,7 @@ public class MyPageServiceImpl implements MyPageService {
     private final PasswordEncoder passwordEncoder;
     private final ReservationRepository reservationRepository;
     private final MentoCertificationService mentoCertificationService;
+    private final ReviewRepository reviewRepository;
 
     /* 나의 프로필 정보 조회 */
     @Override
@@ -122,7 +124,11 @@ public class MyPageServiceImpl implements MyPageService {
 
         // DTO로 변환
         List<MyMentosByMentiResponse> content = slicedContent.stream()
-                .map(MyMentosByMentiResponse::from)
+                .map(res -> {
+                    boolean reviewed = reviewRepository
+                            .existsByReservation_ReservationSeqAndStatus(res.getReservationSeq(), BaseStatus.ACTIVE);
+                    return MyMentosByMentiResponse.from(res, reviewed);
+                })
                 .collect(Collectors.toList());
 
         // 다음 페이지를 위한 cursor 값 계산

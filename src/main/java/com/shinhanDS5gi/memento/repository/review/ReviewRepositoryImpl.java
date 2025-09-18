@@ -82,5 +82,4 @@ public class ReviewRepositoryImpl implements ReviewCustomRepository {
                 .limit(limit+1)
                 .fetch();
     }
-
 }
