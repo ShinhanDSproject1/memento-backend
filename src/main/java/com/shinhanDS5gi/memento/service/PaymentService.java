@@ -20,6 +20,6 @@ public interface PaymentService {
     void fail(String code, String message, String orderId);
 
     /* 환불하기 */
-    void refundFull(Long currentMemberSeq, Long paymentSeq, String reason);
+    void refundFull(Long currentMemberSeq, Long reservationSeq, String reason);
 }
 
