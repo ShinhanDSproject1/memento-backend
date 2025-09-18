@@ -6,6 +6,7 @@ import com.shinhanDS5gi.memento.domain.member.Member;
 import com.shinhanDS5gi.memento.dto.mentos.*;
 import com.shinhanDS5gi.memento.security.CurrentUser;
 import com.shinhanDS5gi.memento.service.MentosService;
+import com.shinhanDS5gi.memento.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -24,6 +25,7 @@ import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionRespo
 public class MentosController {
 
     private final MentosService mentosService;
+    private final ReviewService reviewService;
 
     /* 나의 멘토스 목록 조회 (멘토) */
     @GetMapping("/my-list")
@@ -104,5 +106,15 @@ public class MentosController {
                                                                                      @PathVariable("mentosSeq") Long mentosSeq){
         log.info("[MentosController.showMentosDetailForUpdate]");
         return new BaseResponse<>(mentosService.showMentosDetailForUpdate(member, mentosSeq));
+    }
+
+    /* 멘토스 상세보기 리뷰 무한스크롤 */
+    @GetMapping("/detail/{mentosSeq}/reviews")
+    public BaseResponse<GetReviewListForMentosDetailResponse> getReviewListForMentosDetail(
+            @PathVariable("mentosSeq") Long mentosSeq,
+            @RequestParam(value = "limit", defaultValue = "10") Integer limit,
+            @RequestParam(value = "cursor", required = false) Long cursor){
+        log.info("[MentosController.getReviewListForMentosDetail]");
+        return new BaseResponse<>(reviewService.getReviewListForMentosDetail(mentosSeq, limit, cursor));
     }
 }
