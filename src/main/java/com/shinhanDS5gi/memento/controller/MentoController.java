@@ -2,12 +2,10 @@ package com.shinhanDS5gi.memento.controller;
 
 import com.shinhanDS5gi.memento.common.response.BaseResponse;
 import com.shinhanDS5gi.memento.domain.member.Member;
+import com.shinhanDS5gi.memento.dto.chat.ChattingRoomListByMentosResponse;
 import com.shinhanDS5gi.memento.dto.mento.*;
 import com.shinhanDS5gi.memento.security.CurrentUser;
-import com.shinhanDS5gi.memento.service.MentoCertificationService;
-import com.shinhanDS5gi.memento.service.MentoProfileService;
-import com.shinhanDS5gi.memento.service.MentoService;
-import com.shinhanDS5gi.memento.service.ReviewService;
+import com.shinhanDS5gi.memento.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -25,10 +23,10 @@ import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionRespo
 @RequestMapping("/mento")
 public class MentoController {
 
-    private final MentoService mentoService;
     private final MentoCertificationService mentoCertificationService;
     private final MentoProfileService mentoProfileService;
     private final ReviewService reviewService;
+    private final ChattingService chattingService;
 
     /* 멘토 리뷰 조회 */
     @GetMapping("/reviews")
@@ -100,11 +98,11 @@ public class MentoController {
         return new BaseResponse<>(SUCCESS, profile);
     }
 
-    /* 멘티 조회 (멘토스별 조회) */
+    /* 멘토의 채팅방 목록을 멘토스별로 그룹화하여 조회 */
     @GetMapping("/menti-list")
-    public BaseResponse<List<MyMentiResponse>> getMyMentiList(@CurrentUser Member member) {
-        Long currentMemberSeq = member.getMemberSeq();
-        List<MyMentiResponse> mentiList = mentoService.getMyMentiList(currentMemberSeq);
-        return new BaseResponse<>(SUCCESS, mentiList);
+    public BaseResponse<List<ChattingRoomListByMentosResponse>> getMyChatRoomList(@CurrentUser Member member) {
+        Long currentMentorSeq = member.getMemberSeq();
+        List<ChattingRoomListByMentosResponse> chatRoomList = chattingService.getChatRoomsByMentosForMentor(currentMentorSeq);
+        return new BaseResponse<>(SUCCESS, chatRoomList);
     }
 }
