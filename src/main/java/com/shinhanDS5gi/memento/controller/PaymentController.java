@@ -73,12 +73,12 @@ public class PaymentController {
     /**
      * 환불하기
      */
-    @PostMapping("/mentos/refund/{paymentSeq}")
+    @PostMapping("/mentos/refund/{reservationSeq}")
     public BaseResponse<Void> refund(
                     @CurrentUser Member member,
-                    @PathVariable Long paymentSeq) {
+                    @PathVariable Long reservationSeq) {
         Long currentMemberSeq = member.getMemberSeq();
-        paymentService.refundFull(currentMemberSeq, paymentSeq, "USER_REQUEST");
+        paymentService.refundFull(currentMemberSeq, reservationSeq, "USER_REQUEST");
         return new BaseResponse<>(SUCCESS, null);
 
    }
