@@ -14,6 +14,8 @@ public class GetReviewListForMentosDetailResponse {
     /* 멘토스 상세보기에서 리뷰 무한 스크롤로 받아오기 위한 dto */
 
     private final List<Review> reviews;
+    private final boolean hasNext;
+    private final Long nextCursor;
 
     @Getter
     @Builder
