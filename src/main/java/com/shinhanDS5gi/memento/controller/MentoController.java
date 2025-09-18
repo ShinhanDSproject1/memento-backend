@@ -31,14 +31,15 @@ public class MentoController {
     private final ReviewService reviewService;
 
     /* 멘토 리뷰 조회 */
-    @GetMapping("/reviews/{mentorSeq}")
+    @GetMapping("/reviews")
     public BaseResponse<MentoReviewsSliceResponse<MentoReviewsListResponse>> getMentoReviews(
-            @PathVariable("mentorSeq") Long mentorSeq,
+            @CurrentUser Member member,
             @RequestParam(defaultValue = "10") int limit,
             @RequestParam(required = false) Long cursor
     ) {
-        var page = reviewService.getMentoReviews(mentorSeq, limit, cursor);
-        return new BaseResponse<>(SUCCESS, page);
+        log.info("[MentoController.getMentoReviews]");
+        Long currentMemberSeq = member.getMemberSeq(); // 멘토
+        return new BaseResponse<>(reviewService.getMentoReviews(currentMemberSeq, limit, cursor));
     }
 
     /* 멘토 자격증 추가 */
