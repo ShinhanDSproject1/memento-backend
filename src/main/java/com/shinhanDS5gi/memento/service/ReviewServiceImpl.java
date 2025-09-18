@@ -2,21 +2,15 @@ package com.shinhanDS5gi.memento.service;
 
 import com.shinhanDS5gi.memento.common.exception.ReservationException;
 import com.shinhanDS5gi.memento.common.exception.ReviewException;
-import com.shinhanDS5gi.memento.common.exception.MemberException;
-import com.shinhanDS5gi.memento.common.exception.MentosException;
-import com.shinhanDS5gi.memento.domain.Mentos;
 import com.shinhanDS5gi.memento.domain.Reservation;
 import com.shinhanDS5gi.memento.domain.Review;
 import com.shinhanDS5gi.memento.domain.base.BaseStatus;
-import com.shinhanDS5gi.memento.domain.member.Member;
-//import com.shinhanDS5gi.memento.dto.mypage.CreateReviewRequest;
 import com.shinhanDS5gi.memento.dto.mento.MentoReviewsListResponse;
 import com.shinhanDS5gi.memento.dto.mento.MentoReviewsSliceResponse;
+import com.shinhanDS5gi.memento.dto.mentos.GetReviewListForMentosDetailResponse;
 import com.shinhanDS5gi.memento.dto.mypage.CreateReviewRequest;
-import com.shinhanDS5gi.memento.repository.mentos.MentosRepository;
 import com.shinhanDS5gi.memento.repository.ReservationRepository;
 import com.shinhanDS5gi.memento.repository.review.ReviewRepository;
-import com.shinhanDS5gi.memento.repository.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -33,8 +27,6 @@ import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionRespo
 public class ReviewServiceImpl implements ReviewService {
 
     private final ReviewRepository reviewRepository;
-    private final MemberRepository memberRepository;
-    private final MentosRepository mentosRepository;
     private final ReservationRepository reservationRepository;
     private final IdempotencyService idempotencyService;
 
@@ -85,5 +77,22 @@ public class ReviewServiceImpl implements ReviewService {
 
         // 멱등키 저장
         idempotencyService.saveKey(idemKey, String.valueOf(savedReview.getReviewSeq()));
+    }
+
+    /* 멘토스 상세보기 리뷰 무한 스크롤 */
+    @Override
+    public GetReviewListForMentosDetailResponse getReviewListForMentosDetail(Long mentosSeq, Integer limit, Long cursor) {
+        log.info("[ReviewServiceImpl.getReviewListForMentosDetail]");
+        List<GetReviewListForMentosDetailResponse.Review> reviewList = reviewRepository.findReviewByMentosSeqAndLimitAndCursorAndStatus(mentosSeq,limit,cursor,BaseStatus.ACTIVE);
+
+        GetReviewListForMentosDetailResponse result;
+
+        if(reviewList.size() <= limit){
+            result = new GetReviewListForMentosDetailResponse(reviewList.stream().limit(limit).toList(),false,null );
+        }else{
+            result = new GetReviewListForMentosDetailResponse(reviewList.stream().limit(limit).toList(), true, reviewList.get(reviewList.size()-1).getReviewSeq()+1);
+        }
+
+        return result;
     }
 }
