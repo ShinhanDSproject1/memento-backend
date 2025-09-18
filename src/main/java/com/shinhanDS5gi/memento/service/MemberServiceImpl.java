@@ -186,7 +186,7 @@ public class MemberServiceImpl implements MemberService {
         if (member.getMemberType().equals(MemberType.MENTO)) {
             expelForMento(member.getMemberSeq());
         } else if (member.getMemberType().equals(MemberType.MENTI)) {
-            expelForMenti(member.getMemberSeq());
+           expelForMenti(member.getMemberSeq());
         }
 
     }

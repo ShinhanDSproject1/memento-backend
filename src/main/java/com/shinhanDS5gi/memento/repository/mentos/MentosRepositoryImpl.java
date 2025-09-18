@@ -8,10 +8,7 @@ import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.shinhanDS5gi.memento.domain.QMentoCertification;
-import com.shinhanDS5gi.memento.domain.QMentoProfile;
-import com.shinhanDS5gi.memento.domain.QMentos;
-import com.shinhanDS5gi.memento.domain.QReview;
+import com.shinhanDS5gi.memento.domain.*;
 import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.domain.member.QMember;
 import com.shinhanDS5gi.memento.dto.mentos.GetMentosDetailProjection;
@@ -31,6 +28,7 @@ public class MentosRepositoryImpl implements MentosCustomRepository {
     QMentoCertification certification = QMentoCertification.mentoCertification;
     QMember member = QMember.member;
     QMentoProfile mentoProfile = QMentoProfile.mentoProfile;
+    QReservation reservation = QReservation.reservation;
 
     /* 멘토스 전체조회(카테고리별) */
     @Override
@@ -67,8 +65,25 @@ public class MentosRepositoryImpl implements MentosCustomRepository {
         BooleanBuilder builder = new BooleanBuilder();
         builder.and(mentos.mentosSeq.eq(mentosSeq)).and(mentos.status.eq(status));
 
-        SubQueryExpression<Integer> reviewTotalCnt = JPAExpressions.select(review.reviewSeq.count().intValue()).from(review).where(review.mentos.mentosSeq.eq(mentosSeq).and(review.status.eq(status)));
-        SubQueryExpression<Double> reviewRatingAvg = JPAExpressions.select(review.reviewRating.avg()).from(review).where(review.mentos.mentosSeq.eq(mentosSeq).and(review.status.eq(status)));
+        SubQueryExpression<Integer> reviewTotalCnt =
+                JPAExpressions
+                        .select(review.count().intValue())
+                        .from(review)
+                        .join(review.reservation, reservation)
+                        .where(
+                                reservation.mentos.mentosSeq.eq(mentosSeq)
+                                        .and(review.status.eq(status))
+                        );
+
+        SubQueryExpression<Double> reviewRatingAvg =
+                JPAExpressions
+                        .select(review.reviewRating.avg())
+                        .from(review)
+                        .join(review.reservation, reservation)
+                        .where(
+                                reservation.mentos.mentosSeq.eq(mentosSeq)
+                                        .and(review.status.eq(status))
+                        );
 
         return queryFactory.select(Projections.constructor(
                         GetMentosDetailProjection.class,
@@ -89,7 +104,7 @@ public class MentosRepositoryImpl implements MentosCustomRepository {
                 ))
                 .from(mentos)
                 .join(mentos.member, member)
-                .leftJoin(mentoProfile).on(mentoProfile.member.eq(member)) // ✅ location/description 조회 가능
+                .leftJoin(mentoProfile).on(mentoProfile.member.eq(member))
                 .where(builder)
                 .fetchOne();
     }

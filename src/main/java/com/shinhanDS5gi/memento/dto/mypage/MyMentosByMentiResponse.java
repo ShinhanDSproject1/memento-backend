@@ -17,6 +17,7 @@ public class MyMentosByMentiResponse {
     private final int price;
     private final String region;
     private final String progressStatus; /* 진행 전 | 진행 완료 */
+    private final Long reservationSeq;
 
     public static MyMentosByMentiResponse from(Reservation reservation) {
         Mentos mentos = reservation.getMentos();
@@ -34,6 +35,7 @@ public class MyMentosByMentiResponse {
                 .price(mentos.getPrice())
                 .region(region)
                 .progressStatus(status)
+                .reservationSeq(reservation.getReservationSeq())
                 .build();
     }
 }

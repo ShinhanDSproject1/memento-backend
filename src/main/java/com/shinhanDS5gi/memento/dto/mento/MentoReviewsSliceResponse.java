@@ -8,7 +8,7 @@ import java.util.List;
 @AllArgsConstructor
 //멘토 리뷰 조회 페이징(CURSOR) DTO
 public class MentoReviewsSliceResponse<T> {
-    private final List<T> content;
+    private final List<T> reviews;
     private final boolean hasNext;
     private final Long nextCursor;
 }

@@ -37,9 +37,10 @@ public class MentoController {
             @RequestParam(defaultValue = "10") int limit,
             @RequestParam(required = false) Long cursor
     ) {
-        Long currentMemberSeq = member.getMemberSeq();
-        var page = reviewService.getMentoReviews(currentMemberSeq, limit, cursor);
-        return new BaseResponse<>(SUCCESS, page);
+        log.info("[MentoController.getMentoReviews]");
+        Long currentMemberSeq = member.getMemberSeq(); // 멘토
+        return new BaseResponse<>(reviewService.getMentoReviews(currentMemberSeq, limit, cursor));
+
     }
 
     /* 멘토 자격증 추가 */

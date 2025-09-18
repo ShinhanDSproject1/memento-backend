@@ -8,8 +8,8 @@ import java.util.List;
 
 public interface ReviewCustomRepository {
     /* 멘토 리뷰 조회 */
-    List<MentoReviewsListResponse> findMentoReviewsByCursor(Long mentorSeq, Long cursor, int limit, BaseStatus status);
+    List<MentoReviewsListResponse> findMentoReviewsByCursor(Long mentoSeq, Long cursor, int limit, BaseStatus status);
 
     /* 멘토스 상세조회 */
-    List<GetMentosDetailResponse.Review> findReviewByMentosSeqAndStatus(Long mentosSeq, BaseStatus status);
+    //List<GetMentosDetailResponse.Review> findReviewByMentosSeqAndStatus(Long mentosSeq, BaseStatus status);
 }

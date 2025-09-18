@@ -85,10 +85,10 @@ public class Member extends BaseTime {
     private List<Mentos> mentosList = new ArrayList<>();
 
 
-    @Builder.Default
-    @JsonIgnore
-    @OneToMany(mappedBy = "member")
-    private List<Review> reviewList = new ArrayList<>();
+//    @Builder.Default
+//    @JsonIgnore
+//    @OneToMany(mappedBy = "member")
+//    private List<Review> reviewList = new ArrayList<>();
 
     public void updateMemberStatus(BaseStatus status){
         this.status = status;

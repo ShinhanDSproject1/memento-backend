@@ -14,6 +14,7 @@ import com.shinhanDS5gi.memento.dto.mypage.UpdateMyProfileRequest;
 import com.shinhanDS5gi.memento.repository.ReservationRepository;
 import com.shinhanDS5gi.memento.repository.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ import java.util.stream.Collectors;
 import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus.CANNOT_FOUND_MEMBER;
 import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -40,7 +42,7 @@ public class MyPageServiceImpl implements MyPageService {
     /* 나의 프로필 정보 조회 */
     @Override
     public MyProfileResponse getMyProfile(Long memberSeq) {
-
+        log.info("[MyPageServiceImpl.getMyProfile]");
         Member member = memberRepository.findByMemberSeqAndStatus(memberSeq, BaseStatus.ACTIVE)
                 .orElseThrow(() -> new MemberException(CANNOT_FOUND_MEMBER));
 
@@ -64,6 +66,7 @@ public class MyPageServiceImpl implements MyPageService {
     @Override
     @Transactional
     public void updateMyProfile(Long memberSeq, UpdateMyProfileRequest requestDto) {
+        log.info("[MyPageServiceImpl.updateMyProfile]");
         Member member = memberRepository.findByMemberSeqAndStatus(memberSeq, BaseStatus.ACTIVE)
                 .orElseThrow(() -> new MemberException(CANNOT_FOUND_MEMBER));
 
@@ -74,6 +77,7 @@ public class MyPageServiceImpl implements MyPageService {
     @Override
     @Transactional
     public void updateMyPassword(Long memberSeq, UpdateMyPasswordRequest requestDto) {
+        log.info("[MyPageServiceImpl.updateMyPassword]");
         Member member = memberRepository.findByMemberSeqAndStatus(memberSeq, BaseStatus.ACTIVE)
                 .orElseThrow(() -> new MemberException(CANNOT_FOUND_MEMBER));
 
@@ -92,6 +96,7 @@ public class MyPageServiceImpl implements MyPageService {
     /* 나의 멘토스 내역 조회 (멘티 기준) */
     @Override
     public MyMentosByMentiSliceResponse getMyMentosByMenti(Long memberSeq, int limit, Long cursor) {
+        log.info("[MyPageServiceImpl.getMyMentosByMenti]");
         // 정렬된 전체 예약 목록
         List<Reservation> allReservations = reservationRepository.findAllByMemberSeqAndStatusWithSorted(memberSeq, BaseStatus.ACTIVE);
 

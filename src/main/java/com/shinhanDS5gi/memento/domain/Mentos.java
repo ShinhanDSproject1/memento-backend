@@ -58,9 +58,9 @@ public class Mentos extends BaseTime {
     @OneToMany(mappedBy = "mentos")
     private List<Report> reportList = new ArrayList<>();
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "mentos")
-    private List<Review> reviewList = new ArrayList<>();
+//    @JsonIgnore
+//    @OneToMany(mappedBy = "mentos")
+//    private List<Review> reviewList = new ArrayList<>();
 
     /* 멘토스 정보 수정*/
     public void update(UpdateMentosRequest requestDto, String newImageUrl, Category category) {
