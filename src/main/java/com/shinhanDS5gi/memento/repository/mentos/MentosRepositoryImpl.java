@@ -104,7 +104,7 @@ public class MentosRepositoryImpl implements MentosCustomRepository {
                 ))
                 .from(mentos)
                 .join(mentos.member, member)
-                .leftJoin(mentoProfile).on(mentoProfile.member.eq(member)) // ✅ location/description 조회 가능
+                .leftJoin(mentoProfile).on(mentoProfile.member.eq(member))
                 .where(builder)
                 .fetchOne();
     }
