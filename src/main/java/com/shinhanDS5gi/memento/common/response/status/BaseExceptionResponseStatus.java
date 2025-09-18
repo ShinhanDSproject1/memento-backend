@@ -74,6 +74,13 @@ public enum BaseExceptionResponseStatus implements ResponseStatus{
     ALREADY_REPORTED(8003, HttpStatus.CONFLICT.value(), "이미 동일한 유형으로 신고한 게시글입니다."),
 
     /**
+     * Review 관련 8100대
+     */
+    REVIEW_NOT_ALLOWED_FOR_UNFINISHED_MENTOS(8100, HttpStatus.OK.value(), "아직 진행하지 않은 멘토스에 대한 리뷰는 작성할 수 없습니다."),
+    CANNOT_CREATE_REVIEW_WITHOUT_RESERVATION(8101, HttpStatus.OK.value(), "해당 멘토스를 수강한 내역이 없어 리뷰를 작성할 수 없습니다."),
+    ALREADY_EXIST_REVIEW(8102, HttpStatus.OK.value(), "이미 리뷰를 작성한 멘토스입니다."),
+
+    /**
      * MentoProfile 관련 9000대
      */
     ALREADY_EXISTS_MENTO_PROFILE(9000, HttpStatus.BAD_REQUEST.value(), "이미 멘토 프로필이 존재합니다."),
@@ -85,11 +92,12 @@ public enum BaseExceptionResponseStatus implements ResponseStatus{
     INVALID_ADDRESS_ERROR(9100, HttpStatus.BAD_REQUEST.value(), "유효하지 않은 주소입니다. 좌표를 찾을 수 없습니다."),
     KAKAO_API_CONNECTION_ERROR(9101, HttpStatus.INTERNAL_SERVER_ERROR.value(), "외부 API(지도) 연동 중 오류가 발생했습니다."),
     
-    /*
+    /**
      * Reservation 관련 9500대
      */
     ALREADY_EXIST_RESERVATION(9500, HttpStatus.BAD_REQUEST.value(), "해당 시간에 이미 예약이 존재합니다."),
-    FAILURE_CREATE_RESERVATION(9501, HttpStatus.BAD_REQUEST.value(), "예약에 실패했습니다.");
+    FAILURE_CREATE_RESERVATION(9501, HttpStatus.BAD_REQUEST.value(), "예약에 실패했습니다."),
+    CANNOT_FOUND_RESERVATION(9502, HttpStatus.OK.value(), "조건에 맞는 예약이 존재하지 않습니다.");
 
     private final int code;
     private final int status;
