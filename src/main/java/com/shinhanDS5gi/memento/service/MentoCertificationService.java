@@ -13,5 +13,5 @@ public interface MentoCertificationService {
     List<MentoCertificationsResponse> getMentoCertifications(Long memberSeq);
 
     /* 내 자격증 추가 */
-    void createMentoCertification(Long memberSeq, CreateMentoCertificationRequest requestDto, MultipartFile imageFile, String idemKey) throws IOException;
+    void createMentoCertification(Long memberSeq, String certificationName, String certificationImgUrl, String idemKey);
 }

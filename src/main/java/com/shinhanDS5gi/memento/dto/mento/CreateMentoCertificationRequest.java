@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 public class CreateMentoCertificationRequest {
 
     @NotBlank(message = "자격증 이름은 필수입니다.")
-    private String name;
+    private String certificationName;
+    private String certificationImgUrl;
 
 }

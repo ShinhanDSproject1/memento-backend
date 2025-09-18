@@ -6,12 +6,18 @@ import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.domain.member.Member;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.time.LocalTime;
 
 @Getter
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 /* 멘토 프로필 관련 RequestDTO */
 public class CreateMentoProfileRequest {
 
@@ -39,10 +45,10 @@ public class CreateMentoProfileRequest {
     private String mentoBname;
 
     private String mentoDetail;
+    private MultipartFile mentoProfileImg;
 
     public MentoProfile toEntity(Member member, String imageUrl, Double latitude, Double longitude) {
         return new MentoProfile(
-                null,
                 this.mentoProfileContent,
                 imageUrl,
                 this.startTime,

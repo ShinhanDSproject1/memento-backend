@@ -10,7 +10,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import java.time.LocalDateTime;
+import org.springframework.cglib.core.Local;
+
 import java.time.LocalTime;
 
 @Builder //엔티티에 저장하기 위해 넣었음
@@ -70,6 +71,23 @@ public class MentoProfile extends BaseTime {
     public MentoProfile(String mentoProfileContent, String mentoProfileImage, BaseStatus status, Member member) {
         this.mentoProfileContent = mentoProfileContent;
         this.mentoProfileImage = mentoProfileImage;
+        this.status = status;
+        this.member = member;
+    }
+
+    public MentoProfile(String mentoProfileContent, String imageUrl, LocalTime startTime, LocalTime endTime, String availableDays, String mentoPostcode,
+                        String mentoRoadAddress, String mentoBname, String mentoDetail, Double latitude, Double longitude, BaseStatus status, Member member){
+        this.mentoProfileContent = mentoProfileContent;
+        this.mentoProfileImage = imageUrl;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.availableDays = availableDays;
+        this.mentoPostcode = mentoPostcode;
+        this.mentoRoadAddress = mentoRoadAddress;
+        this.mentoBname = mentoBname;
+        this.mentoDetail = mentoDetail;
+        this.latitude = latitude;
+        this.longitude = longitude;
         this.status = status;
         this.member = member;
     }

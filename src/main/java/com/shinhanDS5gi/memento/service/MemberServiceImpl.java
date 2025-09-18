@@ -2,6 +2,7 @@ package com.shinhanDS5gi.memento.service;
 
 
 import com.shinhanDS5gi.memento.common.exception.MemberException;
+import com.shinhanDS5gi.memento.domain.MentoProfile;
 import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.domain.member.Member;
 import com.shinhanDS5gi.memento.domain.member.MemberType;
@@ -9,6 +10,7 @@ import com.shinhanDS5gi.memento.dto.mento.CreateMentoCertificationRequest;
 import com.shinhanDS5gi.memento.dto.auth.MentoSignupRequest;
 import com.shinhanDS5gi.memento.dto.auth.MentiSignupRequest;
 import com.shinhanDS5gi.memento.dto.admin.GetMemberListResponse;
+import com.shinhanDS5gi.memento.dto.mento.CreateMentoProfileRequest;
 import com.shinhanDS5gi.memento.repository.mento.MentoCertificationRepository;
 import com.shinhanDS5gi.memento.repository.*;
 import com.shinhanDS5gi.memento.repository.review.ReviewRepository;
@@ -52,6 +54,7 @@ public class MemberServiceImpl implements MemberService {
     private final IdempotencyService idempotencyService;
 
     private final AuthService authService;
+    private final MentoProfileService mentoProfileService;
 
 
     /* 관리자 페이지 전체 회원 조회하기 */
@@ -98,25 +101,27 @@ public class MemberServiceImpl implements MemberService {
     /* 멘토 회원가입 */
     @Override
     @Transactional
-    public void signupMento(MentoSignupRequest req, @Nullable MultipartFile certImage, String idemKey) throws IOException {
-        // 멱등키 중복 여부 (추가)
+    public void signupMento(MentoSignupRequest mentoSignupRequest, String idemKey) throws IOException {
+        log.info("[MemberServiceImpl.signupMento]");
+
+        // 멱등키 중복 여부
         if (idempotencyService.isDuplicate(idemKey)) {
             throw new MemberException(ALREADY_SUCCESS_REQUEST);
         }
 
         // 1) 중복 아이디 체크
-        if (memberRepository.existsByMemberId(req.getMemberId())) {
-            log.warn("[signupMento] 중복 아이디: {}", req.getMemberId());
+        if (memberRepository.existsByMemberId(mentoSignupRequest.getMemberId())) {
+            log.warn("[signupMento] 중복 아이디: {}", mentoSignupRequest.getMemberId());
             throw new MemberException(CANNOT_SIGNUP);
         }
         // 2) 생년월일 파싱 (yyyy-MM-dd)
-        LocalDate birth = LocalDate.parse(req.getMemberBirthDate());
+        LocalDate birth = LocalDate.parse(mentoSignupRequest.getMemberBirthDate());
         // 3) 엔티티에 회원 저장 (MENTO)
         Member member = Member.builder()
-                .memberId(req.getMemberId())
-                .memberPwd(pwEncoder.encode(req.getMemberPwd()))
-                .memberName(req.getMemberName())
-                .memberPhoneNumber(req.getMemberPhoneNumber())
+                .memberId(mentoSignupRequest.getMemberId())
+                .memberPwd(pwEncoder.encode(mentoSignupRequest.getMemberPwd()))
+                .memberName(mentoSignupRequest.getMemberName())
+                .memberPhoneNumber(mentoSignupRequest.getMemberPhoneNumber())
                 .memberBirthDate(birth)
                 .memberType(MemberType.MENTO)
                 .status(BaseStatus.ACTIVE)
@@ -124,18 +129,28 @@ public class MemberServiceImpl implements MemberService {
         Member savedMember = memberRepository.save(member);
 
         // 4) 자격증 저장
-        boolean hasName = req.getCertificationName() != null && !req.getCertificationName().isBlank();
-        boolean hasFile = certImage != null && !certImage.isEmpty();
+        boolean hasName = mentoSignupRequest.getCertificationName() != null && !mentoSignupRequest.getCertificationName().isBlank();
+        boolean hasFile = mentoSignupRequest.getCertificationImgUrl() != null && !mentoSignupRequest.getCertificationImgUrl().isBlank();
 
         if (hasName && hasFile) {
-            CreateMentoCertificationRequest certReq = CreateMentoCertificationRequest.builder()
-                    .name(req.getCertificationName())
-                    .build();
-            mentoCertificationService.createMentoCertification(member.getMemberSeq(), certReq, certImage, idemKey);
-            log.info("[signupMento] 자격증 등록 완료: {}", req.getCertificationName());
+            mentoCertificationService.createMentoCertification(member.getMemberSeq(), mentoSignupRequest.getCertificationName(), mentoSignupRequest.getCertificationImgUrl(), idemKey);
+            log.info("[signupMento] 자격증 등록 완료: {}", mentoSignupRequest.getCertificationName());
         } else if (!hasName && !hasFile) {
             log.info("[signupMento] 자격증 없이 가입 완료");
         }
+
+        CreateMentoProfileRequest createMentoProfileRequest = CreateMentoProfileRequest.builder()
+                .mentoProfileContent(mentoSignupRequest.getMentoProfileContent())
+                .startTime(mentoSignupRequest.getStartTime())
+                .endTime(mentoSignupRequest.getEndTime())
+                .availableDays(mentoSignupRequest.getAvailableDays())
+                .mentoPostcode(mentoSignupRequest.getMentoPostcode())
+                .mentoRoadAddress(mentoSignupRequest.getMentoRoadAddress())
+                .mentoBname(mentoSignupRequest.getMentoBname())
+                .mentoDetail(mentoSignupRequest.getMentoDetail())
+                .mentoProfileImg(mentoSignupRequest.getMentoImage()).build();
+        // 멘토 프로필 저장하기
+        mentoProfileService.createMentoProfile(savedMember.getMemberSeq(), createMentoProfileRequest);
 
         // 멱등키 Redis 저장
         idempotencyService.saveKey(idemKey, String.valueOf(savedMember.getMemberSeq()));

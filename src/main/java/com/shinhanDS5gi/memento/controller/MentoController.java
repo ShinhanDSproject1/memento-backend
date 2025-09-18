@@ -47,12 +47,12 @@ public class MentoController {
     @PostMapping(value = "/mento-certifications", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public BaseResponse<Void> createMentoCertification(
             @CurrentUser Member member,
-            @RequestPart("requestDto") CreateMentoCertificationRequest requestDto,
-            @RequestPart("imageFile") MultipartFile imageFile,
-            @RequestHeader("Idem-Key") String idemKey) throws IOException {
+            @ModelAttribute CreateMentoCertificationRequest requestDto,
+            @RequestHeader("Idem-Key") String idemKey) {
 
+        log.info("[MentoController.createMentoCertification]");
         Long currentMemberSeq = member.getMemberSeq();
-        mentoCertificationService.createMentoCertification(currentMemberSeq, requestDto, imageFile, idemKey);
+        mentoCertificationService.createMentoCertification(currentMemberSeq, requestDto.getCertificationName(), requestDto.getCertificationImgUrl(), idemKey);
 
         return new BaseResponse<>(SUCCESS, null);
     }
@@ -69,12 +69,11 @@ public class MentoController {
     /* 멘토 프로필 생성 */
     @PostMapping(value = "/mento-profiles", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public BaseResponse<Void> createMentoProfile(@CurrentUser Member member,
-                                                 @RequestPart("requestDto") CreateMentoProfileRequest requestDto,
-                                                 @RequestPart("imageFile") MultipartFile imageFile,
+                                                 @ModelAttribute CreateMentoProfileRequest requestDto,
                                                  @RequestHeader("Idem-Key") String idemKey) throws IOException {
 
         Long currentMemberSeq = member.getMemberSeq();
-        mentoProfileService.createMentoProfile(currentMemberSeq, requestDto, imageFile, idemKey);
+        mentoProfileService.createMentoProfile(currentMemberSeq, requestDto);
 
         return new BaseResponse<>(SUCCESS, null);
     }
