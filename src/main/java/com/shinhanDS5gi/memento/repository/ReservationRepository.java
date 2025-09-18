@@ -59,4 +59,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 
     // 예약하기 : mentosSeq, mentosAt(날짜), mentosTime(시간), status 로 존재하는 Reservation 이 있는지 확인
     boolean existsByMentos_MentosSeqAndMentosAtAndMentosTimeAndStatus(Long mentosSeq, LocalDate mentosAt, LocalTime mentosTime, BaseStatus status);
+
+    Optional<Reservation> findByReservationSeqAndStatus(Long reservationSeq, BaseStatus baseStatus);
 }

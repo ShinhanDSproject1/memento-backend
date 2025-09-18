@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 public interface ReviewService {
 
     /* 멘토 리뷰 조회 */
-    MentoReviewsSliceResponse<MentoReviewsListResponse> getMentoReviews(Long mentorSeq, int limit, Long cursor);
+    //MentoReviewsSliceResponse<MentoReviewsListResponse> getMentoReviews(Long mentorSeq, int limit, Long cursor);
 
     /* 리뷰 작성하기 */
     @Transactional

@@ -33,4 +33,11 @@ public class Review extends BaseTime {
     @JoinColumn(name = "reservation_seq")
     private Reservation reservation;
 
+    public Review(int reviewRating, String reviewContent, BaseStatus status, Reservation reservation){
+        this.reviewRating = reviewRating;
+        this.reviewContent = reviewContent;
+        this.status = status;
+        this.reservation = reservation;
+    }
+
 }

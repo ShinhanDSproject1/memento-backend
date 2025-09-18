@@ -1,5 +1,6 @@
 package com.shinhanDS5gi.memento.service;
 
+import com.shinhanDS5gi.memento.common.exception.ReservationException;
 import com.shinhanDS5gi.memento.common.exception.ReviewException;
 import com.shinhanDS5gi.memento.common.exception.MemberException;
 import com.shinhanDS5gi.memento.common.exception.MentosException;
@@ -8,9 +9,10 @@ import com.shinhanDS5gi.memento.domain.Reservation;
 import com.shinhanDS5gi.memento.domain.Review;
 import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.domain.member.Member;
-import com.shinhanDS5gi.memento.dto.mypage.CreateReviewRequest;
+//import com.shinhanDS5gi.memento.dto.mypage.CreateReviewRequest;
 import com.shinhanDS5gi.memento.dto.mento.MentoReviewsListResponse;
 import com.shinhanDS5gi.memento.dto.mento.MentoReviewsSliceResponse;
+import com.shinhanDS5gi.memento.dto.mypage.CreateReviewRequest;
 import com.shinhanDS5gi.memento.repository.mentos.MentosRepository;
 import com.shinhanDS5gi.memento.repository.ReservationRepository;
 import com.shinhanDS5gi.memento.repository.review.ReviewRepository;
@@ -36,66 +38,61 @@ public class ReviewServiceImpl implements ReviewService {
     private final IdempotencyService idempotencyService;
 
     /* 멘토 리뷰 조회하기 */
-    @Override
-    public MentoReviewsSliceResponse<MentoReviewsListResponse> getMentoReviews(Long mentorSeq, int limit, Long cursor) {
-        // 1) 커서 조건 + limit+1로 리뷰 조회
-        var rows = reviewRepository.findMentoReviewsByCursor(mentorSeq, cursor, limit, BaseStatus.ACTIVE);
-        log.debug("조회된 리뷰 개수={}, 리뷰 목록={}", rows.size(), rows);
-        //리뷰 없을 경우
-        if (cursor == null && rows.isEmpty()) {
-            log.warn("멘토 {}의 리뷰 없음", mentorSeq);
-            throw new ReviewException(NO_REVIEWS_FOUND_FOR_MENTO);
-        }
-        // 2) 다음 페이지 여부 판단 (limit보다 많으면 hasNext = true)
-        boolean hasNext = rows.size() > limit;
-        if (hasNext) rows = rows.subList(0, limit);
-        // 3) 조회 결과를 DTO로 변환
-        var content = rows.stream()
-                .map(r -> new MentoReviewsListResponse(
-                        r.getReviewSeq(),
-                        r.getMentosTitle(),
-                        r.getReviewRating(),
-                        r.getMentiName(),
-                        r.getReviewContent(),
-                        r.getCreatedAt()
-                ))
-                .toList();
-
-        Long nextCursor = content.isEmpty() ? null : content.get(content.size() - 1).getReviewSeq();
-        return new MentoReviewsSliceResponse<>(content, hasNext, nextCursor);
-    }
+//    @Override
+//    public MentoReviewsSliceResponse<MentoReviewsListResponse> getMentoReviews(Long mentorSeq, int limit, Long cursor) {
+//        // 1) 커서 조건 + limit+1로 리뷰 조회
+//        var rows = reviewRepository.findMentoReviewsByCursor(mentorSeq, cursor, limit, BaseStatus.ACTIVE);
+//        log.debug("조회된 리뷰 개수={}, 리뷰 목록={}", rows.size(), rows);
+//        //리뷰 없을 경우
+//        if (cursor == null && rows.isEmpty()) {
+//            log.warn("멘토 {}의 리뷰 없음", mentorSeq);
+//            throw new ReviewException(NO_REVIEWS_FOUND_FOR_MENTO);
+//        }
+//        // 2) 다음 페이지 여부 판단 (limit보다 많으면 hasNext = true)
+//        boolean hasNext = rows.size() > limit;
+//        if (hasNext) rows = rows.subList(0, limit);
+//        // 3) 조회 결과를 DTO로 변환
+//        var content = rows.stream()
+//                .map(r -> new MentoReviewsListResponse(
+//                        r.getReviewSeq(),
+//                        r.getMentosTitle(),
+//                        r.getReviewRating(),
+//                        r.getMentiName(),
+//                        r.getReviewContent(),
+//                        r.getCreatedAt()
+//                ))
+//                .toList();
+//
+//        Long nextCursor = content.isEmpty() ? null : content.get(content.size() - 1).getReviewSeq();
+//        return new MentoReviewsSliceResponse<>(content, hasNext, nextCursor);
+//    }
 
     /* 리뷰 작성하기 */
     @Transactional
     @Override
     public void createReview(Long memberSeq, CreateReviewRequest requestDto, String idemKey) {
 
+        log.info("[ReviewServiceImpl.createReview]==> memberSeq :"+ String.valueOf(memberSeq));
         // 멱등키 중복 여부 검사
         if (idempotencyService.isDuplicate(idemKey)) {
             throw new ReviewException(ALREADY_SUCCESS_REQUEST);
         }
 
-        /* 리뷰 작성자(유저), 리뷰 대상(멘토스) 조회 */
-        Member reviewer = memberRepository.findByMemberSeqAndStatus(memberSeq, BaseStatus.ACTIVE)
-                .orElseThrow(()-> new MemberException(CANNOT_FOUND_MEMBER));
-        Mentos reviewedMentos = mentosRepository.findByMentosSeqAndStatus(requestDto.getMentosSeq(), BaseStatus.ACTIVE)
-                .orElseThrow(()-> new MentosException(CANNOT_FOUND_MENTOS));
+        Reservation reservation = reservationRepository.findByReservationSeqAndStatus(requestDto.getReservationSeq(), BaseStatus.ACTIVE)
+                .orElseThrow(() -> new ReservationException(CANNOT_FOUND_RESERVATION));
 
-        /* 실제로 멘토스를 예약한 유저인가? */
-        Reservation reservation = reservationRepository.findByMember_MemberSeqAndMentos_MentosSeqAndStatus(memberSeq, requestDto.getMentosSeq(), BaseStatus.ACTIVE)
-                .orElseThrow(() -> new ReviewException(FAILURE, "해당 멘토스를 수강한 내역이 없어 리뷰를 작성할 수 없습니다."));
-
-        /* 진행 완료된 멘토스인가? */
         if (reservation.getMentosAt().isAfter(LocalDate.now())) {
-            throw new ReviewException(FAILURE, "아직 진행하지 않은 멘토스에 대한 리뷰는 작성할 수 없습니다.");
+            /* 진행 완료된 멘토스인가? */
+            throw new ReviewException(REVIEW_NOT_ALLOWED_FOR_UNFINISHED_MENTOS);
+        } else if (!reservation.getMember().getMemberSeq().equals(memberSeq)) {
+            // 예약자와 요청 보낸 사용자가 동일한지 확인
+            throw new ReviewException(CANNOT_CREATE_REVIEW_WITHOUT_RESERVATION);
+        } else if (reviewRepository.existsById(reservation.getReservationSeq())) {
+            /* 이미 리뷰를 작성한 멘토스는 아닌가? */
+            throw new ReviewException(ALREADY_EXIST_REVIEW);
         }
 
-        /* 이미 리뷰를 작성한 멘토스는 아닌가? */
-        if (reviewRepository.existsByMember_MemberSeqAndMentos_MentosSeq(memberSeq, requestDto.getMentosSeq())) {
-            throw new ReviewException(FAILURE, "이미 리뷰를 작성한 멘토스입니다.");
-        }
-
-        Review review = requestDto.toEntity(reviewer, reviewedMentos);
+        Review review = new Review(requestDto.getReviewRating(), requestDto.getReviewContent(), BaseStatus.ACTIVE, reservation);
         Review savedReview = reviewRepository.save(review);
 
         // 멱등키 저장
