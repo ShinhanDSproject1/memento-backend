@@ -145,11 +145,10 @@ public class MentosServiceImpl implements MentosService {
 
         GetMentosDetailProjection projection = mentosRepository.findMentosDetailByMentosSeqAndStatus(mentos.getMentosSeq(), BaseStatus.ACTIVE);
 
-        List<GetMentosDetailResponse.Review> review = reviewRepository.findReviewByMentosSeqAndStatus(mentosSeq, BaseStatus.ACTIVE);
         return GetMentosDetailResponse.builder().mentosImage(projection.getMentosImage())
                 .mentosTitle(projection.getMentosTitle()).mentosLocation(projection.getMentosLocation())
                 .reviewTotalCnt(projection.getReviewTotalCnt()).reviewRatingAvg(projection.getReviewRatingAvg())
-                .reviews(review).mento(GetMentosDetailResponse.MentoDetail.builder().mentoName(projection.getMentoName())
+                .mento(GetMentosDetailResponse.MentoDetail.builder().mentoName(projection.getMentoName())
                         .mentoImg(projection.getMentoImg()).mentoDescription(projection.getMentoDescription()).build())
                 .mentosDescription(projection.getMentosDescription()).mentosPrice(projection.getMentosPrice()).build();
     }
