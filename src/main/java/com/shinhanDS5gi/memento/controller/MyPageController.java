@@ -66,9 +66,9 @@ public class MyPageController {
             @RequestParam(defaultValue = "3") int limit, // 3개씩 보여주기
             @RequestParam(required = false) Long cursor
     ) {
+        log.info("[MypageController.getMyMentoringHistory]");
         Long currentMemberSeq = member.getMemberSeq();
-        var page = myPageService.getMyMentosByMenti(currentMemberSeq, limit, cursor);
-        return new BaseResponse<>(SUCCESS, page);
+        return new BaseResponse<>(myPageService.getMyMentosByMenti(currentMemberSeq, limit, cursor));
     }
 
     /* 회원 탈퇴 */
