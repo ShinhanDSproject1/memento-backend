@@ -8,7 +8,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Getter
@@ -52,7 +51,7 @@ public class CreateMentoProfileRequest {
                 this.mentoPostcode,
                 this.mentoRoadAddress,
                 this.mentoBname,
-                this.availableDays,
+                this.mentoDetail,
                 latitude,
                 longitude,
                 BaseStatus.ACTIVE,
