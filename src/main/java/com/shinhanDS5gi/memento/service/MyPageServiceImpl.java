@@ -55,6 +55,7 @@ public class MyPageServiceImpl implements MyPageService {
         }
 
         return MyProfileResponse.builder()
+                .memberSeq(member.getMemberSeq())
                 .memberName(member.getMemberName())
                 .memberPhoneNumber(member.getMemberPhoneNumber())
                 .memberBirthDate(member.getMemberBirthDate())

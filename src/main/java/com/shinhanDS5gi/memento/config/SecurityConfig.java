@@ -39,6 +39,7 @@ public class SecurityConfig {
                         .requestMatchers("/", "/actuator/health").permitAll()
                         .requestMatchers("/api/auth/**").permitAll() // 로그인, 회원가입, 토큰 재발급
                         .requestMatchers("/api/payments/success", "/api/payments/fail").permitAll() // 결제 Callback
+                        .requestMatchers("/ws/chat/**").permitAll()
 
                         // 읽기 전용 공개 API (GET 요청만 허용)
                         .requestMatchers(HttpMethod.GET,

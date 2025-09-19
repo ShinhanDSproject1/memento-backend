@@ -13,6 +13,7 @@ import java.util.List;
 @Builder
 public class MyProfileResponse {
 
+    private final Long memberSeq; // 채팅방 연결을 위해 추가 09/18
     private final String memberName;
     private final String memberPhoneNumber;
     private final LocalDate memberBirthDate;

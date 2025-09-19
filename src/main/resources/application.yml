@@ -1,9 +1,10 @@
 # 모든 환경에서 공통으로 사용될 설정
 spring:
   profiles:
-    active: local # 기본 프로파일은 local
-
-  # JPA 설정 등은 모든 환경에서 동일하게 사용
+    active: local
+    group:
+      "local": "local"
+      "prod": "prod"
   jpa:
     hibernate:
       ddl-auto: update
@@ -13,7 +14,6 @@ spring:
         default_batch_fetch_size: 100
     open-in-view: false
 
-# 로깅 레벨도 공통으로 사용
 logging:
   level:
     org.hibernate.SQL: debug
