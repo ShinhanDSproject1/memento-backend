@@ -22,6 +22,7 @@ public class GetReviewListForMentosDetailResponse {
     @AllArgsConstructor
     public static class Review{
         private final Long reviewSeq;
+        private final String memberName;
         private final Integer reviewRating;
         private final String reviewDate;
         private final String reviewContent;
