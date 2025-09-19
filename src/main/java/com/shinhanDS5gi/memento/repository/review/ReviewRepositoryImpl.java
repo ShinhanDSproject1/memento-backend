@@ -69,6 +69,7 @@ public class ReviewRepositoryImpl implements ReviewCustomRepository {
         return queryFactory
                 .select(Projections.constructor(GetReviewListForMentosDetailResponse.Review.class,
                         review.reviewSeq,
+                        member.memberName,
                         review.reviewRating,
                         // MySQL DATE_FORMAT 그대로 사용
                         Expressions.stringTemplate("date_format({0}, {1})",
@@ -77,6 +78,7 @@ public class ReviewRepositoryImpl implements ReviewCustomRepository {
                 ))
                 .from(review)
                 .join(review.reservation, reservation)
+                .join(reservation.member, member)
                 .where(builder)
                 .orderBy(review.reviewSeq.desc())
                 .limit(limit+1)
