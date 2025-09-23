@@ -31,13 +31,14 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             "JOIN FETCH r.mentos m " +
             "JOIN FETCH m.member mem " +
             "JOIN FETCH mem.mentoProfile mp " +
-            "WHERE r.member.memberSeq = :memberSeq AND r.status = :status " +
+            "WHERE r.member.memberSeq = :memberSeq AND r.status = :reservationStatus AND m.status = :mentosStatus " +
             "ORDER BY " +
             "  CASE WHEN r.mentosAt > CURRENT_TIMESTAMP THEN 1 ELSE 2 END ASC, " +
             "  r.reservationSeq DESC")
     List<Reservation> findAllByMemberSeqAndStatusWithSorted(
             @Param("memberSeq") Long memberSeq,
-            @Param("status") BaseStatus status
+            @Param("reservationStatus") BaseStatus reservationStatus,
+            @Param("mentosStatus") BaseStatus mentosStatus
     );
 
     @Modifying(clearAutomatically = true)

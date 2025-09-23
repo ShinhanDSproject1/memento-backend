@@ -101,7 +101,7 @@ public class MyPageServiceImpl implements MyPageService {
     public MyMentosByMentiSliceResponse getMyMentosByMenti(Long memberSeq, int limit, Long cursor) {
         log.info("[MyPageServiceImpl.getMyMentosByMenti]");
         // 정렬된 전체 예약 목록
-        List<Reservation> allReservations = reservationRepository.findAllByMemberSeqAndStatusWithSorted(memberSeq, BaseStatus.ACTIVE);
+        List<Reservation> allReservations = reservationRepository.findAllByMemberSeqAndStatusWithSorted(memberSeq, BaseStatus.ACTIVE, BaseStatus.ACTIVE);
 
         int startIndex = 0;
         if (cursor != null) {
