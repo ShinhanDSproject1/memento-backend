@@ -33,8 +33,7 @@ public class ReviewServiceImpl implements ReviewService {
     /* 멘토 리뷰 조회하기 */
     @Override
     public MentoReviewsSliceResponse<MentoReviewsListResponse> getMentoReviews(Long mentoSeq, int limit, Long cursor) {
-        log.info("[ReviewServiceImpl.getMentosReviews]");
-
+        log.info("[ReviewServiceImpl.getMentosReviews]==>"+String.valueOf(mentoSeq));
         List<MentoReviewsListResponse> reviewsListResponses = reviewRepository.findMentoReviewsByCursor(mentoSeq,cursor,limit,BaseStatus.ACTIVE);
 
         MentoReviewsSliceResponse<MentoReviewsListResponse> result;
