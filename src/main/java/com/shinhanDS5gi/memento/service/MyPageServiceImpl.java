@@ -11,6 +11,7 @@ import com.shinhanDS5gi.memento.dto.mento.MentoCertificationsResponse;
 import com.shinhanDS5gi.memento.dto.mypage.MyProfileResponse;
 import com.shinhanDS5gi.memento.dto.mypage.UpdateMyPasswordRequest;
 import com.shinhanDS5gi.memento.dto.mypage.UpdateMyProfileRequest;
+import com.shinhanDS5gi.memento.repository.ReportRepository;
 import com.shinhanDS5gi.memento.repository.ReservationRepository;
 import com.shinhanDS5gi.memento.repository.member.MemberRepository;
 import com.shinhanDS5gi.memento.repository.review.ReviewRepository;
@@ -40,6 +41,7 @@ public class MyPageServiceImpl implements MyPageService {
     private final ReservationRepository reservationRepository;
     private final MentoCertificationService mentoCertificationService;
     private final ReviewRepository reviewRepository;
+    private final ReportRepository reportRepository;
 
     /* 나의 프로필 정보 조회 */
     @Override
@@ -128,7 +130,8 @@ public class MyPageServiceImpl implements MyPageService {
                 .map(res -> {
                     boolean reviewed = reviewRepository
                             .existsByReservation_ReservationSeqAndStatus(res.getReservationSeq(), BaseStatus.ACTIVE);
-                    return MyMentosByMentiResponse.from(res, reviewed);
+                    boolean reported = reportRepository.existsByMember_MemberSeqAndMentos_MentosSeqAndStatus(memberSeq, res.getMentos().getMentosSeq(), BaseStatus.ACTIVE);
+                    return MyMentosByMentiResponse.from(res, reviewed, reported);
                 })
                 .collect(Collectors.toList());
 

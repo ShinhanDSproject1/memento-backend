@@ -19,8 +19,9 @@ public class MyMentosByMentiResponse {
     private final String progressStatus; /* 진행 전 | 진행 완료 */
     private final Long reservationSeq;
     private final boolean reviewCompleted;
+    private final boolean reportCompleted;
 
-    public static MyMentosByMentiResponse from(Reservation reservation, boolean reviewCompleted) {
+    public static MyMentosByMentiResponse from(Reservation reservation, boolean reviewCompleted, boolean reportCompleted) {
         Mentos mentos = reservation.getMentos();
         String status = reservation.getMentosAt().isBefore(LocalDate.now()) ? "진행 완료" : "진행 전";
 
@@ -38,6 +39,7 @@ public class MyMentosByMentiResponse {
                 .progressStatus(status)
                 .reservationSeq(reservation.getReservationSeq())
                 .reviewCompleted(reviewCompleted)
+                .reportCompleted(reportCompleted)
                 .build();
     }
 }
