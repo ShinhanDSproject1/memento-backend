@@ -56,7 +56,11 @@ public class ReservationServiceImpl implements ReservationService {
 
         // 요청 날짜의 요일이 availableDays에 없으면 빈 배열 반환
         if (!isDayAllowed(availableDays, date.getDayOfWeek())) {
+            log.info("[ReservationServiceImpl.getAvailableTime 요청 날짜는 가능한 요일이 아니에요]");
             return GetAvailableDateResponse.builder()
+                    .mentosSeq(mentosSeq)
+                    .price(mentos.getPrice())
+                    .mentosTitle(mentos.getMentosTitle())
                     .startTime(startTime)
                     .endTime(endTime)
                     .availableTime(Collections.emptyList())
