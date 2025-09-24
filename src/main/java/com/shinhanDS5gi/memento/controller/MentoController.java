@@ -45,7 +45,7 @@ public class MentoController {
     @PostMapping(value = "/mento-certifications", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public BaseResponse<Void> createMentoCertification(
             @CurrentUser Member member,
-            @ModelAttribute CreateMentoCertificationRequest requestDto,
+            @RequestBody CreateMentoCertificationRequest requestDto,
             @RequestHeader("Idem-Key") String idemKey) {
 
         log.info("[MentoController.createMentoCertification]");
