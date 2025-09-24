@@ -42,13 +42,13 @@ public class MentoController {
     }
 
     /* 멘토 자격증 추가 */
-    @PostMapping(value = "/mento-certifications", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping("/mento-certifications")
     public BaseResponse<Void> createMentoCertification(
             @CurrentUser Member member,
             @RequestBody CreateMentoCertificationRequest requestDto,
             @RequestHeader("Idem-Key") String idemKey) {
 
-        log.info("[MentoController.createMentoCertification]");
+        log.info("[MentoController.createMentoCertification]===>");
         Long currentMemberSeq = member.getMemberSeq();
         mentoCertificationService.createMentoCertification(currentMemberSeq, requestDto.getCertificationName(), requestDto.getCertificationImgUrl(), idemKey);
 
