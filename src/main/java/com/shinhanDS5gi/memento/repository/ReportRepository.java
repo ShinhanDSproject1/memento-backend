@@ -37,4 +37,6 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
     int updateReportStatus(@Param("memberSeq") Long memberSeq,
                            @Param("afterStatus") BaseStatus afterStatus,
                            @Param("beforeStatus") BaseStatus beforeStatus);
+
+    boolean existsByMember_MemberSeqAndMentos_MentosSeqAndStatus(Long memberSeq, Long mentosSeq, BaseStatus status);
 }
