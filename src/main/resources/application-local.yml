@@ -8,6 +8,14 @@ spring:
     url: jdbc:mysql://localhost:3306/memento?characterEncoding=UTF-8&serverTimezone=Asia/Seoul
     username: memento
     password:
+#  jpa:
+#    hibernate:
+#      ddl-auto: create
+#    # SQL 로그
+#    show-sql: true
+#    properties:
+#      hibernate:
+#        format_sql: true
   data:
     redis:
       host: localhost
@@ -17,6 +25,13 @@ spring:
 
 server:
   port: 9999
+
+logging:
+  level:
+    # 스프링의 메시징 관련 로그를 DEBUG 레벨로 출력
+    org.springframework.messaging: DEBUG
+    # 웹소켓 관련 로그를 DEBUG 레벨로 출력
+    org.springframework.web.socket: DEBUG
 
 app:
   url:

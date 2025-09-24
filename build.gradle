@@ -51,6 +51,7 @@ dependencies {
 
     // Websocket
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    implementation 'org.springframework.security:spring-security-messaging'
 
     //비밀번호 해시
     implementation 'org.springframework.security:spring-security-crypto'
