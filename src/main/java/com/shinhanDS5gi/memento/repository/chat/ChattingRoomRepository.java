@@ -22,6 +22,23 @@ public interface ChattingRoomRepository extends JpaRepository<ChattingRoom, Long
             "ORDER BY cr.lastMessageAt DESC")
     List<ChattingRoom> findAllByMentorIdGroupedByMentos(@Param("mentorSeq") Long mentorSeq);
 
+    @Query("SELECT DISTINCT cr.chattingRoomSeq FROM ChattingRoom cr " +
+            "JOIN cr.participants p " +
+            "WHERE p.member.memberSeq = :menteeSeq AND cr.status = 'ACTIVE'")
+    List<Long> findActiveChattingRoomIdsByMentiId(@Param("menteeSeq") Long menteeSeq);
+
+    // ID 목록으로 모든 정보를 한번에 조회하는 쿼리
+    @Query("SELECT DISTINCT cr FROM ChattingRoom cr " +
+            "JOIN FETCH cr.participants p " +
+            "JOIN FETCH p.member mem " +
+            "LEFT JOIN FETCH mem.mentoProfile " +
+            "JOIN FETCH cr.payment pay " +
+            "JOIN FETCH pay.reservation r " +
+            "JOIN FETCH r.mentos m " +
+            "WHERE cr.chattingRoomSeq IN :roomIds " +
+            "ORDER BY cr.lastMessageAt DESC")
+    List<ChattingRoom> findAllWithDetailsByRoomIds(@Param("roomIds") List<Long> roomIds);
+
     /* 채팅방 상세정보 조회 (채팅방 내부) */
     @Query("SELECT cr FROM ChattingRoom cr " +
             "JOIN FETCH cr.participants p " +

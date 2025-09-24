@@ -1,7 +1,9 @@
 package com.shinhanDS5gi.memento.domain.chat;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -9,6 +11,8 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Document(collection = "chat_messages") // MongoDB의 chat_messages 컬렉션에 매핑
 public class ChattingMessageDocument {
 

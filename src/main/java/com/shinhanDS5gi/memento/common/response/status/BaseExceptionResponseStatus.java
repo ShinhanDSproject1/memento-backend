@@ -97,7 +97,13 @@ public enum BaseExceptionResponseStatus implements ResponseStatus{
      */
     ALREADY_EXIST_RESERVATION(9500, HttpStatus.BAD_REQUEST.value(), "해당 시간에 이미 예약이 존재합니다."),
     FAILURE_CREATE_RESERVATION(9501, HttpStatus.BAD_REQUEST.value(), "예약에 실패했습니다."),
-    CANNOT_FOUND_RESERVATION(9502, HttpStatus.OK.value(), "조건에 맞는 예약이 존재하지 않습니다.");
+    CANNOT_FOUND_RESERVATION(9502, HttpStatus.OK.value(), "조건에 맞는 예약이 존재하지 않습니다."),
+
+    /**
+     * Chatting 관련 9600대
+     */
+    CANNOT_FOUND_CHAT_ROOM(9600, HttpStatus.NOT_FOUND.value(), "해당 채팅방을 찾을 수 없습니다."),
+    CANNOT_FOUND_CHAT_PARTICIPANT(9601, HttpStatus.NOT_FOUND.value(), "채팅방 참여 정보를 찾을 수 없습니다.");
 
     private final int code;
     private final int status;
