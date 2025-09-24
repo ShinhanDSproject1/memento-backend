@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ChattingMessageRequest {
     private Long chattingRoomSeq; // 채팅방
-    private Long senderSeq;       // 보내는 사람
+    //private Long senderSeq;       // 보내는 사람
     private String message;
 }
