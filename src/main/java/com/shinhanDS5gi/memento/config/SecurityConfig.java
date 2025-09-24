@@ -45,10 +45,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET,
                                 "/api/mentos/category/**",
                                 "/api/mentos/detail/**",
-                                "/api/mento/reviews/**",
+                                //"/api/mento/reviews/**",
                                 "/api/map/**",
-                                "/api/config/**",
-                                "/api/reservation/availability/**"
+                                "/api/config/**"
+                                //"/api/reservation/availability/**"
                         ).permitAll()
 
                         // 관리자만 접근 가능한 API

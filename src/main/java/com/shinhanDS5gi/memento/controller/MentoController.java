@@ -35,7 +35,7 @@ public class MentoController {
             @RequestParam(defaultValue = "10") int limit,
             @RequestParam(required = false) Long cursor
     ) {
-        log.info("[MentoController.getMentoReviews]");
+        log.info("[MentoController.getMentoReviews]==>"+ String.valueOf(member.getMemberSeq()));
         Long currentMemberSeq = member.getMemberSeq(); // 멘토
         return new BaseResponse<>(reviewService.getMentoReviews(currentMemberSeq, limit, cursor));
 
