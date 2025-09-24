@@ -100,7 +100,7 @@ public class AuthServiceImpl implements AuthService {
         //AT,RT 발급
         String at = jwtTokenUtil.createAccessToken(sub, 0, m.getMemberType().name());
         String rt = jwtTokenUtil.createRefreshToken(sub, 0);
-        RedisTemplate.opsForValue().set(jwtTokenUtil.rtKey(sub), RT, Duration.ofMillis(refreshExpMs));
+        RedisTemplate.opsForValue().set(jwtTokenUtil.rtKey(sub), rt, Duration.ofMillis(refreshExpMs));
         return Map.of(
                 "member", m,
                 "accessToken", at,
@@ -120,7 +120,7 @@ public class AuthServiceImpl implements AuthService {
             String sub = jwtTokenUtil.getSubject(rt);
             // Redis에서 RT 검증
             String saved = RedisTemplate.opsForValue().get(jwtTokenUtil.rtKey(sub));
-            if (saved == null || !RT.equals(saved)) {
+            if (saved == null || !saved.equals(rt)) {
                 throw new AuthException(INVALID_REFRESH_TOKEN);
             }
             // DB에서 멤버 타입 조회 및 새 AT 발급
