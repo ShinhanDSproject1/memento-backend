@@ -67,8 +67,7 @@ public class AuthController {
         Member m = (Member) result.get("member");
         String at = (String) result.get("accessToken");
         String rt = (String) result.get("refreshToken");
-        boolean secureCookie = req.isSecure() || "https".equalsIgnoreCase(req.getHeader("X-Forwarded-Proto"));
-        jwtTokenUtil.setCookie(res, "RT", rt, Duration.ofDays(14), secureCookie);
+        jwtTokenUtil.setCookie(res, rt, Duration.ofDays(14));
         return new BaseResponse<>(SUCCESS,
                 new LoginResponse(m.getMemberName(), m.getMemberType().name(), at));
     }

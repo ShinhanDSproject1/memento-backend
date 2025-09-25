@@ -7,6 +7,8 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -18,6 +20,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 //JWT 생성/검증에 필요한 모든 유틸
@@ -31,23 +34,24 @@ public class JwtTokenUtil {
     @Value("${jwt.same-site:Lax}") private String sameSite;
 
     //cookie 만들고 헤더 추가
-    public void setCookie(HttpServletResponse res, String name, String val, Duration maxAge, boolean secure) {
-        ResponseCookie c = ResponseCookie.from(name, val)
+    public void setCookie(HttpServletResponse res, String rt, Duration maxAge) {
+        ResponseCookie c = ResponseCookie.from("RT", rt)
                 .httpOnly(true)
-                .secure(secure)
-                .sameSite(sameSite)
+                .secure(true)
+                .sameSite("None")
                 .path("/")
                 .maxAge(maxAge.getSeconds())
                 .build();
+        log.info("SET-COOKIE=" + c);
         res.addHeader(HttpHeaders.SET_COOKIE, c.toString());
     }
 
     //cookie 삭제
     public void clearCookie(HttpServletResponse res, String name, boolean secure) {
         ResponseCookie c = ResponseCookie.from(name, "")
-                .httpOnly(true).
-                secure(secure)
-                .sameSite(sameSite)
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("None")
                 .path("/")
                 .maxAge(0)
                 .build();
