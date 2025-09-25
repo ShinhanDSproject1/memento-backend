@@ -3,6 +3,7 @@ package com.shinhanDS5gi.memento.repository.chat;
 import com.shinhanDS5gi.memento.domain.chat.ChattingParticipant;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface ChattingParticipantRepository extends JpaRepository<ChattingParticipant, Long> {
@@ -12,4 +13,7 @@ public interface ChattingParticipantRepository extends JpaRepository<ChattingPar
 
     /* 채팅방 ID와 보낸 사람 ID를 제외하여 상대방을 찾는 메서드 */
     Optional<ChattingParticipant> findByChattingRoom_ChattingRoomSeqAndMember_MemberSeqNot(Long chattingRoomSeq, Long senderSeq);
+
+    /* 채팅방 ID로 모든 참여자를 조회하는 메서드 */
+    List<ChattingParticipant> findByChattingRoom_ChattingRoomSeq(Long chattingRoomSeq);
 }

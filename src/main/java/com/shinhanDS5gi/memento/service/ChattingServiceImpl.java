@@ -62,9 +62,16 @@ public class ChattingServiceImpl implements ChattingService {
                 .orElseThrow(() -> new BaseException(BaseExceptionResponseStatus.CANNOT_FOUND_CHAT_ROOM));
         room.updateLastMessage(messageDto.getMessage(), chatMessage.getCreatedAt());
 
-        chattingParticipantRepository
-                .findByChattingRoom_ChattingRoomSeqAndMember_MemberSeqNot(room.getChattingRoomSeq(), sender.getMemberSeq())
-                .ifPresent(ChattingParticipant::markAsUnread);
+        List<ChattingParticipant> participants = chattingParticipantRepository.findByChattingRoom_ChattingRoomSeq(room.getChattingRoomSeq());
+        for (ChattingParticipant participant : participants) {
+            if (participant.getMember().getMemberSeq().equals(sender.getMemberSeq())) {
+                // 메시지를 보낸 사람: '읽음'으로 처리
+                participant.markAsRead();
+            } else {
+                // 메시지를 받는 사람: '안 읽음'으로 처리
+                participant.markAsUnread();
+            }
+        }
 
         return ChattingMessageResponse.builder()
                 .chattingRoomSeq(chatMessage.getChattingRoomSeq())
