@@ -13,7 +13,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -35,12 +34,6 @@ public class AuthController {
     //at 재발급을 위해 RT 보내는 엔드포인트
     @PostMapping("/reissue")
     public BaseResponse<AccessTokenResponse> reissue(HttpServletRequest req, HttpServletResponse res) {
-
-        String rt = jwtTokenUtil.readCookie(req, "RT");
-        if (rt == null) {
-            res.setStatus(HttpServletResponse.SC_NO_CONTENT);
-            return new BaseResponse<>(SUCCESS, null);
-        }
 
         boolean secureCookie = req.isSecure()
                 || "https".equalsIgnoreCase(req.getHeader("X-Forwarded-Proto"));
