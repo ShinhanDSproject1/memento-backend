@@ -11,9 +11,9 @@ import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import com.shinhanDS5gi.memento.domain.member.Member;
 import com.shinhanDS5gi.memento.domain.member.MemberType;
 import com.shinhanDS5gi.memento.dto.mentos.*;
+import com.shinhanDS5gi.memento.repository.ReservationRepository;
 import com.shinhanDS5gi.memento.repository.mento.MentoProfileRepository;
 import com.shinhanDS5gi.memento.repository.CategoryRepository;
-import com.shinhanDS5gi.memento.repository.review.ReviewRepository;
 
 import com.shinhanDS5gi.memento.repository.member.MemberRepository;
 import com.shinhanDS5gi.memento.repository.mentos.MentosRepository;
@@ -31,7 +31,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.shinhanDS5gi.memento.common.response.status.BaseExceptionResponseStatus.*;
-import static com.shinhanDS5gi.memento.domain.QReview.review;
 
 @Slf4j
 @Service
@@ -43,7 +42,7 @@ public class MentosServiceImpl implements MentosService {
     private final MentosRepository mentosRepository;
     private final CategoryRepository categoryRepository;
     private final MentoProfileRepository mentoProfileRepository;
-    private final ReviewRepository reviewRepository;
+    private final ReservationRepository reservationRepository;
 
     private final S3Uploader s3Uploader;
     private final IdempotencyService idempotencyService;
@@ -124,15 +123,18 @@ public class MentosServiceImpl implements MentosService {
     /* 멘토스 삭제하기 */
     @Override
     @Transactional
-    public void inactiveMentos(Long mentosSeq, Long currentMemberId) {
+    public void inactiveMentos(Long mentosSeq, Long currentMemberSeq) {
         // 삭제할 멘토스 DB 조회
         Mentos mentos = mentosRepository.findByMentosSeqAndStatus(mentosSeq, BaseStatus.ACTIVE)
                 .orElseThrow(() -> new MentosException(CANNOT_FOUND_MENTOS));
 
         // 삭제 권한 확인
-        if (!Objects.equals(mentos.getMember().getMemberSeq(), currentMemberId)) {
+        if (!Objects.equals(mentos.getMember().getMemberSeq(), currentMemberSeq)) {
             throw new MentosException(NO_AUTHORITY_TO_DELETE);
+        } else if (reservationRepository.existsByMentos_MentosSeqAndStatus(mentosSeq, BaseStatus.ACTIVE)) {
+            throw new MentosException(CANNOT_DELETE_MENTOS);
         }
+
         mentos.inactivate();
     }
 

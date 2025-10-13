@@ -15,7 +15,7 @@ public interface MentosService {
     void updateMentos(Long mentosSeq, Long currentMemberId, UpdateMentosRequest requestDto, MultipartFile imageFile) throws IOException;
 
     /* 멘토스 게시글 삭제(비활성화)  */
-    void inactiveMentos(Long mentosSeq, Long currentMemberId);
+    void inactiveMentos(Long mentosSeq, Long currentMemberSeq);
 
     /* 멘토스 상세조회 */
     GetMentosDetailResponse getMentosDetail(Long mentosSeq);

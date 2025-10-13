@@ -8,7 +8,8 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
-import java.util.Optional;import com.shinhanDS5gi.memento.domain.base.BaseStatus;
+import java.util.Optional;
+import com.shinhanDS5gi.memento.domain.base.BaseStatus;
 import org.springframework.data.jpa.repository.Modifying;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
@@ -62,4 +63,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     boolean existsByMentos_MentosSeqAndMentosAtAndMentosTimeAndStatus(Long mentosSeq, LocalDate mentosAt, LocalTime mentosTime, BaseStatus status);
 
     Optional<Reservation> findByReservationSeqAndStatus(Long reservationSeq, BaseStatus baseStatus);
+
+    boolean existsByMentos_MentosSeqAndStatus(Long mentosSeq, BaseStatus status);
 }

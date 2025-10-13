@@ -57,10 +57,11 @@ public class MentosController {
     public BaseResponse<Void> inactiveMentos(
             @CurrentUser Member member,
             @PathVariable("mentosSeq") Long mentosSeq) {
+        log.info("[MentosController.inactiveMentos]");
+
         Long currentMemberSeq = member.getMemberSeq();
         mentosService.inactiveMentos(mentosSeq, currentMemberSeq);
-
-        return new BaseResponse<>(SUCCESS, null);
+        return new BaseResponse<>(null);
     }
 
     /* 멘토스 상세조회 */
